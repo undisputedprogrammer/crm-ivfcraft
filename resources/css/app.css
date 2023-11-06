@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.hide-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hide-scroll {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  .non-checkable-checkbox {
+
+  }
+
+  .non-checkable-checkbox input[type="checkbox"] {
+    pointer-events: none;
+    position: absolute;
+    opacity: 0;
+  }
