@@ -10,7 +10,7 @@
       <x-sections.side-drawer/>
       {{-- page body --}}
 
-      <div class=" flex justify-start items-center space-x-2 bg-base-200 pt-4 lg:px-14">
+      <div class=" flex flex-row justify-start items-center space-x-2 bg-base-200 pt-4 lg:px-14">
         <h2 class=" text-lg font-semibold text-primary bg-base-200">Manage Agents</h2>
         <div>
             @can('is-admin')
