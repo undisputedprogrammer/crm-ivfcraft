@@ -253,7 +253,7 @@ class LeadController extends SmartController
 
         if($followup_created){
             $lead->followup_created = true;
-            $lead->followup_created_at = Carbon::now();
+            // $lead->followup_created_at = Carbon::now();
             $lead->save();
         }else{
             $lead->delete();

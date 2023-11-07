@@ -122,7 +122,6 @@ class LeadsImport implements ToArray, WithHeadingRow
         ]);
 
         $lead->followup_created = true;
-        $lead->followup_created_at = Carbon::now();
         $lead->save();
 
         return null;
