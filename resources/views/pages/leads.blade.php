@@ -464,18 +464,15 @@
                     <p class=" text-sm font-medium">Lead Segment : <span x-text = "lead.customer_segment != null ? lead.customer_segment : 'Unknown' " :class="lead.customer_segment != null ? ' uppercase' : '' "></span></p>
                 </div>
 
-                <div class=" mt-2.5">
+                <div x-show=" followups[0] != undefined && followups[0].next_followup_date != null " class=" mt-2.5">
                     <h1 class=" text-secondary text-sm font-medium">Follow up details</h1>
                     <h1 x-text="lead.followup_created == 1 ? 'Follow up Initiated' : 'Follow up is not initiated for this lead' " class="  font-medium text-primary"></h1>
 
                     <p x-show="lead.followup_created == 1" class=" font-medium ">
-                        <span>Follow up scheduled : </span>
-                        <span class="text-primary" x-text="lead.followup_created == 1 ? formatDateOnly(followups[0].scheduled_date) : '---' "></span>
+                        <span>Follow up initiated at : </span>
+                        <span class="text-primary" x-text="lead.followup_created == 1  ? formatDateOnly(followups[0].next_followup_date) : '---' "></span>
                     </p>
-                    <p x-show="lead.status != 'Created' " class=" font-medium">
-                        <span>Followed up date : </span>
-                        <span class="text-primary" x-text="lead.followup_created == 1 ? formatDateOnly(followups[0].actual_date) : '---' " class="text-secondary"></span>
-                    </p>
+
 
                     <p x-show="lead.status == 'Appointment Fixed' && lead.followup_created == 0"  class=" font-medium text-success my-1">Appointment Scheduled</p>
 
