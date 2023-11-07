@@ -93,7 +93,6 @@ class WhatsAppApiService
             "image"=>array(
                 "link"=> env('APP_MODE') == 'dev' ? "https://i.pinimg.com/originals/be/33/76/be3376b0f835a1766cb7a95003ea4a7d.jpg" : $media_url,
                 // change link to $media_url when deploying
-                "caption" => "Nature is unbelievable"
             )
         );
         $json_postfields = json_encode($postfields);
