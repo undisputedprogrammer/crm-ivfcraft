@@ -1,5 +1,5 @@
 export default () => ({
-
+    showImage : false,
     convertTime(timestamp){
         let date = new Date(timestamp);
 

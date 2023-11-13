@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Campaign;
 use Carbon\Carbon;
 use App\Models\Lead;
 use App\Models\User;
@@ -255,6 +256,46 @@ class PageService
         //     $agents[] = $obj;
         // }
         return ['counts' => $results, 'agents' => collect($hospital->agents())->pluck('name', 'id')];
+    }
+
+    public function getCampaignReport(){
+        $hospital = auth()->user()->hospital_id;
+
+        $campaigns = Campaign::all();
+
+        $total_leads = Lead::forHospital($hospital)->select('campaign',DB::raw('count(leads.id) as count'))->groupBy('campaign')->get();
+
+        $leads_converted = Lead::forHospital($hospital)->where('status','Consulted')->select('campaign',DB::raw('count(leads.id) as count'))->groupBy('campaign')->get();
+
+        $hot_leads = Lead::forHospital($hospital)->where('customer_segment','hot')->select('campaign',DB::raw('count(leads.id) as count'))->groupBy('campaign')->get();
+
+        $warm_leads = Lead::forHospital($hospital)->where('customer_segment','warm')->select('campaign',DB::raw('count(leads.id) as count'))->groupBy('campaign')->get();
+
+        $cold_leads = Lead::forHospital($hospital)->where('customer_segment','cold')->select('campaign',DB::raw('count(leads.id) as count'))->groupBy('campaign')->get();
+
+        $campaingReport = [];
+
+        foreach($total_leads as $t){
+            $campaingReport[$t->campaign]['total_leads'] = $t->count;
+        }
+
+        foreach($leads_converted as $lc){
+            $campaingReport[$lc->campaign]['converted_leads'] = $lc->count;
+        }
+
+        foreach($hot_leads as $h){
+            $campaingReport[$h->campaign]['hot_leads'] = $h->count;
+        }
+
+        foreach($warm_leads as $w){
+            $campaingReport[$w->campaign]['warm_leads'] = $w->count;
+        }
+
+        foreach($cold_leads as $c){
+            $campaingReport[$c->campaign]['cold_leads'] = $c->count;
+        }
+
+        return ['campaignReport' => $campaingReport, 'campaigns'=> $campaigns];
     }
 
     public function getProcessChartData($currentMonth){

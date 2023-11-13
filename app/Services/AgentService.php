@@ -35,9 +35,18 @@ class AgentService implements ModelViewConnector
             'password'=>Hash::make($request->password)
         ]);
 
-        $agent->centers()->save(Center::find($request->center));
+        $center = Center::find($request->center);
+
+        $agent->centers()->save($center);
 
         $agent->assignRole('agent');
+
+        $agentIds = collect($center->agents())->pluck('id');
+
+        if(count($agentIds) == 1){
+            $center->last_assigned = $agent->id;
+            $center->save();
+        }
 
         return ['success'=>true, 'message'=>'Agent Added'];
     }

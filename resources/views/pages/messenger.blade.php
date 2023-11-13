@@ -21,7 +21,7 @@
             <x-sections.side-drawer />
             {{-- page body --}}
 
-
+            <x-modals.display-image/>
 
             <div x-data="{
                 selected: null,
@@ -108,6 +108,9 @@
                             this.freehand_enabled = true;
                         }
                     }
+                },
+                displayImage(src){
+                    $dispatch('displayimage',{src: src});
                 }
             }"
             @appendChat.window="console.log('event captured');"
@@ -143,7 +146,7 @@
                                     </p>
                                 </div>
                                 <div class="flex justify-between">
-                                    <p  class=" mt-1 text-sm line-clamp-1" x-text=" allChats[l.id][allChats[l.id].length - 1].type == 'text' ?  allChats[l.id][allChats[l.id].length - 1].message : 'photo' " >
+                                    <p  class=" mt-1 text-sm line-clamp-1" x-text=" allChats[l.id][allChats[l.id].length - 1].type == 'text' ?  allChats[l.id][allChats[l.id].length - 1].message : 'Media' " >
                                     </p>
                                     <span x-show="allChats[l.id].filter(chat => chat.status == 'received').length != 0" class=" rounded-full bg-green-600 text-base-content font-medium aspect-square h-6 text-center" x-text="allChats[l.id].filter(chat => chat.status == 'received').length"></span>
                                 </div>
@@ -177,12 +180,25 @@
                                             </div>
                                         </template>
                                         {{-- displaying media message --}}
-                                        <template x-if="chat.type == 'media' ">
-                                            <div class="chat-bubble text-base-content font-medium"
-                                                :class="chat.direction == 'Inbound' ? ' bg-base-100' : ' bg-[#128c7e] text-white'">
-                                                <img :src="chat.message" alt="" class="w-52 h-fit rounded-lg">
+                                        <template x-if="chat.type == 'media' && ['jpg','jpeg','png','webp','svg','gif'].includes(chat.message.split('.')[chat.message.split('.').length - 1])">
+                                            <div class="chat-bubble font-medium" :class = "chat.direction == 'Outbound' ? ' chat-bubble-success' : '' "  >
+
+                                                    <img @click.prevent.stop="displayImage($el.src);" :src="chat.message" class=" rounded-lg w-44 h-fit" alt="">
+
                                             </div>
                                         </template>
+
+                                        <template x-if=" chat.type == 'media' && !['jpg','jpeg','png','webp','svg'].includes(chat.message.split('.')[chat.message.split('.').length - 1])">
+                                            <div class="chat-bubble font-medium" :class = "chat.direction == 'Outbound' ? ' chat-bubble-success' : '' "  >
+                                                <a :href="chat.message" download="" >
+                                                  <div class=" flex flex-row space-x-1">
+                                                        <x-icons.document-download/>
+                                                        <p class=" font-medium" x-text="chat.message.split('/')[chat.message.split('/').length -1].slice(6)"></p>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        </template>
+
                                     </div>
                                 </template>
                             </div>

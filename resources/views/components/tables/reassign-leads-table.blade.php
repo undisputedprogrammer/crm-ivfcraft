@@ -35,6 +35,7 @@
               <th>Name</th>
               <th>Email</th>
               <th>Agent</th>
+              <th>Created on</th>
             </tr>
           </thead>
           <tbody>
@@ -58,6 +59,7 @@
                     <td>{{$lead->name}}</td>
                     <td>{{$lead->email}}</td>
                     <td>{{$lead->assigned->name}}</td>
+                    <td>{{$lead->created_at->format('d M Y')}}</td>
                 </tr>
 
             @endforeach

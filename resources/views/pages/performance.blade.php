@@ -138,36 +138,78 @@
 
                     </div>
 
-                    <div class="rounded-lg w-fit overflow-hidden border border-opacity-60">
-                        <div class="overflow-x-auto">
-                            <table class="table">
-                              <!-- head -->
-                              <thead>
-                                <tr class=" bg-base-300 text-secondary">
-                                  <th>Agent</th>
-                                  <th>Total Leads</th>
-                                  <th>Follow-ups</th>
-                                  <th>Converted</th>
-                                  <th>Pending Follow-ups</th>
-                                  {{-- <th></th> --}}
-                                </tr>
-                              </thead>
-                              <tbody class=" text-base-content font-medium text-sm">
-                                @foreach ($counts as $k => $d)
-                                    <tr class="bg-base-200 hover:bg-base-100">
-                                        <th>{{$agents[$k] ?? '0'}}</th>
-                                        <td>{{$d['lpm'] ?? '0'}}</td>
-                                        <td>{{$d['ftm'] ?? '0'}}</td>
-                                        <td>{{$d['lcm'] ?? '0'}}</td>
-                                        <td>{{$d['pf'] ?? '0'}}</td>
-                                        {{-- <td><button class="btn btn-xs btn-ghost text-primary lowercase">view</button></td> --}}
-                                    </tr>
-                                @endforeach
+                    <div class=" flex flex-col space-y-5 lg:space-y-0 lg:flex-row lg:space-x-5">
 
-                              </tbody>
-                            </table>
-                          </div>
+                        <div class="rounded-lg w-fit overflow-hidden border border-opacity-60 h-fit">
+                            <div class="overflow-x-auto">
+                                <table class="table">
+                                  <!-- head -->
+                                  <thead>
+                                    <tr class=" bg-base-300 text-secondary">
+                                      <th>Agent</th>
+                                      <th>Total Leads</th>
+                                      <th>Follow-ups</th>
+                                      <th>Converted</th>
+                                      <th>Pending Follow-ups</th>
+                                      {{-- <th></th> --}}
+                                    </tr>
+                                  </thead>
+                                  <tbody class=" text-base-content font-medium text-sm h-fit">
+
+                                    @foreach ($counts as $k => $d)
+                                        <tr class="bg-base-200 hover:bg-base-100">
+                                            <th>{{$agents[$k] ?? '0'}}</th>
+                                            <td>{{$d['lpm'] ?? '0'}}</td>
+                                            <td>{{$d['ftm'] ?? '0'}}</td>
+                                            <td>{{$d['lcm'] ?? '0'}}</td>
+                                            <td>{{$d['pf'] ?? '0'}}</td>
+                                            {{-- <td><button class="btn btn-xs btn-ghost text-primary lowercase">view</button></td> --}}
+                                        </tr>
+                                    @endforeach
+
+                                  </tbody>
+                                </table>
+                              </div>
+                        </div>
+
+                        <div class="rounded-lg w-fit overflow-hidden border border-opacity-60">
+                            <div class="overflow-x-auto">
+                                <table class="table">
+                                  <!-- head -->
+                                  <thead>
+                                    <tr class=" bg-base-300 text-secondary">
+                                      <th>Campaign</th>
+                                      <th>Total Leads</th>
+                                      <th>Converted</th>
+                                      <th>Hot</th>
+                                      <th>Warm</th>
+                                      <th>Cold</th>
+                                      {{-- <th></th> --}}
+                                    </tr>
+                                  </thead>
+                                  <tbody class=" text-base-content font-medium text-sm">
+
+
+                                    @foreach ($campaignReport as $campaign => $data)
+                                        <tr class="bg-base-200 hover:bg-base-100">
+                                            <th>{{$campaign ?? 'N/A'}}</th>
+                                            <td>{{$data['total_leads'] ?? '0'}}</td>
+                                            <td>{{$data['converted_leads'] ?? '0'}}</td>
+                                            <td>{{$data['hot_leads'] ?? '0'}}</td>
+                                            <td>{{$data['warm_leads'] ?? '0'}}</td>
+                                            <td>{{$data['cold_leads'] ?? '0'}}</td>
+                                            {{-- <td><button class="btn btn-xs btn-ghost text-primary lowercase">view</button></td> --}}
+                                        </tr>
+                                    @endforeach
+
+                                  </tbody>
+                                </table>
+                              </div>
+                        </div>
+
+
                     </div>
+
 
                 </div>
 

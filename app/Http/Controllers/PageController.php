@@ -47,9 +47,10 @@ class PageController extends SmartController
         info('calling getoverviewdata function');
         $overview = $this->pageService->getOverviewData($request->month);
         $performance = $this->pageService->agentsPerformance($request->month);
+        $campaignReport = $this->pageService->getCampaignReport();
 // dd(array_merge($overview, $performance));
 
-        return $this->buildResponse('pages.performance', array_merge($overview, $performance));
+        return $this->buildResponse('pages.performance', array_merge($overview, $performance, $campaignReport));
     }
 
 

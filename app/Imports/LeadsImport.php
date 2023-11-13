@@ -5,6 +5,7 @@ namespace App\Imports;
 use App\Models\Lead;
 use App\Models\User;
 use App\Models\Answer;
+use App\Models\Campaign;
 use App\Models\Followup;
 use App\Models\Question;
 use Carbon\Carbon;
@@ -67,18 +68,20 @@ class LeadsImport implements ToArray, WithHeadingRow
                     $this->mainCols->name,
                     $this->mainCols->phone,
                     $this->mainCols->email,
-                    $this->mainCols->city
+                    $this->mainCols->city,
+                    $this->mainCols->campaign
                 ]) && $colName != '' && !is_numeric($colName)) {
                     $qarr[$colName] = $row[$colName];
                 }
             }
             /*** */
-
+            info("going to create lead");
             $lead = Lead::create([
                 'name' => $row[$this->mainCols->name],
                 'phone' => $row[$this->mainCols->phone],
                 'email' => $row[$this->mainCols->email] ?? '',
                 'city' => $row[$this->mainCols->city] ?? '',
+                'campaign' => $row[$this->mainCols->campaign] ?? '',
                 'qnas' => $qarr,
                 'is_valid' => false,
                 'is_genuine' => false,
@@ -91,8 +94,10 @@ class LeadsImport implements ToArray, WithHeadingRow
                 'center_id' => $this->center->id,
                 'created_by' => auth()->user()->id
             ]);
-
+            info("lead created");
             $this->createFollowup($lead);
+
+            $this->checkAndStoreCampaign($lead->campaign);
 
             $this->x++;
             if ($this->x == count($this->agents)) {
@@ -123,6 +128,18 @@ class LeadsImport implements ToArray, WithHeadingRow
 
         $lead->followup_created = true;
         $lead->save();
+
+        return null;
+    }
+
+    public function checkAndStoreCampaign($campaign){
+        $campaign = ucwords(strtolower($campaign));
+        $existing_campaign = Campaign::where('name', $campaign)->get()->first();
+        if(!$existing_campaign){
+            Campaign::create([
+                'name' => $campaign
+            ]);
+        }
 
         return null;
     }

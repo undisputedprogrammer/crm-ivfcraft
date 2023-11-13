@@ -12,6 +12,7 @@ export default ()=>({
     isProcessed : false,
     editLead : false,
     createLead : false,
+    showImage : false,
     toggleTemplateModal(){
         this.showTemplateModal = !this.showTemplateModal;
     },

@@ -149,7 +149,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/get-older-chats', [InternalChatController::class, 'olderMessages'])->name('internal_chat.older_messages');
     Route::post('/post-internal-message', [InternalChatController::class, 'postMessage'])->name('internal_chat.post_message');
 
-    Route::get('create/followups',[CreateFollowupController::class, 'createFollowup']);
+    Route::get('set/last-assigned',[CreateFollowupController::class, 'setLastAssigned']);
 
 });
 

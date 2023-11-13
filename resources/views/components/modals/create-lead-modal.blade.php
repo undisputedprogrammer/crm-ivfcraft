@@ -76,23 +76,22 @@
                 <input  required type="email" name="email" class=" input input-bordered input-secondary md:w-96 focus:outline-none min-w-72">
             </div>
 
-            @can('is-admin')
+
                 <div class=" flex-col flex">
                     <label for="" class="font-medium text-base-content">Center :</label>
-                    <select @change="populateAgents();" required name="center" id="center" class=" select min-w-72 md:w-96 select-bordered border-secondary">
+                    <select required name="center" id="center" class=" select min-w-72 md:w-96 select-bordered border-secondary">
                         @foreach ($centers as $center)
                             <option value="{{$center->id}}">{{$center->name}}</option>
                         @endforeach
                     </select>
                 </div>
 
-                <div class=" flex-col flex">
+                {{-- <div class=" flex-col flex">
                     <label for="" class="font-medium text-base-content">Agent :</label>
                     <select required name="assign_to" id="assign_to" class=" select min-w-72 md:w-96 select-bordered border-secondary">
 
                     </select>
-                </div>
-            @endcan
+                </div> --}}
 
             <div class=" flex space-x-2 md:w-96">
                 <button type="submit" class=" btn btn-success btn-sm">Save</button>

@@ -16,7 +16,8 @@
             consult: false,
             appointment: null,
             showconsultform: false,
-            page: null
+            page: null,
+            showImage: false
         }"
         x-init="
         selectedCenter = null;
@@ -54,8 +55,11 @@
 
       </div>
 
+      <x-modals.display-image/>
 
       <div class="lg:h-[calc(100vh-5.875rem)] pt-7 pb-[2.8rem] bg-base-200 w-full flex flex-col lg:flex-row justify-evenly items-center lg:items-start space-y-4 lg:space-y-0">
+
+
 
         {{-- followups table --}}
         <x-tables.followup-table :followups="$followups"/>

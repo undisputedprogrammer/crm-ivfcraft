@@ -3,16 +3,17 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use Carbon\Carbon;
 use App\Models\Chat;
 use App\Models\Lead;
 use App\Models\User;
+use App\Models\Center;
 use GuzzleHttp\Client;
 use App\Models\Message;
 use App\Models\Followup;
+use App\Models\Hospital;
 use Illuminate\Http\Request;
 use App\Jobs\SendBulkMessage;
-use App\Models\Center;
-use App\Models\Hospital;
 use App\Models\UnreadMessages;
 use App\Services\WhatsAppApiService;
 use Illuminate\Support\Facades\Auth;
@@ -44,7 +45,7 @@ class WhatsAppApiController extends SmartController
         }
 
         //checking for media
-        if ($request->hasFile('media')){
+        if ($request->hasFile('media')) {
             info('file found!');
             $response = $this->connectorService->sendMedia($request, $recipient, $lead);
             return response()->json($response);
@@ -129,7 +130,7 @@ class WhatsAppApiController extends SmartController
         $json_postfields = json_encode($postfields);
         $curl = curl_init();
         curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://graph.facebook.com/v17.0/'.$center->phone_number_id.'/'.'messages/',
+            CURLOPT_URL => 'https://graph.facebook.com/v17.0/' . $center->phone_number_id . '/' . 'messages/',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -141,15 +142,15 @@ class WhatsAppApiController extends SmartController
             CURLOPT_HTTPHEADER => array(
                 'Content-Type: application/json',
                 // 'authkey: '.$hospital->authkey,
-                'Authorization: Bearer '.$hospital->bearer_token
+                'Authorization: Bearer ' . $hospital->bearer_token
             ),
         ));
         $response = curl_exec($curl);
         curl_close($curl);
         $data = json_decode($response, true);
 
-        if(isset($data['error'])){
-            return response()->json(['status'=>'fail','message'=>'Sorry! Could not send message']);
+        if (isset($data['error'])) {
+            return response()->json(['status' => 'fail', 'message' => 'Sorry! Could not send message']);
         }
 
         if ($data['messages'] != null) {
@@ -184,8 +185,7 @@ class WhatsAppApiController extends SmartController
         info($request->header());
 
         // Storing inbound messages
-        if (isset($request['entry'][0]['changes'][0]['value']['messages'][0]['from']))
-         {
+        if (isset($request['entry'][0]['changes'][0]['value']['messages'][0]['from'])) {
             $reciever = $request->entry[0]['changes'][0]['value']['metadata']['display_phone_number'];
 
             $sender = $request['entry'][0]['changes'][0]['value']['messages'][0]['from'];
@@ -197,48 +197,77 @@ class WhatsAppApiController extends SmartController
 
 
             $lead = Lead::where('phone', $sender)
-                ->orWhere('phone', '91' . $sender)->orWhere('phone', '+' . $sender)->whereHas('center', function($query) use($reciever) {
-                    return $query->where('phone',$reciever);
+                ->orWhere('phone', '91' . $sender)->orWhere('phone', '+' . $sender)->whereHas('center', function ($query) use ($reciever) {
+                    return $query->where('phone', $reciever);
                 })->get()->first();
 
             if ($lead == null) {
                 $phone = $sender - 910000000000;
-                $lead = Lead::where('phone', $phone)->whereHas('center', function($query) use($reciever) {
-                    return $query->where('phone',$reciever);
+                $lead = Lead::where('phone', $phone)->whereHas('center', function ($query) use ($reciever) {
+                    return $query->where('phone', $reciever);
                 })->get()->first();
             }
 
-            if($lead == null){
-                $center = Center::where('phone',$reciever)->get()->first();
+            if ($lead == null) {
+                $center = Center::where('phone', $reciever)->get()->first();
+
+                $agentIds = collect($center->agents())->pluck('id');
+
+                if (count($agentIds) < 1) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "No agents available in the selected center",
+                    ], 400);
+                }
+                $last_assigned_index = array_search($center->last_assigned, $agentIds->toArray());
+
+                if ($last_assigned_index != count($agentIds) - 1) {
+                    $next_assign_index = $last_assigned_index + 1;
+                } else {
+                    $next_assign_index = 0;
+                }
+
                 $lead = Lead::create([
-                'hospital_id' => $center->hospital_id,
-                'center_id' => $center->id,
-                'name' => 'unknown lead',
-                'phone' => $sender,
-                'city' => 'Not specified',
-                'email' => 'Not specified',
-                'is_valid' => false,
-                'is_genuine' => false,
-                'followup_created' => false,
-                'assigned_to' =>
-                    User::where('hospital_id', $center->hospital_id)->whereHas('centers', function($q) use($reciever) {
-                        return $q->where('phone', $reciever);
-                    })->where('designation','!=','Administrator')->get()->random()->id
-            ]);
+                    'hospital_id' => $center->hospital_id,
+                    'center_id' => $center->id,
+                    'name' => 'unknown lead',
+                    'phone' => $sender,
+                    'city' => 'Not specified',
+                    'email' => 'Not specified',
+                    'is_valid' => false,
+                    'is_genuine' => false,
+                    'followup_created' => false,
+                    'assigned_to' => $agentIds[$next_assign_index],
+                    'created_by' =>
+                    User::where('hospital_id', $center->hospital_id)->where('designation', 'Administrator')->get()->random()->id
+                ]);
+
+                $center->last_assigned = $agentIds[$next_assign_index];
+                $center->save();
+
+                Followup::create([
+                    'lead_id' => $lead->id,
+                    'followup_count' => 1,
+                    'scheduled_date' => Carbon::today(),
+                    'user_id' => $lead->assigned_to
+                ]);
+
+                $lead->followup_created = true;
+                $lead->save();
             }
             // return response('lead is '.$lead->name);
             $type = "text";
-            if(isset($request['entry'][0]['changes'][0]['value']['messages'][0]['text'])){
+            if (isset($request['entry'][0]['changes'][0]['value']['messages'][0]['text'])) {
                 $body = $request['entry'][0]['changes'][0]['value']['messages'][0]['text']['body'];
-            }elseif($request['entry'][0]['changes'][0]['value']['messages'][0]['type'] == "image"){
+            } elseif ($request['entry'][0]['changes'][0]['value']['messages'][0]['type'] == "image") {
                 $type = "media";
                 $id = $request['entry'][0]['changes'][0]['value']['messages'][0]['image']['id'];
 
                 $result = $this->connectorService->downloadAndSave($lead, $id);
 
-                if($result['success']){
+                if ($result['success']) {
                     $body = $result['path'];
-                }else{
+                } else {
                     return response($result['message']);
                 }
             }
@@ -310,12 +339,12 @@ class WhatsAppApiController extends SmartController
     {
         $chats = Chat::where('lead_id', $request->id)->get();
         $expiry = Chat::where('lead_id', $request->id)
-        ->where('direction', 'Inbound')
-        ->orderBy('created_at', 'desc')
-        ->first();
-        if($expiry != null){
+            ->where('direction', 'Inbound')
+            ->orderBy('created_at', 'desc')
+            ->first();
+        if ($expiry != null) {
             $expiration_time = $expiry->expiration_time;
-        }else{
+        } else {
             $expiration_time = null;
         }
         return response()->json(['chats' => $chats, 'expiration_time' => $expiration_time]);
@@ -340,16 +369,15 @@ class WhatsAppApiController extends SmartController
             $unread_messages = UnreadMessages::all();
         }
         if ($user->hasRole('admin')) {
-            $msgsQuery = Chat::where('direction','Inbound')->where('status','received')->whereHas('lead', function ($query) {
+            $msgsQuery = Chat::where('direction', 'Inbound')->where('status', 'received')->whereHas('lead', function ($query) {
                 $query->where('hospital_id', auth()->user()->hospital_id);
             })->with('lead');
         } else {
-            $msgsQuery = Chat::whereIn('lead_id', $leadIDs)->where('direction','Inbound')->where('status','received')->with('lead');
+            $msgsQuery = Chat::whereIn('lead_id', $leadIDs)->where('direction', 'Inbound')->where('status', 'received')->with('lead');
         }
         if ($request->latest != null) {
             $latest = Chat::find($request->latest);
             $msgsQuery->where('created_at', '>', $latest->created_at);
-
         }
         $new_messages = $msgsQuery->latest()->get();
         $unread = [];
@@ -373,7 +401,7 @@ class WhatsAppApiController extends SmartController
     {
         $user_ids = $request->user()->leads->pluck('id')->toArray();
 
-        $q = Lead::has('chats')->with('chats')->where('hospital_id',$request->user()->hospital_id);
+        $q = Lead::has('chats')->with('chats')->where('hospital_id', $request->user()->hospital_id);
 
         if ($request->user()->hasRole('agent')) {
             $q->where('assigned_to', $request->user()->id);
@@ -416,29 +444,31 @@ class WhatsAppApiController extends SmartController
         return $challenge;
     }
 
-    public function fetchLatest(Request $request){
+    public function fetchLatest(Request $request)
+    {
 
         if ($request->user()->hasRole('agent')) {
             $user_ids = $request->user()->leads->pluck('id')->toArray();
-            $latest = Chat::whereIn('lead_id', $user_ids)->where('direction','Inbound')->where('status','received')->latest()->get()->first();
-            $unread_messages_count = Chat::whereIn('lead_id', $user_ids)->where('direction','Inbound')->where('status','received')->latest()->get()->count();
+            $latest = Chat::whereIn('lead_id', $user_ids)->where('direction', 'Inbound')->where('status', 'received')->latest()->get()->first();
+            $unread_messages_count = Chat::whereIn('lead_id', $user_ids)->where('direction', 'Inbound')->where('status', 'received')->latest()->get()->count();
         } else {
-            $latest = Chat::where('lead_id', '!=', null)->where('direction','Inbound')->where('status','received')->latest()->get()->first();
-            $unread_messages_count = Chat::where('lead_id', '!=', null)->where('direction','Inbound')->where('status','received')->get()->count();
+            $latest = Chat::where('lead_id', '!=', null)->where('direction', 'Inbound')->where('status', 'received')->latest()->get()->first();
+            $unread_messages_count = Chat::where('lead_id', '!=', null)->where('direction', 'Inbound')->where('status', 'received')->get()->count();
         }
-        if($latest == null){
-            return response()->json(['latest'=>null,'unread_message_count'=>$unread_messages_count]);
-        }else{
-            return response()->json(['latest'=>$latest->id, 'unread_message_count'=>$unread_messages_count]);
+        if ($latest == null) {
+            return response()->json(['latest' => null, 'unread_message_count' => $unread_messages_count]);
+        } else {
+            return response()->json(['latest' => $latest->id, 'unread_message_count' => $unread_messages_count]);
         }
     }
 
-    public function markRead(Request $request){
-        $chats = Chat::where('lead_id',$request->lead_id)->where('direction','Inbound')->where('status','received')->get();
+    public function markRead(Request $request)
+    {
+        $chats = Chat::where('lead_id', $request->lead_id)->where('direction', 'Inbound')->where('status', 'received')->get();
 
-        if($chats != null && count($chats) > 0){
-            foreach($chats as $chat){
-                $chat->status='read';
+        if ($chats != null && count($chats) > 0) {
+            foreach ($chats as $chat) {
+                $chat->status = 'read';
                 $chat->save();
                 $this->connectorService->markasread($chat->wamid,  $request->lead_id);
             }

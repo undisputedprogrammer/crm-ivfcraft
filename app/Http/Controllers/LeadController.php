@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\Lead;
 use App\Models\User;
+use App\Models\Center;
 use App\Models\Followup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -238,6 +239,25 @@ class LeadController extends SmartController
 
         $assigned_to = $request->assign_to ? $request->assign_to : Auth::user()->id;
         info('going to create lead');
+        $center = Center::find($request->center);
+        $agentIds = collect($center->agents())->pluck('id');
+
+        if(count($agentIds) < 1){
+            return response()->json([
+                'success' => false,
+                'message' => "No agents available in the selected center",
+            ], 400);
+        }
+        $last_assigned_index = array_search($center->last_assigned, $agentIds->toArray());
+
+        info("Last assigned index found".$last_assigned_index);
+
+        if($last_assigned_index != count($agentIds)-1){
+            $next_assign_index = $last_assigned_index+1;
+        }else{
+            $next_assign_index = 0;
+        }
+
         $lead = Lead::create([
             'hospital_id' => Auth::user()->hospital_id,
             'center_id' => $request->center ? $request->center : User::find(Auth::user()->id)->centers()->first()->id,
@@ -245,9 +265,12 @@ class LeadController extends SmartController
             'phone' => $request->phone,
             'email' => $request->email,
             'city' => $request->city,
-            'assigned_to' => $assigned_to,
+            'assigned_to' => $agentIds[$next_assign_index],
             'created_by' => Auth::user()->id
         ]);
+
+        $center->last_assigned = $agentIds[$next_assign_index];
+        $center->save();
 
         $followup_created = $this->createFollowup($lead);
 
@@ -276,7 +299,7 @@ class LeadController extends SmartController
             'lead_id' => $lead->id,
             'followup_count' => 1,
             'scheduled_date' => Carbon::today(),
-            'user_id' => $lead->user_id
+            'user_id' => $lead->assigned_to
         ]);
 
         return true;

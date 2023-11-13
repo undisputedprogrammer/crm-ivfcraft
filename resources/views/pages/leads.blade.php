@@ -71,6 +71,7 @@
         <x-display.sending/>
         <x-modals.lead-edit-modal/>
         <x-modals.create-lead-modal :centers="$centers"/>
+        <x-modals.display-image/>
 
         <div class="w-full flex bg-base-200 px-[1.25%] pt-1.5 space-x-2">
 
