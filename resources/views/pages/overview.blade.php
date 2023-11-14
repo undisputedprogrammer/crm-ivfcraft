@@ -287,7 +287,7 @@
                                     <label class="label">
                                         <span class="label-text">Agents</span>
                                     </label>
-                                    <select name="agents[]" x-model="agents" multiple class="select select-bordered text-base-content">
+                                    <select name="agents[]" x-model="agents" multiple class="select select-bordered text-base-content hide-scroll">
                                         <option disabled value="">Choose Agents</option>
                                         <template x-for="a in allAgents">
                                         <option :value="a.id" x-text="a.name"></option>

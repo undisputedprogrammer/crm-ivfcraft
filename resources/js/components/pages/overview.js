@@ -8,6 +8,7 @@ export default () => ({
     processChartData : [],
     validChartData : [],
     genuineChartData : [],
+    selectedMonth : null,
     journalSubmit(formID, url, route) {
         let formdata = new FormData(document.getElementById(formID));
         if(this.journal != null){
@@ -178,5 +179,10 @@ export default () => ({
         this.$dispatch('linkaction',{link:'/performance', route: 'performance',fragment:'page-content',params:{
             month: month
         }});
+    },
+    getParams(){
+        let queryString = window.location.search;
+        let params = new URLSearchParams(queryString);
+        this.selectedMonth = params.get('month');
     }
 });

@@ -1,18 +1,10 @@
 <x-easyadmin::app-layout>
-    {{-- {{dd($agents)}} --}}
-    {{-- @foreach ($counts as $k => $d)
-        <div>
-            {{$agents[$k]}}:
-            @foreach ($d as $key => $val)
-                <span>{{$key}} : {{$val}}</span>
-            @endforeach
-        </div>
-    @endforeach --}}
 
     <div x-data="x_overview"
     x-init = "@if(isset($journal))
     journal = {{$journal}};
     @endif
+    getParams();
     chartCanvas = document.getElementById('chartCanvas');
     validChartCanvas = document.getElementById('validChartCanvas');
     genuineChartCanvas = document.getElementById('genuineChartCanvas');
@@ -50,7 +42,7 @@
                         <form @submit.prevent.stop="searchPerformance($el);" action="" id="performance-search-form" class="border border-opacity-30 rounded-lg p-2 text-base-content w-fit flex flex-col space-y-2">
                             <h1 class=" font-medium uppercase">Choose month</h1>
                             <div class=" flex space-x-4">
-                                <input type="month" name="month" class=" input input-sm input-bordered border-primary">
+                                <input type="month" :value="selectedMonth" name="month" class=" input input-sm input-bordered border-primary">
                                 <button type="submit" class=" btn btn-sm btn-primary">Search</button>
                             </div>
                         </form>
@@ -138,7 +130,7 @@
 
                     </div>
 
-                    <div class=" flex flex-col space-y-5 lg:space-y-0 lg:flex-row lg:space-x-5">
+                    <div class=" flex flex-col space-y-5 ">
 
                         <div class="rounded-lg w-fit overflow-hidden border border-opacity-60 h-fit">
                             <div class="overflow-x-auto">
@@ -149,6 +141,8 @@
                                       <th>Agent</th>
                                       <th>Total Leads</th>
                                       <th>Follow-ups</th>
+                                      <th>Responsive follow-ups</th>
+                                      <th>Non responsive follow-ups</th>
                                       <th>Converted</th>
                                       <th>Pending Follow-ups</th>
                                       {{-- <th></th> --}}
@@ -161,11 +155,18 @@
                                             <th>{{$agents[$k] ?? '0'}}</th>
                                             <td>{{$d['lpm'] ?? '0'}}</td>
                                             <td>{{$d['ftm'] ?? '0'}}</td>
+                                            <td>{{$d['responsive_followups']}}</td>
+                                            <td>{{$d['non_responsive_followups'] ?? '0'}}</td>
                                             <td>{{$d['lcm'] ?? '0'}}</td>
                                             <td>{{$d['pf'] ?? '0'}}</td>
                                             {{-- <td><button class="btn btn-xs btn-ghost text-primary lowercase">view</button></td> --}}
                                         </tr>
                                     @endforeach
+                                    @if (count($counts) < 1)
+                                            <tr>
+                                                <td>No data for the selected month</td>
+                                            </tr>
+                                    @endif
 
                                   </tbody>
                                 </table>
@@ -180,10 +181,14 @@
                                     <tr class=" bg-base-300 text-secondary">
                                       <th>Campaign</th>
                                       <th>Total Leads</th>
-                                      <th>Converted</th>
+                                      <th>Valid</th>
+                                      <th>Genuine</th>
                                       <th>Hot</th>
                                       <th>Warm</th>
                                       <th>Cold</th>
+                                      <th>Converted</th>
+                                      <th>Responsive follow-ups</th>
+                                      <th>Non responsive follow-ups</th>
                                       {{-- <th></th> --}}
                                     </tr>
                                   </thead>
@@ -194,13 +199,21 @@
                                         <tr class="bg-base-200 hover:bg-base-100">
                                             <th>{{$campaign ?? 'N/A'}}</th>
                                             <td>{{$data['total_leads'] ?? '0'}}</td>
-                                            <td>{{$data['converted_leads'] ?? '0'}}</td>
+                                            <td>{{$data['valid_leads'] ?? '0'}}</td>
+                                            <td>{{$data['genuine_leads'] ?? '0'}}</td>
                                             <td>{{$data['hot_leads'] ?? '0'}}</td>
                                             <td>{{$data['warm_leads'] ?? '0'}}</td>
                                             <td>{{$data['cold_leads'] ?? '0'}}</td>
-                                            {{-- <td><button class="btn btn-xs btn-ghost text-primary lowercase">view</button></td> --}}
+                                            <td>{{$data['converted_leads'] ?? '0'}}</td>
+                                            <td>{{$data['responsive_followups']}}</td>
+                                            <td>{{$data['non_responsive_followups']}}</td>
                                         </tr>
                                     @endforeach
+                                    @if (count($campaignReport) < 1)
+                                            <tr>
+                                                <td>No data for the selected month</td>
+                                            </tr>
+                                    @endif
 
                                   </tbody>
                                 </table>
