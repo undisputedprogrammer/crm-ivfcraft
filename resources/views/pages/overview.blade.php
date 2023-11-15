@@ -285,14 +285,22 @@
 
                                 <div class="form-control w-full max-w-xs">
                                     <label class="label">
-                                        <span class="label-text">Agents</span>
+                                        <span class="label-text font-medium">Select Agents</span>
                                     </label>
-                                    <select name="agents[]" x-model="agents" multiple class="select select-bordered text-base-content hide-scroll">
+
+                                    <template x-for="a in allAgents">
+                                        <label :for="'check-'+a.id" class="flex space-x-1 items-center mb-1 w-fit">
+                                            <input type="checkbox" :id="'check-'+a.id" name="agents[]" :value="a.id" class="checkbox checkbox-secondary checkbox-xs">
+                                            <span x-text="a.name" class=" text-base-content"></span>
+                                        </label>
+                                    </template>
+                                    {{-- <select name="agents[]" x-model="agents" multiple class="select select-bordered text-base-content hide-scroll">
                                         <option disabled value="">Choose Agents</option>
                                         <template x-for="a in allAgents">
-                                        <option :value="a.id" x-text="a.name"></option>
+                                            <option :value="a.id" x-text="a.name"></option>
                                         </template>
-                                    </select>
+                                    </select> --}}
+
                                 </div>
 
                                 <button type="submit" class="btn btn-sm btn-success normal-case" :disabled="isDisabled()">Import</button>

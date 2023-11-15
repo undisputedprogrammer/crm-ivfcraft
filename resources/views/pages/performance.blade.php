@@ -197,7 +197,7 @@
 
                                     @foreach ($campaignReport as $campaign => $data)
                                         <tr class="bg-base-200 hover:bg-base-100">
-                                            <th>{{$campaign ?? 'N/A'}}</th>
+                                            <th>{{$campaign == "" ? 'Direct leads' : $campaign}}</th>
                                             <td>{{$data['total_leads'] ?? '0'}}</td>
                                             <td>{{$data['valid_leads'] ?? '0'}}</td>
                                             <td>{{$data['genuine_leads'] ?? '0'}}</td>
