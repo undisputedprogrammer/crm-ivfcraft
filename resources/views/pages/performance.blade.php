@@ -181,12 +181,12 @@
                                     <tr class=" bg-base-300 text-secondary">
                                       <th>Campaign</th>
                                       <th>Total Leads</th>
-                                      <th>Valid</th>
-                                      <th>Genuine</th>
+                                      <th>Valid leads</th>
+                                      <th>Genuine leads</th>
                                       <th>Hot</th>
                                       <th>Warm</th>
                                       <th>Cold</th>
-                                      <th>Converted</th>
+                                      <th>Converted leads</th>
                                       <th>Responsive follow-ups</th>
                                       <th>Non responsive follow-ups</th>
                                       {{-- <th></th> --}}
@@ -210,6 +210,55 @@
                                         </tr>
                                     @endforeach
                                     @if (count($campaignReport) < 1)
+                                            <tr>
+                                                <td>No data for the selected month</td>
+                                            </tr>
+                                    @endif
+
+                                  </tbody>
+                                </table>
+                              </div>
+                        </div>
+
+
+                        {{-- Source report --}}
+
+                        <div class="rounded-lg w-fit overflow-hidden border border-opacity-60">
+                            <div class="overflow-x-auto">
+                                <table class="table">
+                                  <!-- head -->
+                                  <thead>
+                                    <tr class=" bg-base-300 text-secondary">
+                                      <th>Source</th>
+                                      <th>Total leads</th>
+                                      <th>Valid leads</th>
+                                      <th>Genuine leads</th>
+                                      <th>Hot</th>
+                                      <th>Warm</th>
+                                      <th>Cold</th>
+                                      <th>Converted leads</th>
+                                      <th>Responsive follow-ups</th>
+                                      <th>Non responsive follow-ups</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody class=" text-base-content font-medium text-sm">
+
+
+                                    @foreach ($sourceReport as $source => $data)
+                                        <tr class="bg-base-200 hover:bg-base-100">
+                                            <th>{{$source}}</th>
+                                            <td>{{$data['total_leads'] ?? '0'}}</td>
+                                            <td>{{$data['valid_leads'] ?? '0'}}</td>
+                                            <td>{{$data['genuine_leads'] ?? '0'}}</td>
+                                            <td>{{$data['hot_leads'] ?? '0'}}</td>
+                                            <td>{{$data['warm_leads'] ?? '0'}}</td>
+                                            <td>{{$data['cold_leads'] ?? '0'}}</td>
+                                            <td>{{$data['converted_leads'] ?? '0'}}</td>
+                                            <td>{{$data['responsive_followups'] ?? '0'}}</td>
+                                            <td>{{$data['non_responsive_followups'] ?? '0'}}</td>
+                                        </tr>
+                                    @endforeach
+                                    @if (count($sourceReport) < 1)
                                             <tr>
                                                 <td>No data for the selected month</td>
                                             </tr>

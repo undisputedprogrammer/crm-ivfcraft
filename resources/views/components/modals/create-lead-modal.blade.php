@@ -6,6 +6,7 @@
 
         <form x-data="{
             agents: [],
+            sources: [],
             populateAgents(){
                 let selectElement = document.getElementById('assign_to');
                     while (selectElement.firstChild) {
@@ -20,17 +21,15 @@
                     }
                 });
             },
-            loadAgents(){
-                    axios.get('{{route('agents.fetch')}}')
+            loadSources(){
+                    axios.get('{{route('sources.fetch')}}')
                     .then( (response) => {
-                        this.agents = response.data.agents;
-                            this.agents.forEach((agent) => {
+                        this.sources = response.data.sources;
+                            this.sources.forEach((source) => {
                                 let optionElement = document.createElement('option');
-                                optionElement.value = agent.id;
-                                optionElement.text = agent.name;
-                                if(document.getElementById('center').value == agent.centers[0].id){
-                                    document.getElementById('assign_to').appendChild(optionElement);
-                                }
+                                optionElement.value = source.id;
+                                optionElement.text = source.name;
+                                document.getElementById('lead-source').appendChild(optionElement);
                             });
                     })
                     .catch(function (error) {
@@ -38,7 +37,7 @@
                     });
 
             }
-        }" x-init="loadAgents();" @submit.prevent.stop="storeLead($el, '{{route('lead.store')}}')"
+        }"  @submit.prevent.stop="storeLead($el, '{{route('lead.store')}}')"
         id="create-lead-form" action="" class=" flex flex-col space-y-2 mt-4 w-full items-center text-base-content"
         @formresponse.window="
         if($event.detail.target == $el.id){
@@ -86,12 +85,12 @@
                     </select>
                 </div>
 
-                {{-- <div class=" flex-col flex">
-                    <label for="" class="font-medium text-base-content">Agent :</label>
-                    <select required name="assign_to" id="assign_to" class=" select min-w-72 md:w-96 select-bordered border-secondary">
+                <div class=" flex-col flex">
+                    <label for="" class="font-medium text-base-content">Source :</label>
+                    <select x-init="loadSources();" required name="source" id="lead-source" class=" select min-w-72 md:w-96 select-bordered border-secondary">
 
                     </select>
-                </div> --}}
+                </div>
 
             <div class=" flex space-x-2 md:w-96">
                 <button type="submit" class=" btn btn-success btn-sm">Save</button>

@@ -26,7 +26,7 @@ class SearchService
         $query->where($request->search_type, '>=', $request->from_date)
         ->where($request->search_type, '<=', $request->to_date)
         ->with(['lead' => function ($q) {
-            return $q->with(['appointment','assigned']);
+            return $q->with(['appointment','assigned','source']);
         }, 'remarks', 'user']);
 
         $filters = [

@@ -160,6 +160,14 @@
                                     })">Performance Analysis
                                 </button>
 
+                                <button class="btn btn-sm btn-secondary "
+                                    @click.prevent.stop="$dispatch('linkaction',{
+                                        link:'{{ route('sources.index') }}',
+                                        route:'sources.index',
+                                        fragment:'page-content'
+                                    })">Manage Sources
+                                </button>
+
                             </div>
                         </div>
                     @endcan

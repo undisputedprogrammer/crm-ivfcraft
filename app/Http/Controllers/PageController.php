@@ -6,11 +6,13 @@ use Carbon\Carbon;
 use App\Models\Lead;
 use App\Models\User;
 use App\Models\Audit;
+use App\Models\Campaign;
 use App\Models\Center;
 use App\Models\Doctor;
 use App\Models\Message;
 use App\Models\Followup;
 use App\Models\Question;
+use App\Models\Source;
 use Illuminate\Http\Request;
 use App\Services\PageService;
 use Illuminate\Support\Facades\Auth;
@@ -48,11 +50,12 @@ class PageController extends SmartController
         $overview = $this->pageService->getOverviewData($request->month);
         $performance = $this->pageService->agentsPerformance($request->month);
         $campaignReport = $this->pageService->getCampaignReport($request->month);
+        $sourceReport = $this->pageService->getSourceReport($request->month);
 
         $search = [];
         $search['month'] = $request->month;
 
-        return $this->buildResponse('pages.performance', array_merge($overview, $performance, $campaignReport, $search));
+        return $this->buildResponse('pages.performance', array_merge($overview, $performance, $campaignReport, $search, $sourceReport));
     }
 
 
@@ -127,5 +130,11 @@ class PageController extends SmartController
         info('Viewing compose mail page');
         $lead = Lead::find($id);
         return $this->buildResponse('pages.compose-email',compact('lead'));
+    }
+
+    public function campaignsAndReports(Request $request){
+        $campaigns = Campaign::all();
+        $sources = Source::all();
+        return $this->buildResponse('pages.campaigns-sources', compact('sources'));
     }
 }

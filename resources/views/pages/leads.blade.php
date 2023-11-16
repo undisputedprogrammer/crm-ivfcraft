@@ -92,6 +92,7 @@
 
         </div>
 
+        <x-helpers.lead-segment-helper/>
 
       <div x-data="{
         convert: false
@@ -142,47 +143,6 @@
         }).then(function(response){
             console.log(response);
             lead.customer_segment = $event.detail.new;
-            ajaxLoading = false;
-            $dispatch('showtoast', {message: response.data.message, mode: 'success'});
-        }).catch(function(error){
-            console.log(error);
-            ajaxLoading = false;
-        });
-        }"
-
-        {{-- Change Questions --}}
-        @changequestion.window="
-        if($event.detail.current == $event.detail.q_answer){
-            console.log('cannot change answer');
-        }
-        else{
-
-        ajaxLoading = true;
-        axios.get($event.detail.link,{
-            params: {
-                lead_id : lead.id,
-                q_answer : $event.detail.q_answer,
-                question : $event.detail.question
-            }
-        }).then(function(response){
-            console.log(response);
-            if(response.data.q_visit != undefined){
-                if(response.data.q_visit == null || response.data.q_visit == 'null'){
-                    lead.q_visit = null;
-                }
-                else{
-                    lead.q_visit = response.data.q_visit;
-                }
-            }
-            if(response.data.q_decide != undefined){
-                if(response.data.q_decide == null || response.data.q_decide == 'null'){
-                    lead.q_decide = null;
-                }
-                else{
-                    lead.q_decide = response.data.q_decide;
-                }
-            }
-            lead.customer_segment = response.data.customer_segment;
             ajaxLoading = false;
             $dispatch('showtoast', {message: response.data.message, mode: 'success'});
         }).catch(function(error){
@@ -349,7 +309,7 @@
                         <x-easyadmin::display.icon icon="easyadmin::icons.edit" height="h-4" width="w-4"/>
                     </button>
                 </h1>
-                <div class=" mb-4">
+                <div class=" mb-1">
                     <p class="text-sm font-medium">Name : <span x-text="lead.name"> </span></p>
                     <p class="text-sm font-medium">City : <span x-text="lead.city"> </span></p>
                     <p class="text-sm font-medium">Phone : <span x-text="lead.phone"> </span></p>
@@ -381,88 +341,17 @@
                     });" type="checkbox" name="is_genuine" :checked=" lead.is_genuine == 1 ? true : false " class="checkbox checkbox-sm checkbox-success focus:ring-0" />
                 </div>
 
+                <p class="text-sm font-medium">Source : <span x-text="lead.source ? lead.source.name : 'UNKNOWN' "> </span></p>
+
+                <p class="text-sm font-medium">Campaign : <span x-text="lead.campaign != '' ? lead.campaign : 'UNKNOWN' "> </span></p>
+
                 {{-- Questions for lead segment --}}
 
-                {{-- question visit within a week --}}
-                <div x-data="{
-                    visit_dropdown : document.getElementById('visit-question-dropdown')
-                }" class="flex items-center space-x-2">
-                    <p class=" text-sm font-medium">Visit within a week ? : </p>
-                    <div class="dropdown">
-                        <label tabindex="0" class="btn btn-sm"
-                        @click.prevent.stop="visit_dropdown.style.visibility ='visible' "><span x-text="lead.q_visit == null || lead.q_visit == 'null' ? 'Not selected' : lead.q_visit " class=" text-secondary"></span><x-icons.down-arrow /></label>
-
-                        <ul id="visit-question-dropdown" tabindex="0" class="dropdown-content z-[1] mt-1  menu p-2 shadow rounded-box w-52" :class="theme == 'light' ? ' bg-base-200' : 'bg-neutral' ">
-                            <li><a @click.prevent.stop="
-                                $dispatch('changequestion',{
-                                    link: '{{route('lead.answer')}}',
-                                    current: lead.q_visit,
-                                    q_answer : 'null',
-                                    question : 'q_visit'
-                                });
-                                visit_dropdown.style.visibility ='hidden';" class=" " :class="lead.q_visit == null ? ' text-primary hover:text-primary' : '' ">Not selected</a></li>
-                            <li><a @click.prevent.stop="
-                                $dispatch('changequestion',{
-                                    link: '{{route('lead.answer')}}',
-                                    current: lead.q_visit,
-                                    q_answer : 'yes',
-                                    question : 'q_visit'
-                                });
-                                visit_dropdown.style.visibility ='hidden';" class=" " :class="lead.q_visit == 'yes' ? ' text-primary hover:text-primary' : '' ">Yes</a></li>
-                            <li><a @click.prevent.stop="
-                                $dispatch('changequestion',{
-                                    link: '{{route('lead.answer')}}',
-                                    current: lead.q_visit,
-                                    q_answer : 'no',
-                                    question : 'q_visit'
-                                });
-                                visit_dropdown.style.visibility ='hidden';" class="" :class="lead.q_visit == 'no' ? ' text-primary hover:text-primary' : '' ">No</a></li>
-                        </ul>
-
-                      </div>
-                </div>
-
-                {{-- question decide within a week --}}
-                <div x-data="{
-                    decide_dropdown : document.getElementById('decide-question-dropdown')
-                }" x-show="lead.q_visit == 'no'" x-cloak class="flex items-center space-x-2 mt-1">
-                    <p class=" text-sm font-medium">Decide within a week ? : </p>
-                    <div class="dropdown">
-                        <label tabindex="0" class="btn btn-sm"
-                        @click.prevent.stop="decide_dropdown.style.visibility ='visible';" ><span x-text="lead.q_decide == null || lead.q_decide == 'null' ? 'Not selected' : lead.q_decide " class=" text-secondary"></span><x-icons.down-arrow /></label>
-
-                        <ul id="decide-question-dropdown" tabindex="0" class="dropdown-content z-[1] mt-1  menu p-2 shadow rounded-box w-52" :class="theme == 'light' ? ' bg-base-200' : 'bg-neutral' ">
-                            <li><a @click.prevent.stop="
-                                $dispatch('changequestion',{
-                                    link: '{{route('lead.answer')}}',
-                                    current: lead.q_decide,
-                                    q_answer : 'null',
-                                    question : 'q_decide'
-                                });
-                                decide_dropdown.style.visibility = 'hidden';" class=" " :class="lead.q_decide == null ? ' text-primary hover:text-primary' : '' ">Not selected</a></li>
-                            <li><a @click.prevent.stop="
-                                $dispatch('changequestion',{
-                                    link: '{{route('lead.answer')}}',
-                                    current: lead.q_decide,
-                                    q_answer : 'yes',
-                                    question : 'q_decide'
-                                });
-                                decide_dropdown.style.visibility = 'hidden';" class=" " :class="lead.q_decide == 'yes' ? ' text-primary hover:text-primary' : '' ">Yes</a></li>
-                            <li><a @click.prevent.stop="
-                                $dispatch('changequestion',{
-                                    link: '{{route('lead.answer')}}',
-                                    current: lead.q_decide,
-                                    q_answer : 'no',
-                                    question : 'q_decide'
-                                });
-                                decide_dropdown.style.visibility = 'hidden';" class="" :class="lead.q_decide == 'no' ? ' text-primary hover:text-primary' : '' ">No</a></li>
-                        </ul>
-
-                      </div>
-                </div>
+                <x-dropdowns.lead-segment-questions/>
+                {{-- the events dispatched from this component is handled by a handlers written inside lead-segment-helper component --}}
 
                 <div class=" flex items-center space-x-2">
-                    <p class=" text-sm font-medium">Lead Segment : <span x-text = "lead.customer_segment != null ? lead.customer_segment : 'Unknown' " :class="lead.customer_segment != null ? ' uppercase' : '' "></span></p>
+                    <p class=" text-sm font-medium ">Lead Segment : <span x-text = "lead.customer_segment != null ? lead.customer_segment : 'UNKNOWN' " :class="lead.customer_segment != null ? ' uppercase text-warning' : ' text-error' "></span></p>
                 </div>
 
                 <div x-show=" followups[0] != undefined && followups[0].next_followup_date != null " class=" mt-2.5">

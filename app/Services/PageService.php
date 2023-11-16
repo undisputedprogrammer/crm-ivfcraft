@@ -12,6 +12,7 @@ use App\Models\Journal;
 use App\Models\Message;
 use App\Models\Followup;
 use App\Models\Hospital;
+use App\Models\Source;
 use Complex\Functions;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -24,7 +25,7 @@ class PageService
         if($search != null){
             $leadsQuery = Lead::with(['followups' => function ($qr) {
                 return $qr->with(['remarks']);
-            }, 'appointment'])->where('hospital_id', $user->hospital_id)->where('name', 'like', '%' . $search . '%')
+            }, 'appointment', 'source'])->where('hospital_id', $user->hospital_id)->where('name', 'like', '%' . $search . '%')
             ->orWhere('phone', 'like', '%' . $search . '%');
 
             $leadsQuery->when($user->hasRole('agent'), function ($query) use ($user) {
@@ -37,7 +38,7 @@ class PageService
         if($creation_date != null){
             $leadsQuery = Lead::with(['followups' => function ($qr) {
                 return $qr->with(['remarks']);
-            }, 'appointment'])->where('hospital_id', $user->hospital_id)->whereDate('created_at',$creation_date);
+            }, 'appointment', 'source'])->where('hospital_id', $user->hospital_id)->whereDate('created_at',$creation_date);
 
             $leadsQuery->when($user->hasRole('agent'), function ($query) use ($user) {
                 return $query->where('assigned_to', $user->id);
@@ -51,7 +52,7 @@ class PageService
             $today = Carbon::now()->toDateString();
             $leadsQuery = Lead::with(['followups' => function ($qr) {
                 return $qr->with(['remarks']);
-            }, 'appointment'])->where('hospital_id', $user->hospital_id)->whereDate('followup_created_at',$today);
+            }, 'appointment', 'source'])->where('hospital_id', $user->hospital_id)->whereDate('followup_created_at',$today);
 
             $leadsQuery->when($user->hasRole('agent'), function ($query) use ($user) {
                 return $query->where('assigned_to', $user->id);
@@ -66,19 +67,19 @@ class PageService
             if($status == 'all'){
                 $leadsQuery = Lead::with(['followups' => function ($qr) {
                     return $qr->with(['remarks']);
-                }, 'appointment'])->where('hospital_id', $user->hospital_id);
+                }, 'appointment', 'source'])->where('hospital_id', $user->hospital_id);
             }
             else{
                 $leadsQuery = Lead::with(['followups' => function ($qr) {
                     return $qr->with(['remarks']);
-                }, 'appointment'])->where('hospital_id', $user->hospital_id)->where('status', $status);
+                }, 'appointment', 'source'])->where('hospital_id', $user->hospital_id)->where('status', $status);
             }
 
         }
         else{
             $leadsQuery = Lead::with(['followups' => function ($qr) {
                 return $qr->with(['remarks']);
-            },'appointment'])->where('hospital_id', $user->hospital_id)->where('status', '=', 'Created');
+            },'appointment', 'source'])->where('hospital_id', $user->hospital_id)->where('status', '=', 'Created');
         }
 
         $leadsQuery->when($user->hasRole('agent'), function ($query) use ($user) {
@@ -296,7 +297,7 @@ class PageService
 
         $responsive_followups = Followup::whereHas('lead', function ($q) use ($hospital){
             return $q->forHospital($hospital);
-        })->whereMonth('followups.created_at', $searchMonth)->whereYear('followups.created_at',$searchYear)->join('leads', 'followups.lead_id', '=', 'leads.id')->select('leads.campaign', DB::raw('COUNT(CASE WHEN followups.call_status = "Responsive" THEN 1 END) as responsive_followups'), DB::raw('COUNT(CASE WHEN followups.call_status != "Responsive" THEN 1 END) as non_responsive_followups'))->groupBy('leads.campaign')->get();
+        })->whereMonth('followups.created_at', $searchMonth)->whereYear('followups.created_at',$searchYear)->join('leads', 'followups.lead_id', '=', 'leads.id')->select('leads.campaign', DB::raw('COUNT(CASE WHEN followups.call_status = "Responsive" THEN 1 END) as responsive_followups'), DB::raw('COUNT(CASE WHEN followups.call_status = "Not responsive" THEN 1 END) as non_responsive_followups'))->groupBy('leads.campaign')->get();
 
         $campaingReport = [];
 
@@ -334,6 +335,51 @@ class PageService
         }
 
         return ['campaignReport' => $campaingReport, 'campaigns'=> $campaigns];
+    }
+
+    public function getSourceReport($month){
+
+        if(isset($month)){
+            $month_year = Carbon::createFromFormat('Y-m', $month);
+            $searchMonth = $month_year->format('m');
+            $searchYear = $month_year->format('Y');
+        }
+        else{
+            $month_year = Carbon::now();
+            $searchMonth = $month_year->format('m');
+            $searchYear = $month_year->format('Y');
+        }
+
+        $hospital_id = auth()->user()->hospital_id;
+
+        $reports = Lead::forHospital($hospital_id)
+        ->whereMonth('leads.created_at', $searchMonth)
+        ->whereYear('leads.created_at', $searchYear)
+        ->join('sources','leads.source_id','=','sources.id')
+        ->leftJoin('followups','leads.id','=','followups.lead_id')
+        ->select('sources.name',
+             DB::raw('COUNT(DISTINCT leads.id) as total_leads'),
+             DB::raw('SUM(CASE WHEN leads.is_valid = true THEN 1 END) as valid_leads'),
+             DB::raw('SUM(CASE WHEN leads.is_genuine = true THEN 1 END) as genuine_leads'), DB::raw('SUM(CASE WHEN leads.customer_segment = "hot" THEN 1 END) as hot_leads, SUM(CASE WHEN leads.customer_segment = "warm" THEN 1 END) as warm_leads, SUM(CASE WHEN leads.customer_segment ="cold" THEN 1 END) as cold_leads, SUM(CASE WHEN leads.status = "Consulted" THEN 1 END) as converted_leads, SUM(CASE WHEN followups.call_status = "Responsive" THEN 1 END) as responsive_followups, SUM(CASE WHEN followups.call_status = "Not responsive" THEN 1 END) as non_responsive_followups'))
+        ->groupBy('source_id')->get();
+
+
+
+        $sourceReport = [];
+
+        foreach($reports as $r){
+            $sourceReport[$r->name]['total_leads'] = $r->total_leads;
+            $sourceReport[$r->name]['valid_leads'] = $r->valid_leads;
+            $sourceReport[$r->name]['genuine_leads'] = $r->genuine_leads;
+            $sourceReport[$r->name]['hot_leads'] = $r->hot_leads;
+            $sourceReport[$r->name]['warm_leads'] = $r->warm_leads;
+            $sourceReport[$r->name]['cold_leads'] = $r->cold_leads;
+            $sourceReport[$r->name]['converted_leads'] = $r->converted_leads;
+            $sourceReport[$r->name]['responsive_followups'] = $r->responsive_followups;
+            $sourceReport[$r->name]['non_responsive_followups'] = $r->non_responsive_followups;
+        }
+
+        return['sourceReport' => $sourceReport];
     }
 
     public function getProcessChartData($currentMonth){
@@ -406,7 +452,7 @@ class PageService
         })->with(['lead'=>function($q) use($user){
             return $q->with(['appointment'=>function($qr){
                 return $qr->with('doctor');
-            }]);
+            }, 'source']);
         }, 'remarks'])
             ->whereDate('scheduled_date', '<=', date('Y-m-d'))
             ->where('actual_date', null);
@@ -439,7 +485,7 @@ class PageService
         })->with(['lead'=>function ($q){
             return $q->with(['appointment'=> function($qry){
                 return $qry->with('doctor');
-            },'remarks']);
+            },'remarks', 'source']);
         },'remarks'])->latest()->get()->first();
 
         $doctors = Doctor::all();
@@ -456,5 +502,17 @@ class PageService
         return [
             'agents' => $agents
         ];
+    }
+
+    public static function getSource($code, $name){
+        $source = Source::where('code', $code)->get()->first();
+        if($source == null){
+            $source = Source::create([
+                'code' => $code,
+                'name' => $name
+            ]);
+        }
+
+        return $source;
     }
 }

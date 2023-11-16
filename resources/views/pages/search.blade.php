@@ -248,7 +248,11 @@
                                 </a>
                             </p>
 
-                            <div class=" flex items-center space-x-2 mt-3">
+                            <p class=" font-medium">Source : <span x-text=" fp.lead != undefined && fp.lead.source ? fp.lead.source.name : 'UNKNOWN' "> </span></p>
+
+                            <p class=" font-medium">Campaign : <span x-text=" fp.lead != undefined && fp.lead.campaign != '' ? fp.lead.campaign : 'UNKNOWN' "> </span></p>
+
+                            <div class=" flex items-center space-x-2">
                                 <p class="  font-medium">Is valid : </p>
 
                                 <input  type="checkbox" name="is_valid"  :checked=" isValid == 1 ? true : false" class="checkbox checkbox-sm cursor-not-allowed pointer-events-none checkbox-success focus:ring-0" />

@@ -8,6 +8,8 @@ use App\Models\Answer;
 use App\Models\Campaign;
 use App\Models\Followup;
 use App\Models\Question;
+use App\Models\Source;
+use App\Services\PageService;
 use Carbon\Carbon;
 use Hamcrest\Type\IsNumeric;
 use Maatwebsite\Excel\Concerns\ToArray;
@@ -75,6 +77,8 @@ class LeadsImport implements ToArray, WithHeadingRow
                 }
             }
             /*** */
+            $source = PageService::getSource('FB', 'Facebook');
+
             info("going to create lead");
             $lead = Lead::create([
                 'name' => $row[$this->mainCols->name],
@@ -86,13 +90,13 @@ class LeadsImport implements ToArray, WithHeadingRow
                 'is_valid' => false,
                 'is_genuine' => false,
                 'history' => $row['history'] ?? '',
-                'customer_segment' => 'cold',
                 'status' => 'Created',
                 'followup_created' => false,
                 'assigned_to' => $this->agents[$this->x]->id,
                 'hospital_id' => $this->hospital->id,
                 'center_id' => $this->center->id,
-                'created_by' => auth()->user()->id
+                'created_by' => auth()->user()->id,
+                'source_id' => $source->id
             ]);
             info("lead created");
             $this->createFollowup($lead);

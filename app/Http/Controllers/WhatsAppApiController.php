@@ -18,6 +18,7 @@ use App\Models\UnreadMessages;
 use App\Services\WhatsAppApiService;
 use Illuminate\Support\Facades\Auth;
 use App\Services\InternalChatService;
+use App\Services\PageService;
 use Illuminate\Http\Client\ResponseSequence;
 use Ynotz\SmartPages\Http\Controllers\SmartController;
 
@@ -227,6 +228,8 @@ class WhatsAppApiController extends SmartController
                     $next_assign_index = 0;
                 }
 
+                $source = PageService::getSource('WA', 'WhatsApp');
+
                 $lead = Lead::create([
                     'hospital_id' => $center->hospital_id,
                     'center_id' => $center->id,
@@ -239,7 +242,8 @@ class WhatsAppApiController extends SmartController
                     'followup_created' => false,
                     'assigned_to' => $agentIds[$next_assign_index],
                     'created_by' =>
-                    User::where('hospital_id', $center->hospital_id)->where('designation', 'Administrator')->get()->random()->id
+                    User::where('hospital_id', $center->hospital_id)->where('designation', 'Administrator')->get()->random()->id,
+                    'source_id' => $source->id
                 ]);
 
                 $center->last_assigned = $agentIds[$next_assign_index];

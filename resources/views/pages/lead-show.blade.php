@@ -167,7 +167,7 @@
             <div x-show="selected_section == 'details'" x-transition
                 {{-- deleted window event capture --}}
                 class=" mt-2 flex flex-col space-y-2">
-                <div class="flex flex-row space-x-4 justify-between">
+                <div class="flex flex-row flex-wrap space-x-4 justify-between">
                     <p class="text-base font-medium border border-base-content border-opacity-20 p-2 rounded-md">Name : <span x-text="lead.name"> </span></p>
                     <p class="text-base font-medium border border-base-content border-opacity-20 p-2 rounded-md">City : <span x-text="lead.city"> </span></p>
                     <p class="text-base font-medium border border-base-content border-opacity-20 p-2 rounded-md">Phone : <span x-text="lead.phone"> </span></p>
@@ -179,6 +179,10 @@
                             fragment: 'page-content'
                         })"><x-icons.envolope-icon/></a>
                     </p>
+
+                    <p class="text-base font-medium border border-base-content border-opacity-20 p-2 rounded-md">Source : <span x-text="lead.source ? lead.source.name : 'UNKNOWN' "> </span></p>
+
+                    <p class="text-base font-medium border border-base-content border-opacity-20 p-2 rounded-md">Campaign : <span x-text="lead.campaign != '' ? lead.campaign : 'UNKNOWN' "> </span></p>
                 </div>
                 <div class="flex flex-row space-x-8">
                     <div class=" flex items-center space-x-2">
@@ -383,7 +387,7 @@
                             <p x-show="lead.followup_created == 1" class=" font-medium ">
                                 <span>follow up scheduled : </span>
                                 <span class="text-primary"
-                                    x-text="lead.followup_created == 1 ? lead.followups[0].scheduled_date : '' "></span>
+                                    x-text="lead.followup_created == 1 ? formatDateOnly(lead.followups[0].scheduled_date) : '' "></span>
                             </p>
                             <p x-show="lead.followup_created == 1" class=" font-medium">
                                 <span>Followed up date : </span>

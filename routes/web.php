@@ -25,6 +25,8 @@ use App\Http\Controllers\CreateFollowupController;
 use App\Http\Controllers\InternalChatController;
 use App\Http\Controllers\JournalController;
 use App\Http\Controllers\MailController;
+use App\Http\Controllers\SourceController;
+use App\Models\Source;
 
 /*
 |--------------------------------------------------------------------------
@@ -74,9 +76,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/message/sent', [MessageController::class, 'message'])->name('message.sent');
     Route::post('/treatment-status/update',[LeadController::class, 'setTreatmentStatus'])->name('treatmentStatus.update');
     Route::post('/call-status/update', [LeadController::class, 'setCallStatus'])->name('callStatus.update');
+    Route::get('/sources', [PageController::class, 'campaignsAndReports'])->name('sources.index');
     // Route::get('/messages',[MessageController::class, 'index'])->name('messages.index');
     // Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
     // Route::post('/messages/{id}', [MessageController::class, 'update'])->name('messages.update');
+    Route::post('/source/store', [SourceController::class, 'store'])->name('source.store');
+    Route::get('/source/fetch', [SourceController::class, 'fetch'])->name('sources.fetch');
+    Route::get('/set/source', [SourceController::class, 'setSource'])->name('source.setup');
+
     Route::get('/agents', [AgentController::class, 'index'])->name('agents.index');
     Route::post('/agents', [AgentController::class, 'store'])->name('agents.store');
     Route::post('agents/{id}', [AgentController::class, 'update'])->name('agents.update');

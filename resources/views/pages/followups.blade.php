@@ -73,6 +73,7 @@
             <h1 class="text-lg text-secondary font-semibold text-center">Follow up details</h1>
             <p x-show="!fpselected" class=" font-semibold text-base text-center mt-4">Select a follow up...</p>
 
+            <x-helpers.lead-segment-helper/>
             <div x-show="fpselected" class="flex w-full mt-3">
                 <div
                 {{-- updating values in the details section --}}
@@ -117,7 +118,7 @@
                   show_remarks_form = !fp.remarks || fp.remarks.length ==0;
                   $dispatch('resetaction');
                 "
-                class=" w-[40%] border-r border-primary">
+                class=" w-[44%] border-r border-primary">
                 <h1 class=" font-medium text-base text-secondary">Lead details</h1>
                     <p class="font-medium">Name : <span x-text=" fp.lead != undefined ? fp.lead.name : '' "> </span></p>
                     <p class="font-medium">City : <span x-text="fp.lead != undefined ? fp.lead.city : '' "> </span></p>
@@ -143,7 +144,15 @@
                         <input  type="checkbox" name="is_genuine"  :checked=" isGenuine == 1 ? true : false " class="checkbox checkbox-sm cursor-not-allowed pointer-events-none checkbox-success focus:ring-0" />
                     </div>
 
+                    <p class="font-medium">Source : <span x-text=" fp.lead != undefined && fp.lead.source ? fp.lead.source.name : 'UNKNOWN' "> </span></p>
+
+                    <p class="font-medium">Campaign : <span x-text=" fp.lead != undefined && fp.lead.campaign != '' ? fp.lead.campaign : 'UNKNOWN' "> </span></p>
+
                     <p class="font-medium">Lead Segment : <span class=" uppercase !text-warning" x-text="fp.lead != undefined && fp.lead.customer_segment != null ? fp.lead.customer_segment : 'Unknown' "></span></p>
+
+                    {{-- Lead segment deciding questions --}}
+                    <x-dropdowns.lead-segment-questions/>
+                    {{-- the events dispatched from this component is handled by a handlers written inside lead-segment-helper component --}}
 
                     <p class="font-medium">Lead Status: <span class=" uppercase !text-warning" x-text="fp.lead != undefined && fp.lead.status != null ? fp.lead.status : '-' "></span></p>
 
@@ -239,7 +248,7 @@
                     }
                 }"
                 @resetsection.window=" selected_section = 'new_follow_up'; "
-                class=" w-[60%] px-2.5">
+                class=" w-[56%] px-2.5">
 
                 <div class=" flex space-x-4">
                     <h2 @click="selected_section = 'new_follow_up'" class=" text-secondary font-medium text-base cursor-pointer" :class=" selected_section == 'new_follow_up' ? 'opacity-100' : ' hover:opacity-100 opacity-40' ">Follow up Actions</h2>
@@ -388,7 +397,7 @@
 
                                 <x-forms.lead-close-form/>
                                 <x-forms.lead-complete-form/>
-                                <x-forms.lead-consult-form/>
+                                <x-forms.lead-consult-form :doctors="$doctors"/>
 
                                 <x-forms.add-followup-form/>
 

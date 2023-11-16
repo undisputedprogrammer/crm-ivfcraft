@@ -29,6 +29,7 @@ class LeadController extends SmartController
             'appointment',
             'chats',
             'hospital',
+            'source'
         ])->get()->first();
         return $this->buildResponse('pages.lead-show', [
             'lead' => $lead,
@@ -105,7 +106,7 @@ class LeadController extends SmartController
 
         if($request->question == 'q_decide'){
             if($request->q_answer == 'null'){
-                $lead->q_decide = null;
+                $lead->q_decide = '';
             }
             else{
                 $lead->q_decide = $request->q_answer;
@@ -266,7 +267,8 @@ class LeadController extends SmartController
             'email' => $request->email,
             'city' => $request->city,
             'assigned_to' => $agentIds[$next_assign_index],
-            'created_by' => Auth::user()->id
+            'created_by' => Auth::user()->id,
+            'source_id' => $request->source
         ]);
 
         $center->last_assigned = $agentIds[$next_assign_index];

@@ -63,4 +63,8 @@ class Lead extends Model
     {
         $query->where('assigned_to', $agentId);
     }
+
+    public function source(){
+        return $this->belongsTo(Source::class, 'source_id', 'id');
+    }
 }

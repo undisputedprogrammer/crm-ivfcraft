@@ -67,6 +67,9 @@ class AppointmentController extends SmartController
 
     public function consulted(Request $request)
     {
+        if($request->consulted_date != null){
+            $this->connectorService->makeAppointmentifNotExist($request->lead_id, $request->consulted_date, $request->doctor);
+        }
         $result = $this->connectorService->processConsult($request->lead_id, $request->followup_id, $request->followup_date);
 
         return response()->json($result);

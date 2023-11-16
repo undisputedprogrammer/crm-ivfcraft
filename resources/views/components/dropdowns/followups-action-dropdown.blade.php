@@ -18,7 +18,7 @@
             </a>
         </li>
 
-        <li x-show="lead.appointment != null && lead.status == 'Appointment Fixed'">
+        <li x-show="lead.status != 'Created' && lead.status != 'Consulted' && lead.status != 'Completed'">
             <a @click.prevent.stop=" selected_action = 'Consulted';
             dropdown.style.visibility = 'hidden'; "
                 class="" :class="selected_action == 'Consulted' ? ' text-primary hover:text-primary' : 'hover:text-neutral-content'">Mark as consulted

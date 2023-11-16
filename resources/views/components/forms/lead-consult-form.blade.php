@@ -1,4 +1,5 @@
-<div x-show= "selected_action == 'Consulted'" class=" lg:w-fit bg-base-200 rounded-lg p-3 mt-3">
+@props(['doctors'])
+<div x-show= "selected_action == 'Consulted' && lead.status != 'Consulted'" class=" lg:w-fit bg-base-200 rounded-lg p-3 mt-3">
 
     {{-- <template x-if="lead.status == 'Closed'">
         <p class=" font-medium text-error py-4 text-base">This lead is closed</p>
@@ -51,14 +52,32 @@
                                         $dispatch('formerrors', {errors: $event.detail.content.errors});
                                     }
                                 }"
-                            x-show="!fp.consulted && lead.status=='Appointment Fixed'" x-cloak x-transition id="mark-consulted-form" action="" class=" rounded-xl lg:w-fit">
+                            x-show="lead.status != 'Created'" x-cloak x-transition id="mark-consulted-form" action="" class=" rounded-xl lg:w-fit">
 
                                 <h1 class=" text-secondary font-medium text-base mb-1 w-fit">Mark consultation</h1>
 
-                                <label for="followup-date-cons" class="font-medium">Post consultation follow-up date</label>
-                                <input id="followup-date-cons" name="followup_date" required type="date" class=" rounded-lg input-info bg-base-200 w-full lg:w-72 mt-1.5">
+                                <div x-show="lead.status != 'Appointment Fixed'">
+                                    <label for="select-doctor" class="font-medium">Select Doctor</label>
+                                    <select class="select select-bordered w-full lg:w-72 bg-base-200 text-base-content" name="doctor" id="select-doctor">
+                                        <option disabled>Choose Doctor</option>
+                                        @foreach ($doctors as $doctor)
+                                        <template x-if="lead.center_id == '{{$doctor->center_id}}' ">
+                                                <option value="{{$doctor->id}}">{{$doctor->name}}</option>
+                                        </template>
+                                        @endforeach
 
-                                <div class=" flex space-x-2 mt-1 w-fit">
+                                    </select>
+                                </div>
+
+                                <div x-show="lead.status != 'Appointment Fixed'">
+                                    <label for="" class="font-medium">Consulted Date</label>
+                                    <input id="followup-date-cons" name="consulted_date" required type="date" class=" rounded-lg input-info bg-base-200 w-full lg:w-72">
+                                </div>
+
+                                <label for="followup-date-cons" class="font-medium">Post consultation follow-up date</label>
+                                <input id="followup-date-cons" name="followup_date" required type="date" class=" rounded-lg input-info bg-base-200 w-full lg:w-72">
+
+                                <div class=" flex space-x-2 mt-2.5 w-fit">
                                     <button type="submit" class="btn btn-primary btn-xs ">Proceed</button>
                                 </div>
                             </form>
