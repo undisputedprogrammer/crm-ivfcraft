@@ -158,7 +158,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/post-internal-message', [InternalChatController::class, 'postMessage'])->name('internal_chat.post_message');
 
     Route::get('/start-queue', function () {
+        info('starting queueu');
         Artisan::call('queue:work');
+        info('queue started');
         return 'ok';
     });
 });
