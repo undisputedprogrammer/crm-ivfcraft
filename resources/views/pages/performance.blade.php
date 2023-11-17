@@ -205,8 +205,8 @@
                                             <td>{{$data['warm_leads'] ?? '0'}}</td>
                                             <td>{{$data['cold_leads'] ?? '0'}}</td>
                                             <td>{{$data['converted_leads'] ?? '0'}}</td>
-                                            <td>{{$data['responsive_followups']}}</td>
-                                            <td>{{$data['non_responsive_followups']}}</td>
+                                            <td>{{$data['responsive_followups'] ?? '0'}}</td>
+                                            <td>{{$data['non_responsive_followups'] ?? '0'}}</td>
                                         </tr>
                                     @endforeach
                                     @if (count($campaignReport) < 1)
