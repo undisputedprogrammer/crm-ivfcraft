@@ -34,9 +34,9 @@ class SourceController extends SmartController
             ['code' => 'WA', 'name' => 'WhatsApp']
         ];
 
-        $non_import_leads = [];
+        // $non_import_leads = [];
 
-        $non_import_source = Source::create(['code'=>'', 'name'=>'']);
+        // $non_import_source = Source::create(['code'=>'', 'name'=>'']);
 
         foreach($sources as $source){
             Source::create([
@@ -46,16 +46,17 @@ class SourceController extends SmartController
         }
         $facebook_source = Source::where('code','FB')->get()->first();
 
-        $leads= Lead::where('source_id', 0)->get();
+        $leads= Lead::where('source_id', null)->get();
 
         foreach($leads as $lead){
-            if(!in_array($lead->phone, $non_import_leads)){
+            // if(!in_array($lead->phone, $non_import_leads)){
                 $lead->source_id = $facebook_source->id;
                 $lead->save();
-            }else{
-                $lead->source_id = $non_import_source->id;
-                $lead->save();
-            }
+            // }
+            // else{
+            //     $lead->source_id = $non_import_source->id;
+            //     $lead->save();
+            // }
         }
 
         return redirect('/sources');
