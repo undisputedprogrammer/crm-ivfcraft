@@ -351,6 +351,7 @@ class PageService
         }
 
         $hospital_id = auth()->user()->hospital_id;
+        DB::statement("SET SQL_MODE=''");
 
         $reports = Lead::forHospital($hospital_id)
         ->whereMonth('leads.created_at', $searchMonth)
@@ -363,6 +364,7 @@ class PageService
              DB::raw('SUM(CASE WHEN leads.is_genuine = true THEN 1 END) as genuine_leads'), DB::raw('SUM(CASE WHEN leads.customer_segment = "hot" THEN 1 END) as hot_leads, SUM(CASE WHEN leads.customer_segment = "warm" THEN 1 END) as warm_leads, SUM(CASE WHEN leads.customer_segment ="cold" THEN 1 END) as cold_leads, SUM(CASE WHEN leads.status = "Consulted" THEN 1 END) as converted_leads, SUM(CASE WHEN followups.call_status = "Responsive" THEN 1 END) as responsive_followups, SUM(CASE WHEN followups.call_status = "Not responsive" THEN 1 END) as non_responsive_followups'))
         ->groupBy('source_id')->get();
 
+        DB::statement("SET SQL_MODE='only_full_group_by'");
 
 
         $sourceReport = [];
