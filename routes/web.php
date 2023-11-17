@@ -27,6 +27,7 @@ use App\Http\Controllers\JournalController;
 use App\Http\Controllers\MailController;
 use App\Http\Controllers\SourceController;
 use App\Models\Source;
+use Illuminate\Support\Facades\Artisan;
 
 /*
 |--------------------------------------------------------------------------
@@ -156,6 +157,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/get-older-chats', [InternalChatController::class, 'olderMessages'])->name('internal_chat.older_messages');
     Route::post('/post-internal-message', [InternalChatController::class, 'postMessage'])->name('internal_chat.post_message');
 
+    Route::get('/start-queue', function () {
+        Artisan::call('queue:work');
+        return 'ok';
+    });
 });
 
 Route::get('/', [PageController::class, 'home']);
