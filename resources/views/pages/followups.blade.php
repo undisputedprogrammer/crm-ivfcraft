@@ -5,6 +5,7 @@
             fp : [],
             lead : [],
             fps : [],
+            qnas: [],
             fpname : '',
             isValid : false,
             isGenuine : false,
@@ -85,17 +86,19 @@
                     fp = fps[$event.detail.id];
                     fpname = fp.lead.name;
                     lead = fp.lead;
+                    qnas = lead.qnas;
                 }
                 else{
                     fp = $event.detail.followup;
                     fp.lead = $event.detail.lead;
                     lead = fp.lead;
+                    lead.qnas = $event.detail.qnas;
+                    qnas = lead.qnas;
                     lead.appointment = $event.detail.appointment;
                     leadremarks = $event.detail.lead_remarks;
                     fp.lead.remarks = leadremarks;
                     fps[fp.id] = fp;
                 }
-                console.log(fp.remarks);
                 fpselected = true;
                 isValid = fp.lead.is_valid;
                 isGenuine = fp.lead.is_genuine;
@@ -182,7 +185,6 @@
                 <div x-data="{
                     selected_section: 'new_follow_up',
                     messageLoading : false,
-                    qnas: [],
                     chats : [],
                     custom_enabled: false,
                     loadWhatsApp(){
@@ -252,6 +254,9 @@
 
                 <div class=" flex space-x-4">
                     <h2 @click="selected_section = 'new_follow_up'" class=" text-secondary font-medium text-base cursor-pointer" :class=" selected_section == 'new_follow_up' ? 'opacity-100' : ' hover:opacity-100 opacity-40' ">Follow up Actions</h2>
+
+                    <h2 @click="selected_section = 'qna' " class=" text-secondary font-medium text-base cursor-pointer" :class=" selected_section == 'qna' ? 'opacity-100' : ' hover:opacity-100 opacity-40' ">QNA</h2>
+
                     <h2 @click="loadWhatsApp();" class=" text-secondary font-medium text-base cursor-pointer" :class=" selected_section == 'wp' ? 'opacity-100' : ' hover:opacity-100 opacity-40' ">WhatsApp</h2>
                 </div>
 
@@ -404,6 +409,13 @@
                                 <x-forms.reschedule-appointment :doctors="$doctors"/>
 
                             </div>
+                    </div>
+
+
+                    {{-- QNA section --}}
+
+                    <div x-show="selected_section == 'qna'" class="p-3">
+                        <x-sections.qna />
                     </div>
 
                     {{-- Whatsapp section --}}

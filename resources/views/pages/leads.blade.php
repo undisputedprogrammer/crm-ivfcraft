@@ -292,6 +292,7 @@
                 name = lead.name;
                 qnas = lead.qnas;
             }
+            console.log(qnas);
             show_remarks_form =  !followup_remarks || followup_remarks.length == 0,
             convert = false;
             $dispatch('resetactions');
