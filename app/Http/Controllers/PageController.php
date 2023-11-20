@@ -46,15 +46,16 @@ class PageController extends SmartController
 
     public function performance(Request $request)
     {
-        info('calling getoverviewdata function');
-        $overview = $this->pageService->getOverviewData($request->month);
-        $performance = $this->pageService->agentsPerformance($request->month);
-        $campaignReport = $this->pageService->getCampaignReport($request->month);
-        $sourceReport = $this->pageService->getSourceReport($request->month);
+        $overview = $this->pageService->getPerformaceOverview($request->from, $request->to);
+        $performance = $this->pageService->agentsPerformance($request->from, $request->to);
+        $campaignReport = $this->pageService->getCampaignReport($request->from, $request->to);
+        $sourceReport = $this->pageService->getSourceReport($request->from, $request->to);
 
         $search = [];
-        $search['month'] = $request->month;
+        $search['from'] = $request->from;
+        $search['to'] = $request->to;
 
+        info('search params is '.$search['from']);
         return $this->buildResponse('pages.performance', array_merge($overview, $performance, $campaignReport, $search, $sourceReport));
     }
 
