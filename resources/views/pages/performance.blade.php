@@ -132,14 +132,23 @@
 
                     <div class=" flex flex-col space-y-5 ">
 
+                        {{-- @can('is-admin') --}}
+
                         <div class="rounded-lg w-fit overflow-hidden border border-opacity-60 h-fit">
                             <div class="overflow-x-auto">
                                 <table class="table">
                                   <!-- head -->
                                   <thead>
                                     <tr class=" bg-base-300 text-secondary">
-                                      <th>Agent</th>
+                                      <th>
+                                        @if (auth()->user()->hasRole('admin'))
+                                            Agent
+                                            @else
+                                            Name
+                                        @endif
+                                      </th>
                                       <th>Total Leads</th>
+                                      <th>Followup initiated leads</th>
                                       <th>Follow-ups</th>
                                       <th>Responsive follow-ups</th>
                                       <th>Non responsive follow-ups</th>
@@ -151,17 +160,21 @@
                                   <tbody class=" text-base-content font-medium text-sm h-fit">
 
                                     @foreach ($counts as $k => $d)
-                                        <tr class="bg-base-200 hover:bg-base-100">
-                                            <th>{{$agents[$k] ?? '0'}}</th>
-                                            <td>{{$d['lpm'] ?? '0'}}</td>
-                                            <td>{{$d['ftm'] ?? '0'}}</td>
-                                            <td>{{$d['responsive_followups']}}</td>
-                                            <td>{{$d['non_responsive_followups'] ?? '0'}}</td>
-                                            <td>{{$d['lcm'] ?? '0'}}</td>
-                                            <td>{{$d['pf'] ?? '0'}}</td>
-                                            {{-- <td><button class="btn btn-xs btn-ghost text-primary lowercase">view</button></td> --}}
-                                        </tr>
+                                        @if (auth()->user()->id == $k || auth()->user()->hasRole('admin'))
+                                            <tr class="bg-base-200 hover:bg-base-100">
+                                                <th>{{$agents[$k] ?? '0'}}</th>
+                                                <td>{{$d['lpm'] ?? '0'}}</td>
+                                                <td>{{$d['followup_initiated_leads'] ?? '0'}}</td>
+                                                <td>{{$d['ftm'] ?? '0'}}</td>
+                                                <td>{{$d['responsive_followups'] ?? '0'}}</td>
+                                                <td>{{$d['non_responsive_followups'] ?? '0'}}</td>
+                                                <td>{{$d['lcm'] ?? '0'}}</td>
+                                                <td>{{$d['pf'] ?? '0'}}</td>
+                                                {{-- <td><button class="btn btn-xs btn-ghost text-primary lowercase">view</button></td> --}}
+                                            </tr>
+                                        @endif
                                     @endforeach
+
                                     @if (count($counts) < 1)
                                             <tr>
                                                 <td>No data for the selected month</td>
@@ -173,6 +186,8 @@
                               </div>
                         </div>
 
+                        {{-- @endcan --}}
+
                         <div class="rounded-lg w-fit overflow-hidden border border-opacity-60">
                             <div class="overflow-x-auto">
                                 <table class="table">
@@ -181,6 +196,7 @@
                                     <tr class=" bg-base-300 text-secondary">
                                       <th>Campaign</th>
                                       <th>Total Leads</th>
+                                      <th>Follow-up initiated leads</th>
                                       <th>Valid leads</th>
                                       <th>Genuine leads</th>
                                       <th>Hot</th>
@@ -199,6 +215,7 @@
                                         <tr class="bg-base-200 hover:bg-base-100">
                                             <th>{{$campaign == "" ? 'Direct leads' : $campaign}}</th>
                                             <td>{{$data['total_leads'] ?? '0'}}</td>
+                                            <td>{{$data['followup_initiated_leads'] ?? '0'}}</td>
                                             <td>{{$data['valid_leads'] ?? '0'}}</td>
                                             <td>{{$data['genuine_leads'] ?? '0'}}</td>
                                             <td>{{$data['hot_leads'] ?? '0'}}</td>
@@ -231,6 +248,7 @@
                                     <tr class=" bg-base-300 text-secondary">
                                       <th>Source</th>
                                       <th>Total leads</th>
+                                      <th>Follow-up initiated leads</th>
                                       <th>Valid leads</th>
                                       <th>Genuine leads</th>
                                       <th>Hot</th>
@@ -248,6 +266,7 @@
                                         <tr class="bg-base-200 hover:bg-base-100">
                                             <th>{{$source}}</th>
                                             <td>{{$data['total_leads'] ?? '0'}}</td>
+                                            <td>{{$data['followup_initiated_leads'] ?? '0'}}</td>
                                             <td>{{$data['valid_leads'] ?? '0'}}</td>
                                             <td>{{$data['genuine_leads'] ?? '0'}}</td>
                                             <td>{{$data['hot_leads'] ?? '0'}}</td>

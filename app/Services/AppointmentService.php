@@ -100,6 +100,7 @@ class AppointmentService implements ModelViewConnector
         $followup->actual_date = Carbon::now();
         $followup->next_followup_date = Carbon::createFromFormat('Y-m-d', $followup_date)->format('Y-m-d H:i:s');
         $followup->call_status = 'Responsive';
+        $followup->user_id = Auth::user()->id;
         $followup->save();
 
         Remark::create([
@@ -133,7 +134,7 @@ class AppointmentService implements ModelViewConnector
 
         $validate = $this->updateValidation($request);
         if ($validate == false) {
-            return ['success' => false, 'message' => 'Could not reschedule appointmet'];
+            return ['success' => false, 'message' => 'Could not reschedule appointment'];
         }
 
         $appointment_date = Carbon::parse($request->appointment_date);
@@ -171,6 +172,7 @@ class AppointmentService implements ModelViewConnector
             $followup->actual_date = Carbon::now();
             $followup->next_followup_date = $followup_date;
             $followup->call_status = 'Responsive';
+            $followup->user_id = Auth::user()->id;
             $followup->save();
             $followup->refresh();
 

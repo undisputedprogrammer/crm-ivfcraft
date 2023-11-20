@@ -221,11 +221,14 @@ class PageService
             $currentMonth = $now->format('m');
             $currentYear = $now->format('Y');
         }
+
+        DB::statement("SET SQL_MODE=''");
         $hospital = auth()->user()->hospital;
+
         $lpm = Lead::forHospital($hospital->id)->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->select('assigned_to', DB::raw('count(leads.id) as count'))->groupBy('assigned_to')->get();
 
         // $ftm = Lead::forHospital($hospital->id)->where('followup_created', true)->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
-        $ftm = Lead::forHospital($hospital->id)->where('status', '<>', 'Created')->whereMonth('leads.created_at', $currentMonth)->whereYear('leads.created_at', $currentYear)->join('followups','leads.id','=','followups.lead_id')->where('followups.actual_date','!=',null)->select('assigned_to', DB::raw('COUNT(followups.id) as count'))->groupBy('assigned_to')->get();
+        $ftm = Lead::forHospital($hospital->id)->where('status', '<>', 'Created')->whereMonth('leads.created_at', $currentMonth)->whereYear('leads.created_at', $currentYear)->join('followups','leads.id','=','followups.lead_id')->where('followups.actual_date','!=',null)->select('leads.assigned_to', DB::raw('COUNT(followups.id) as count'))->groupBy('leads.assigned_to')->get();
 
         // $lcm = Lead::forHospital($hospital->id)->where('status', 'Consulted')->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
         $lcm = Lead::forHospital($hospital->id)->where('status', 'Consulted')->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->select('assigned_to', DB::raw('count(leads.id) as count'))->groupBy('assigned_to')->get();
@@ -244,6 +247,10 @@ class PageService
             return $q->forHospital($hospital->id);
         })->join('leads','followups.lead_id','=','leads.id')->whereMonth('leads.created_at', $currentMonth)->whereYear('leads.created_at', $currentYear)->select('leads.assigned_to', DB::raw('COUNT(CASE WHEN followups.call_status = "Responsive" THEN 1 END) as responsive'), DB::raw('COUNT(CASE WHEN followups.call_status != "Responsive" THEN 1 END) as non_responsive'))->groupBy('leads.assigned_to')->get();
 
+        $followup_initiated_leads = Lead::forHospital($hospital->id)->where('status','!=','Created')->select('assigned_to', DB::raw('COUNT(leads.id) as count'))->groupBy('assigned_to')->get();
+
+        DB::statement("SET SQL_MODE='only_full_group_by'");
+
         $results = [];
         foreach ($lpm as $l) {
             $results[$l->assigned_to]['lpm'] = $l->count;
@@ -260,6 +267,9 @@ class PageService
         foreach($responsive_followups as $rf) {
             $results[$rf->assigned_to]['responsive_followups'] = $rf->responsive;
             $results[$rf->assigned_to]['non_responsive_followups'] = $rf->non_responsive;
+        }
+        foreach($followup_initiated_leads as $fil){
+            $results[$fil->assigned_to]['followup_initiated_leads'] = $fil->count;
         }
 
         return ['counts' => $results, 'agents' => collect($hospital->agents())->pluck('name', 'id')];
@@ -281,19 +291,29 @@ class PageService
 
         $campaigns = Campaign::all();
 
-        $total_leads = Lead::forHospital($hospital)->whereMonth('created_at',$searchMonth)->whereYear('created_at',$searchYear)->select('campaign',DB::raw('count(leads.id) as count'))->groupBy('campaign')->get();
+        if(auth()->user()->hasRole('admin')){
+            $campaignQuery = Lead::forHospital($hospital);
+        }else{
+            $campaignQuery = Lead::forHospital($hospital)->where('assigned_to', auth()->user()->id);
+        }
 
-        $leads_converted = Lead::forHospital($hospital)->whereMonth('created_at',$searchMonth)->whereYear('created_at',$searchYear)->where('status','Consulted')->select('campaign',DB::raw('count(leads.id) as count'))->groupBy('campaign')->get();
+        $campaignQuery =
 
-        $hot_leads = Lead::forHospital($hospital)->whereMonth('created_at',$searchMonth)->whereYear('created_at',$searchYear)->where('customer_segment','hot')->select('campaign',DB::raw('count(leads.id) as count'))->groupBy('campaign')->get();
+        $total_leads = $campaignQuery->whereMonth('created_at',$searchMonth)->whereYear('created_at',$searchYear)->select('campaign',DB::raw('COUNT(DISTINCT leads.id) as total_leads, COUNT(DISTINCT CASE WHEN leads.status != "Created" THEN leads.id END) as followup_initiated_leads, COUNT(DISTINCT CASE WHEN leads.status = "Consulted" THEN leads.id END) as leads_converted, COUNT(DISTINCT CASE WHEN leads.customer_segment = "hot" THEN leads.id END) as hot_leads, COUNT(DISTINCT CASE WHEN leads.customer_segment = "warm" THEN leads.id END) as warm_leads, COUNT(DISTINCT CASE WHEN leads.customer_segment = "cold" THEN leads.id END) as cold_leads, COUNT(DISTINCT CASE WHEN leads.is_valid = true THEN leads.id END) as valid_leads, COUNT(DISTINCT CASE WHEN leads.is_genuine = true THEN leads.id END) as genuine_leads'))->groupBy('campaign')->get();
 
-        $warm_leads = Lead::forHospital($hospital)->whereMonth('created_at',$searchMonth)->whereYear('created_at',$searchYear)->where('customer_segment','warm')->select('campaign',DB::raw('count(leads.id) as count'))->groupBy('campaign')->get();
+        // $followup_initiated_leads = Lead::forHospital($hospital)->whereMonth('created_at', $searchMonth)->whereYear('created_at',$searchYear)->select('campaign', DB::raw('SUM(CASE WHEN leads.status != "Created" THEN 1 END) as followup_initiated_leads'))->groupBy('campaign')->get();
 
-        $cold_leads = Lead::forHospital($hospital)->whereMonth('created_at',$searchMonth)->whereYear('created_at',$searchYear)->where('customer_segment','cold')->select('campaign',DB::raw('count(leads.id) as count'))->groupBy('campaign')->get();
+        // $leads_converted = Lead::forHospital($hospital)->whereMonth('created_at',$searchMonth)->whereYear('created_at',$searchYear)->where('status','Consulted')->select('campaign',DB::raw('count(leads.id) as count'))->groupBy('campaign')->get();
 
-        $valid_leads = Lead::forHospital($hospital)->whereMonth('created_at',$searchMonth)->whereYear('created_at',$searchYear)->where('is_valid', true)->select('campaign', DB::raw('count(leads.id) as count'))->groupBy('campaign')->get();
+        // $hot_leads = Lead::forHospital($hospital)->whereMonth('created_at',$searchMonth)->whereYear('created_at',$searchYear)->where('customer_segment','hot')->select('campaign',DB::raw('count(leads.id) as count'))->groupBy('campaign')->get();
 
-        $genuine_leads = Lead::forHospital($hospital)->whereMonth('created_at',$searchMonth)->whereYear('created_at',$searchYear)->where('is_genuine', true)->select('campaign', DB::raw('count(leads.id) as count'))->groupBy('campaign')->get();
+        // $warm_leads = Lead::forHospital($hospital)->whereMonth('created_at',$searchMonth)->whereYear('created_at',$searchYear)->where('customer_segment','warm')->select('campaign',DB::raw('count(leads.id) as count'))->groupBy('campaign')->get();
+
+        // $cold_leads = Lead::forHospital($hospital)->whereMonth('created_at',$searchMonth)->whereYear('created_at',$searchYear)->where('customer_segment','cold')->select('campaign',DB::raw('count(leads.id) as count'))->groupBy('campaign')->get();
+
+        // $valid_leads = Lead::forHospital($hospital)->whereMonth('created_at',$searchMonth)->whereYear('created_at',$searchYear)->where('is_valid', true)->select('campaign', DB::raw('count(leads.id) as count'))->groupBy('campaign')->get();
+
+        // $genuine_leads = Lead::forHospital($hospital)->whereMonth('created_at',$searchMonth)->whereYear('created_at',$searchYear)->where('is_genuine', true)->select('campaign', DB::raw('count(leads.id) as count'))->groupBy('campaign')->get();
 
         $responsive_followups = Followup::whereHas('lead', function ($q) use ($hospital){
             return $q->forHospital($hospital);
@@ -302,37 +322,47 @@ class PageService
         $campaingReport = [];
 
         foreach($total_leads as $t){
-            $campaingReport[$t->campaign]['total_leads'] = $t->count;
+            $campaingReport[$t->campaign]['total_leads'] = $t->total_leads;
+            $campaingReport[$t->campaign]['followup_initiated_leads'] = $t->followup_initiated_leads;
+            $campaingReport[$t->campaign]['leads_converted'] = $t->leads_converted;
+            $campaingReport[$t->campaign]['hot_leads'] = $t->hot_leads;
+            $campaingReport[$t->campaign]['warm_leads'] = $t->warm_leads;
+            $campaingReport[$t->campaign]['cold_leads'] = $t->cold_leads;
+            $campaingReport[$t->campaign]['valid_leads'] = $t->valid_leads;
+            $campaingReport[$t->campaign]['genuine_leads'] = $t->genuine_leads;
         }
 
-        foreach($leads_converted as $lc){
-            $campaingReport[$lc->campaign]['converted_leads'] = $lc->count;
-        }
+        // foreach($leads_converted as $lc){
+        //     $campaingReport[$lc->campaign]['converted_leads'] = $lc->count;
+        // }
 
-        foreach($hot_leads as $h){
-            $campaingReport[$h->campaign]['hot_leads'] = $h->count;
-        }
+        // foreach($hot_leads as $h){
+        //     $campaingReport[$h->campaign]['hot_leads'] = $h->count;
+        // }
 
-        foreach($warm_leads as $w){
-            $campaingReport[$w->campaign]['warm_leads'] = $w->count;
-        }
+        // foreach($warm_leads as $w){
+        //     $campaingReport[$w->campaign]['warm_leads'] = $w->count;
+        // }
 
-        foreach($cold_leads as $c){
-            $campaingReport[$c->campaign]['cold_leads'] = $c->count;
-        }
+        // foreach($cold_leads as $c){
+        //     $campaingReport[$c->campaign]['cold_leads'] = $c->count;
+        // }
 
-        foreach($valid_leads as $v){
-            $campaingReport[$v->campaign]['valid_leads'] = $v->count;
-        }
+        // foreach($valid_leads as $v){
+        //     $campaingReport[$v->campaign]['valid_leads'] = $v->count;
+        // }
 
-        foreach($genuine_leads as $g){
-            $campaingReport[$g->campaign]['genuine_leads'] = $g->count;
-        }
+        // foreach($genuine_leads as $g){
+        //     $campaingReport[$g->campaign]['genuine_leads'] = $g->count;
+        // }
 
         foreach($responsive_followups as $fp){
             $campaingReport[$fp->campaign]['responsive_followups'] = $fp->responsive_followups;
             $campaingReport[$fp->campaign]['non_responsive_followups'] = $fp->non_responsive_followups;
         }
+        // foreach($followup_initiated_leads as $fil){
+        //     $campaingReport[$fil->campaign]['followup_initiated_leads'] = $fil->followup_initiated_leads;
+        // }
 
         return ['campaignReport' => $campaingReport, 'campaigns'=> $campaigns];
     }
@@ -353,15 +383,19 @@ class PageService
         $hospital_id = auth()->user()->hospital_id;
         DB::statement("SET SQL_MODE=''");
 
-        $reports = Lead::forHospital($hospital_id)
-        ->whereMonth('leads.created_at', $searchMonth)
+        if(auth()->user()->hasRole('admin')){
+            $reportsQuery = Lead::forHospital($hospital_id);
+        }else{
+            $reportsQuery = Lead::forHospital($hospital_id)->where('leads.assigned_to',auth()->user()->id);
+        }
+        $reports = $reportsQuery->whereMonth('leads.created_at', $searchMonth)
         ->whereYear('leads.created_at', $searchYear)
         ->join('sources','leads.source_id','=','sources.id')
         ->leftJoin('followups','leads.id','=','followups.lead_id')
         ->select('sources.name',
              DB::raw('COUNT(DISTINCT leads.id) as total_leads'),
-             DB::raw('SUM(CASE WHEN leads.is_valid = true THEN 1 END) as valid_leads'),
-             DB::raw('SUM(CASE WHEN leads.is_genuine = true THEN 1 END) as genuine_leads'), DB::raw('SUM(CASE WHEN leads.customer_segment = "hot" THEN 1 END) as hot_leads, SUM(CASE WHEN leads.customer_segment = "warm" THEN 1 END) as warm_leads, SUM(CASE WHEN leads.customer_segment ="cold" THEN 1 END) as cold_leads, SUM(CASE WHEN leads.status = "Consulted" THEN 1 END) as converted_leads, SUM(CASE WHEN followups.call_status = "Responsive" THEN 1 END) as responsive_followups, SUM(CASE WHEN followups.call_status = "Not responsive" THEN 1 END) as non_responsive_followups'))
+             DB::raw('COUNT(DISTINCT CASE WHEN leads.is_valid = true THEN leads.id END) as valid_leads'),
+             DB::raw('COUNT(DISTINCT CASE WHEN leads.is_genuine = true THEN leads.id END) as genuine_leads'), DB::raw('COUNT(DISTINCT CASE WHEN leads.customer_segment = "hot" THEN leads.id END) as hot_leads, COUNT(DISTINCT CASE WHEN leads.customer_segment = "warm" THEN leads.id END) as warm_leads, COUNT(DISTINCT CASE WHEN leads.customer_segment ="cold" THEN leads.id END) as cold_leads, COUNT(DISTINCT CASE WHEN leads.status = "Consulted" THEN leads.id END) as converted_leads, SUM(CASE WHEN followups.call_status = "Responsive" THEN 1 END) as responsive_followups, SUM(CASE WHEN followups.call_status = "Not responsive" THEN 1 END) as non_responsive_followups, COUNT(DISTINCT CASE WHEN leads.status != "Created" THEN leads.id END) as followup_initiated_leads'))
         ->groupBy('source_id')->get();
 
         DB::statement("SET SQL_MODE='only_full_group_by'");
@@ -379,6 +413,7 @@ class PageService
             $sourceReport[$r->name]['converted_leads'] = $r->converted_leads;
             $sourceReport[$r->name]['responsive_followups'] = $r->responsive_followups;
             $sourceReport[$r->name]['non_responsive_followups'] = $r->non_responsive_followups;
+            $sourceReport[$r->name]['followup_initiated_leads'] = $r->followup_initiated_leads;
         }
 
         return['sourceReport' => $sourceReport];

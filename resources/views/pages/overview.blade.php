@@ -98,8 +98,9 @@
 
                     {{-- Chart Canvas --}}
                     <div class="flex flex-row justify-evenly">
-                        <div class="w-80 p-2 aspect-square rounded-xl bg-base-200 h-fit mt-5">
+                        <div class="w-80 p-2 aspect-square rounded-xl flex flex-col bg-base-200 h-fit mt-5">
                             <canvas id="chartCanvas"></canvas>
+                            <a href="" @click.prevent.stop="$dispatch('linkaction',{link: '{{route('performance')}}', route: 'performance', fragment: 'page-content', fresh: true})" class=" btn btn-ghost btn-xs text-secondary self-end">Detailed reprot >></a>
                         </div>
 
                         <div class="w-80 p-2 aspect-square rounded-xl bg-base-200 h-fit mt-5">
