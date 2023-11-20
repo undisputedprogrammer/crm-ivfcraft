@@ -175,14 +175,19 @@ export default () => ({
     },
     searchPerformance(el){
         let formdata = new FormData(el);
-        let month = formdata.get('month');
+        let from = formdata.get('from');
+        let to = formdata.get('to');
         this.$dispatch('linkaction',{link:'/performance', route: 'performance',fragment:'page-content',params:{
-            month: month
+            from: from,
+            to: to
         }});
     },
     getParams(){
         let queryString = window.location.search;
         let params = new URLSearchParams(queryString);
         this.selectedMonth = params.get('month');
+    },
+    resetPerformancePage(){
+        this.$dispatch('linkaction',{link:'/performance', route: 'performance',fragment:'page-content', fresh: true});
     }
 });

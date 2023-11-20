@@ -13,6 +13,7 @@ use App\Models\Message;
 use App\Models\Followup;
 use App\Models\Hospital;
 use App\Models\Source;
+use Carbon\CarbonConverterInterface;
 use Complex\Functions;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -161,6 +162,7 @@ class PageService
             $currentMonth = $now->format('m');
             $currentYear = $now->format('Y');
         }
+
         $hospital = auth()->user()->hospital;
         $hospitals = [$hospital];
         $centers = $hospitals[0]->centers;
@@ -202,42 +204,86 @@ class PageService
         }
         $journal = Journal::where('user_id',auth()->user()->id)->where('date',$date)->get()->first();
         // $process_chart_data = $this->getProcessChartData($currentMonth);
-        $process_chart_data = json_encode($this->getProcessChartData($currentMonth));
-        $valid_chart_data = json_encode($this->getValidChartData($currentMonth));
-        $genuine_chart_data = json_encode($this->getGenuineChartData($currentMonth));
+        $process_chart_data = json_encode($this->getProcessChartData());
+        $valid_chart_data = json_encode($this->getValidChartData());
+        $genuine_chart_data = json_encode($this->getGenuineChartData());
         return compact('lpm', 'ftm', 'lcm', 'pf', 'hospitals', 'centers','journal','process_chart_data','valid_chart_data','genuine_chart_data');
     }
 
-    public function agentsPerformance($month)
-    {
-        if (isset($month)) {
-            $searchedDate = Carbon::createFromFormat('Y-m',$month);
-            $currentMonth = $searchedDate->format('m');
-            $currentYear = $searchedDate->format('Y');
-            $date = $searchedDate->format('Y-m-j');
+    public function getPerformaceOverview($from = null, $to = null){
+        if ($from != null && $to != null) {
+            $fromDate = Carbon::createFromFormat('Y-m-d',$from)->format('Y-m-d');
+            $toDate = Carbon::createFromFormat('Y-m-d', $to)->format('Y-m-d');
+        }else{
+            $fromDate = Carbon::today()->startOfMonth()->format('Y-m-d');
+            $toDate = Carbon::today()->format('Y-m-d');
+        }
+
+        $hospital = auth()->user()->hospital;
+        $hospitals = [$hospital];
+        $centers = $hospitals[0]->centers;
+
+
+        $authUser = auth()->user();
+
+        if($authUser->hasRole('admin')) {
+
+            $lpm = Lead::forHospital($hospital->id)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at','<=', $toDate)->count();
+
+            $ftm = Lead::forHospital($hospital->id)->where('status', '<>', 'Created')->whereDate('created_at', '>=', $fromDate)->whereDate('created_at','<=', $toDate)->count();
+
+            $lcm = Lead::forHospital($hospital->id)->where('status', 'Consulted')->whereDate('created_at', '>=', $fromDate)->whereYear('created_at', '<=', $toDate)->count();
+
+            $pf = Followup::whereHas('lead', function ($query) use($hospital){
+                $query->where('hospital_id', $hospital->id);
+            })->where('actual_date', null)->count();
+
         } else {
-            $now = Carbon::now();
-            $date = $now->format('Y-m-j');
-            $currentMonth = $now->format('m');
-            $currentYear = $now->format('Y');
+            $lpm = Lead::forAgent($authUser->id)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->count();
+
+            $ftm = Lead::forAgent($authUser->id)->where('status', '<>', 'Created')->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->count();
+
+            $lcm = Lead::forAgent($authUser->id)->where('status', 'Consulted')->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->count();
+
+
+            $pf = Followup::whereHas('lead', function ($query) use($authUser){
+                $query->where('assigned_to', $authUser->id);
+            })->where('actual_date', null)->count();
+        }
+
+        $process_chart_data = json_encode($this->getProcessChartData($fromDate, $toDate));
+        $valid_chart_data = json_encode($this->getValidChartData($fromDate, $toDate));
+        $genuine_chart_data = json_encode($this->getGenuineChartData($fromDate, $toDate));
+
+        return compact('lpm', 'ftm', 'lcm', 'pf', 'hospitals', 'centers','process_chart_data','valid_chart_data','genuine_chart_data');
+    }
+
+    public function agentsPerformance($from, $to)
+    {
+        if ($from != null && $to != null) {
+            $fromDate = Carbon::createFromFormat('Y-m-d',$from)->format('Y-m-d');
+            $toDate = Carbon::createFromFormat('Y-m-d', $to)->format('Y-m-d');
+        } else {
+            $fromDate = Carbon::today()->startOfMonth()->format('Y-m-d');
+            $toDate = Carbon::today()->format('Y-m-d');
         }
 
         DB::statement("SET SQL_MODE=''");
         $hospital = auth()->user()->hospital;
 
-        $lpm = Lead::forHospital($hospital->id)->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->select('assigned_to', DB::raw('count(leads.id) as count'))->groupBy('assigned_to')->get();
+        $lpm = Lead::forHospital($hospital->id)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->select('assigned_to', DB::raw('count(leads.id) as count'))->groupBy('assigned_to')->get();
 
         // $ftm = Lead::forHospital($hospital->id)->where('followup_created', true)->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
-        $ftm = Lead::forHospital($hospital->id)->where('status', '<>', 'Created')->whereMonth('leads.created_at', $currentMonth)->whereYear('leads.created_at', $currentYear)->join('followups','leads.id','=','followups.lead_id')->where('followups.actual_date','!=',null)->select('leads.assigned_to', DB::raw('COUNT(followups.id) as count'))->groupBy('leads.assigned_to')->get();
+        $ftm = Lead::forHospital($hospital->id)->where('status', '<>', 'Created')->whereDate('leads.created_at', '>=', $fromDate)->whereDate('leads.created_at', '<=', $toDate)->join('followups','leads.id','=','followups.lead_id')->where('followups.actual_date','!=',null)->select('leads.assigned_to', DB::raw('COUNT(followups.id) as count'))->groupBy('leads.assigned_to')->get();
 
         // $lcm = Lead::forHospital($hospital->id)->where('status', 'Consulted')->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
-        $lcm = Lead::forHospital($hospital->id)->where('status', 'Consulted')->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->select('assigned_to', DB::raw('count(leads.id) as count'))->groupBy('assigned_to')->get();
+        $lcm = Lead::forHospital($hospital->id)->where('status', 'Consulted')->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->select('assigned_to', DB::raw('count(leads.id) as count'))->groupBy('assigned_to')->get();
 
         $pf = DB::table('followups')
             ->join('leads as l', 'l.id', '=', 'followups.lead_id')
             ->where('l.hospital_id', $hospital->id)
-            ->whereMonth('followups.created_at', $currentMonth)
-            ->whereYear('followups.created_at', $currentYear)
+            ->whereDate('l.created_at', '>=', $fromDate)
+            ->whereDate('l.created_at', '<=', $toDate)
             ->where('followups.actual_date', null)
             ->select('l.assigned_to', DB::raw('COUNT(l.id) as count'))
             ->groupBy('l.assigned_to')
@@ -245,9 +291,9 @@ class PageService
 
         $responsive_followups = Followup::whereHas('lead', function($q) use($hospital){
             return $q->forHospital($hospital->id);
-        })->join('leads','followups.lead_id','=','leads.id')->whereMonth('leads.created_at', $currentMonth)->whereYear('leads.created_at', $currentYear)->select('leads.assigned_to', DB::raw('COUNT(CASE WHEN followups.call_status = "Responsive" THEN 1 END) as responsive'), DB::raw('COUNT(CASE WHEN followups.call_status != "Responsive" THEN 1 END) as non_responsive'))->groupBy('leads.assigned_to')->get();
+        })->join('leads','followups.lead_id','=','leads.id')->whereDate('leads.created_at', '>=', $fromDate)->whereDate('leads.created_at', '<=', $toDate)->select('leads.assigned_to', DB::raw('COUNT(CASE WHEN followups.call_status = "Responsive" THEN 1 END) as responsive'), DB::raw('COUNT(CASE WHEN followups.call_status != "Responsive" THEN 1 END) as non_responsive'))->groupBy('leads.assigned_to')->get();
 
-        $followup_initiated_leads = Lead::forHospital($hospital->id)->where('status','!=','Created')->select('assigned_to', DB::raw('COUNT(leads.id) as count'))->groupBy('assigned_to')->get();
+        $followup_initiated_leads = Lead::forHospital($hospital->id)->whereDate('created_at','>=',$fromDate)->whereDate('created_at','<=',$toDate)->where('status','!=','Created')->select('assigned_to', DB::raw('COUNT(leads.id) as count'))->groupBy('assigned_to')->get();
 
         DB::statement("SET SQL_MODE='only_full_group_by'");
 
@@ -275,16 +321,14 @@ class PageService
         return ['counts' => $results, 'agents' => collect($hospital->agents())->pluck('name', 'id')];
     }
 
-    public function getCampaignReport($month){
-        if(isset($month)){
-            $month_year = Carbon::createFromFormat('Y-m', $month);
-            $searchMonth = $month_year->format('m');
-            $searchYear = $month_year->format('Y');
+    public function getCampaignReport($from, $to){
+        if($from != null && $to != null){
+            $fromDate = Carbon::createFromFormat('Y-m-d', $from)->format('Y-m-d');
+            $toDate = Carbon::createFromFormat('Y-m-d', $to)->format('Y-m-d');
         }
         else{
-            $month_year = Carbon::now();
-            $searchMonth = $month_year->format('m');
-            $searchYear = $month_year->format('Y');
+            $fromDate = Carbon::today()->startOfMonth()->format('Y-m-d');
+            $toDate = Carbon::today()->format('Y-m-d');
         }
 
         $hospital = auth()->user()->hospital_id;
@@ -297,9 +341,9 @@ class PageService
             $campaignQuery = Lead::forHospital($hospital)->where('assigned_to', auth()->user()->id);
         }
 
-        $campaignQuery =
+        // $campaignQuery =
 
-        $total_leads = $campaignQuery->whereMonth('created_at',$searchMonth)->whereYear('created_at',$searchYear)->select('campaign',DB::raw('COUNT(DISTINCT leads.id) as total_leads, COUNT(DISTINCT CASE WHEN leads.status != "Created" THEN leads.id END) as followup_initiated_leads, COUNT(DISTINCT CASE WHEN leads.status = "Consulted" THEN leads.id END) as leads_converted, COUNT(DISTINCT CASE WHEN leads.customer_segment = "hot" THEN leads.id END) as hot_leads, COUNT(DISTINCT CASE WHEN leads.customer_segment = "warm" THEN leads.id END) as warm_leads, COUNT(DISTINCT CASE WHEN leads.customer_segment = "cold" THEN leads.id END) as cold_leads, COUNT(DISTINCT CASE WHEN leads.is_valid = true THEN leads.id END) as valid_leads, COUNT(DISTINCT CASE WHEN leads.is_genuine = true THEN leads.id END) as genuine_leads'))->groupBy('campaign')->get();
+        $total_leads = $campaignQuery->whereDate('created_at','>=',$fromDate)->whereDate('created_at','<=',$toDate)->select('campaign',DB::raw('COUNT(DISTINCT leads.id) as total_leads, COUNT(DISTINCT CASE WHEN leads.status != "Created" THEN leads.id END) as followup_initiated_leads, COUNT(DISTINCT CASE WHEN leads.status = "Consulted" THEN leads.id END) as leads_converted, COUNT(DISTINCT CASE WHEN leads.customer_segment = "hot" THEN leads.id END) as hot_leads, COUNT(DISTINCT CASE WHEN leads.customer_segment = "warm" THEN leads.id END) as warm_leads, COUNT(DISTINCT CASE WHEN leads.customer_segment = "cold" THEN leads.id END) as cold_leads, COUNT(DISTINCT CASE WHEN leads.is_valid = true THEN leads.id END) as valid_leads, COUNT(DISTINCT CASE WHEN leads.is_genuine = true THEN leads.id END) as genuine_leads'))->groupBy('campaign')->get();
 
         // $followup_initiated_leads = Lead::forHospital($hospital)->whereMonth('created_at', $searchMonth)->whereYear('created_at',$searchYear)->select('campaign', DB::raw('SUM(CASE WHEN leads.status != "Created" THEN 1 END) as followup_initiated_leads'))->groupBy('campaign')->get();
 
@@ -317,7 +361,7 @@ class PageService
 
         $responsive_followups = Followup::whereHas('lead', function ($q) use ($hospital){
             return $q->forHospital($hospital);
-        })->whereMonth('followups.created_at', $searchMonth)->whereYear('followups.created_at',$searchYear)->join('leads', 'followups.lead_id', '=', 'leads.id')->select('leads.campaign', DB::raw('COUNT(CASE WHEN followups.call_status = "Responsive" THEN 1 END) as responsive_followups'), DB::raw('COUNT(CASE WHEN followups.call_status = "Not responsive" THEN 1 END) as non_responsive_followups'))->groupBy('leads.campaign')->get();
+        })->whereDate('leads.created_at','>=',$fromDate)->whereDate('leads.created_at','<=',$toDate)->join('leads', 'followups.lead_id', '=', 'leads.id')->select('leads.campaign', DB::raw('COUNT(CASE WHEN followups.call_status = "Responsive" THEN 1 END) as responsive_followups'), DB::raw('COUNT(CASE WHEN followups.call_status = "Not responsive" THEN 1 END) as non_responsive_followups'))->groupBy('leads.campaign')->get();
 
         $campaingReport = [];
 
@@ -367,17 +411,15 @@ class PageService
         return ['campaignReport' => $campaingReport, 'campaigns'=> $campaigns];
     }
 
-    public function getSourceReport($month){
+    public function getSourceReport($from, $to){
 
-        if(isset($month)){
-            $month_year = Carbon::createFromFormat('Y-m', $month);
-            $searchMonth = $month_year->format('m');
-            $searchYear = $month_year->format('Y');
+        if($from != null && $to != null){
+            $fromDate = Carbon::createFromFormat('Y-m-d',$from)->format('Y-m-d');
+            $toDate = Carbon::createFromFormat('Y-m-d',$to)->format('Y-m-d');
         }
         else{
-            $month_year = Carbon::now();
-            $searchMonth = $month_year->format('m');
-            $searchYear = $month_year->format('Y');
+            $fromDate = Carbon::today()->startOfMonth()->format('Y-m-d');
+            $toDate = Carbon::today()->format('Y-m-d');
         }
 
         $hospital_id = auth()->user()->hospital_id;
@@ -388,8 +430,8 @@ class PageService
         }else{
             $reportsQuery = Lead::forHospital($hospital_id)->where('leads.assigned_to',auth()->user()->id);
         }
-        $reports = $reportsQuery->whereMonth('leads.created_at', $searchMonth)
-        ->whereYear('leads.created_at', $searchYear)
+        $reports = $reportsQuery->whereDate('leads.created_at', '>=', $fromDate)
+        ->whereDate('leads.created_at', '<=', $toDate)
         ->join('sources','leads.source_id','=','sources.id')
         ->leftJoin('followups','leads.id','=','followups.lead_id')
         ->select('sources.name',
@@ -419,11 +461,18 @@ class PageService
         return['sourceReport' => $sourceReport];
     }
 
-    public function getProcessChartData($currentMonth){
+    public function getProcessChartData($fromDate = null, $toDate = null){
         $process_chart_data = [];
         $hospitalID = auth()->user()->hospital_id;
         $user = Auth::user();
-        $baseQuery = Lead::forHospital($hospitalID)->whereMonth('created_at',$currentMonth);
+
+        if($fromDate == null || $toDate == null){
+            $fromDate = Carbon::today()->startOfMonth()->format('Y-m-d');
+            $toDate = Carbon::today()->format('Y-m-d');
+        }
+
+        $baseQuery = Lead::forHospital($hospitalID)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate);
+
         if($user->hasRole('agent')){
             $baseQuery->where('assigned_to',$user->id);
         }
@@ -445,11 +494,16 @@ class PageService
         return $process_chart_data;
     }
 
-    public function getValidChartData($currentMonth){
+    public function getValidChartData($fromDate = null, $toDate = null){
+        if($fromDate == null || $toDate == null){
+            $fromDate = Carbon::today()->startOfMonth()->format('Y-m-d');
+            $toDate = Carbon::today()->format('Y-m-d');
+        }
         $valid_chart_data = [];
         $hospitalID = auth()->user()->hospital_id;
         $user = Auth::user();
-        $baseQuery = Lead::forHospital($hospitalID)->whereMonth('created_at',$currentMonth);
+        $baseQuery = Lead::forHospital($hospitalID)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate);
+
         if($user->hasRole('agent')){
             $baseQuery->where('assigned_to',$user->id);
         }
@@ -463,11 +517,16 @@ class PageService
         return $valid_chart_data;
     }
 
-    public function getGenuineChartData($currentMonth){
+    public function getGenuineChartData($fromDate = null, $toDate = null){
+        if($fromDate == null || $toDate == null){
+            $fromDate = Carbon::today()->startOfMonth()->format('Y-m-d');
+            $toDate = Carbon::today()->format('Y-m-d');
+        }
         $genuine_chart_data = [];
         $hospitalID = auth()->user()->hospital_id;
         $user = Auth::user();
-        $baseQuery = Lead::forHospital($hospitalID)->whereMonth('created_at',$currentMonth);
+        $baseQuery = Lead::forHospital($hospitalID)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate);
+
         if($user->hasRole('agent')){
             $baseQuery->where('assigned_to',$user->id);
         }

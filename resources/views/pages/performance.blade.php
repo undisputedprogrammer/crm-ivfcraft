@@ -16,7 +16,9 @@
     @endisset
     @isset($genuine_chart_data)
         genuineChartData = JSON.parse('{{$genuine_chart_data}}');
-        console.log(genuineChartData);
+    @endisset
+    @isset($from)
+        console.log('{{$from}}');
     @endisset
     initChart();
     "
@@ -40,10 +42,22 @@
                     <div>
 
                         <form @submit.prevent.stop="searchPerformance($el);" action="" id="performance-search-form" class="border border-opacity-30 rounded-lg p-2 text-base-content w-fit flex flex-col space-y-2">
-                            <h1 class=" font-medium uppercase">Choose month</h1>
+                            <h1 class=" font-medium uppercase">Choose by date</h1>
                             <div class=" flex space-x-4">
-                                <input type="month" :value="selectedMonth" name="month" class=" input input-sm input-bordered border-primary">
-                                <button type="submit" class=" btn btn-sm btn-primary">Search</button>
+                                <div class=" flex flex-col">
+                                    <label for="" class=" text-primary font-medium">From :</label>
+                                    <input type="date" name="from" required value="{{$from}}" class=" input input-sm input-bordered border-primary">
+                                </div>
+                                <div class=" flex flex-col">
+                                    <label for="" class=" text-primary font-medium">To :</label>
+                                    <input type="date" name="to" required value="{{$to}}" class=" input input-sm input-bordered border-primary">
+                                </div>
+
+                                <button type="submit" class=" btn btn-sm btn-primary h-fit self-end">Search</button>
+
+                                <button @click.prevent.stop="resetPerformancePage()" class=" btn btn-sm btn-ghost h-fit self-end">
+                                    <x-icons.refresh-icon/>
+                                </button>
                             </div>
                         </form>
 
