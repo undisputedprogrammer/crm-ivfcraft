@@ -1,8 +1,6 @@
 <template x-if=" qnas != null && qnas.length != 0">
 <div class=" flex flex-col">
 
-    {{-- <p class=" text-base font-medium text-secondary">QNA</p> --}}
-
     <ul class=" text-sm  font-normal">
         <template x-for="(a,i) in Object.keys(qnas)">
 
