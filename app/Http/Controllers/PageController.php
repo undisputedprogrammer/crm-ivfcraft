@@ -52,10 +52,14 @@ class PageController extends SmartController
         $sourceReport = $this->pageService->getSourceReport($request->from, $request->to);
 
         $search = [];
-        $search['from'] = $request->from;
-        $search['to'] = $request->to;
+        if($request->from != null && $request->to != null){
+            $search['from'] = $request->from;
+            $search['to'] = $request->to;
+        }else{
+            $search['from'] = Carbon::today()->startOfMonth()->format('Y-m-d');
+            $search['to'] = Carbon::today()->format('Y-m-d');
+        }
 
-        info('search params is '.$search['from']);
         return $this->buildResponse('pages.performance', array_merge($overview, $performance, $campaignReport, $search, $sourceReport));
     }
 
