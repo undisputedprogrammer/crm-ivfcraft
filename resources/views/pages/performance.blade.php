@@ -163,11 +163,11 @@
                                       </th>
                                       <th>Total Leads</th>
                                       <th>Followup initiated leads</th>
-                                      <th>Follow-ups</th>
+                                      <th>Total follow-ups</th>
                                       <th>Responsive follow-ups</th>
                                       <th>Non responsive follow-ups</th>
                                       <th>Converted</th>
-                                      <th>Pending Follow-ups</th>
+                                      <th>Scheduled follow-ups</th>
                                       {{-- <th></th> --}}
                                     </tr>
                                   </thead>
