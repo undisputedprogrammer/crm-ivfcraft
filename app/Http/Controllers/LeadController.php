@@ -7,6 +7,7 @@ use App\Models\Lead;
 use App\Models\User;
 use App\Models\Center;
 use App\Models\Followup;
+use App\Models\Source;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -179,19 +180,7 @@ class LeadController extends SmartController
         return response()->json(['success'=>true, 'treatment_status' => $lead->treatment_status]);
     }
 
-    public function setCallStatus(Request $request){
-        $lead = Lead::find($request->lead_id);
-        if($request->call_status){
-            $lead->call_status = $request->call_status;
-        }
-        if($request->failed_attempts){
-                $lead->failed_attempts = $request->failed_attempts;
-        }else{
-            $lead->failed_attempts = 0;
-        }
-        $lead->save();
-        return response()->json(['success'=>true, 'message'=>'Updated status','lead'=>$lead]);
-    }
+
 
     public function distribute(Request $request){
         if($request->selected_agents){
@@ -263,7 +252,7 @@ class LeadController extends SmartController
             'hospital_id' => Auth::user()->hospital_id,
             'center_id' => $request->center ? $request->center : User::find(Auth::user()->id)->centers()->first()->id,
             'name' => $request->name,
-            'phone' => $request->phone,
+            'phone' => str_replace(['+','-',' '],'',$request->phone),
             'email' => $request->email,
             'city' => $request->city,
             'assigned_to' => $agentIds[$next_assign_index],
@@ -305,5 +294,61 @@ class LeadController extends SmartController
         ]);
 
         return true;
+    }
+
+    public function refer(Request $request){
+        $request->validate([
+            'name' => 'required|min:3',
+            'city' => 'required|min:3',
+            'phone' => 'required|min:10',
+            'email' => 'required|email',
+            'center' => 'required',
+            'agent' => 'required'
+        ]);
+
+        $center = Center::find($request->center);
+
+        $source = Source::where('code','IRF')->where('hospital_id', auth()->user()->hospital_id)->get()->first();
+
+        if(!$source){
+            $source = Source::create([
+                'hospital_id' => auth()->user()->hospital_id,
+                'code' => 'IRF',
+                'name' => 'Internal Reference',
+                'is_enabled' => true
+            ]);
+        }
+
+        $lead = Lead::create([
+            'hospital_id' => Auth::user()->hospital_id,
+            'center_id' => $request->center ? $request->center : User::find(Auth::user()->id)->centers()->first()->id,
+            'name' => $request->name,
+            'phone' => str_replace(['+','-',' '],'',$request->phone),
+            'email' => $request->email,
+            'city' => $request->city,
+            'assigned_to' => $request->agent,
+            'created_by' => Auth::user()->id,
+            'source_id' => $source->id
+        ]);
+
+        $followup_created = $this->createFollowup($lead);
+
+        if($followup_created){
+            $lead->followup_created = true;
+            // $lead->followup_created_at = Carbon::now();
+            $lead->save();
+        }else{
+            $lead->delete();
+            return response()->json([
+                'success' => false,
+                'message' => 'Could not create lead !'
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Refered lead created !",
+            'lead' => $lead
+        ], 200);
     }
 }

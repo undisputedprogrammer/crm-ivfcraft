@@ -162,11 +162,12 @@
                                         @endif
                                       </th>
                                       <th>Total Leads</th>
+                                      <th>Responsive Leads</th>
                                       <th>Followup initiated leads</th>
                                       <th>Total follow-ups</th>
                                       <th>Responsive follow-ups</th>
                                       <th>Non responsive follow-ups</th>
-                                      <th>Converted</th>
+                                      <th>Leads Consulted</th>
                                       <th>Scheduled follow-ups</th>
                                       {{-- <th></th> --}}
                                     </tr>
@@ -178,6 +179,7 @@
                                             <tr class="bg-base-200 hover:bg-base-100">
                                                 <th>{{$agents[$k] ?? '0'}}</th>
                                                 <td>{{$d['lpm'] ?? '0'}}</td>
+                                                <td>{{$d['responsive_leads'] ?? '0'}}</td>
                                                 <td>{{$d['followup_initiated_leads'] ?? '0'}}</td>
                                                 <td>{{$d['ftm'] ?? '0'}}</td>
                                                 <td>{{$d['responsive_followups'] ?? '0'}}</td>
@@ -216,9 +218,9 @@
                                       <th>Hot</th>
                                       <th>Warm</th>
                                       <th>Cold</th>
-                                      <th>Converted leads</th>
-                                      <th>Responsive follow-ups</th>
-                                      <th>Non responsive follow-ups</th>
+                                      <th>Leads Consulted</th>
+                                      <th>Closed leads</th>
+                                      <th>Non responsive leads</th>
                                       {{-- <th></th> --}}
                                     </tr>
                                   </thead>
@@ -235,9 +237,9 @@
                                             <td>{{$data['hot_leads'] ?? '0'}}</td>
                                             <td>{{$data['warm_leads'] ?? '0'}}</td>
                                             <td>{{$data['cold_leads'] ?? '0'}}</td>
-                                            <td>{{$data['converted_leads'] ?? '0'}}</td>
-                                            <td>{{$data['responsive_followups'] ?? '0'}}</td>
-                                            <td>{{$data['non_responsive_followups'] ?? '0'}}</td>
+                                            <td>{{$data['leads_converted'] ?? '0'}}</td>
+                                            <td>{{$data['closed_leads'] ?? '0'}}</td>
+                                            <td>{{$data['non_responsive_leads'] ?? '0'}}</td>
                                         </tr>
                                     @endforeach
                                     @if (count($campaignReport) < 1)
@@ -268,9 +270,9 @@
                                       <th>Hot</th>
                                       <th>Warm</th>
                                       <th>Cold</th>
-                                      <th>Converted leads</th>
-                                      <th>Responsive follow-ups</th>
-                                      <th>Non responsive follow-ups</th>
+                                      <th>Leads Consulted</th>
+                                      <th>Closed leads</th>
+                                      <th>Non responsive leads</th>
                                     </tr>
                                   </thead>
                                   <tbody class=" text-base-content font-medium text-sm">
@@ -287,8 +289,8 @@
                                             <td>{{$data['warm_leads'] ?? '0'}}</td>
                                             <td>{{$data['cold_leads'] ?? '0'}}</td>
                                             <td>{{$data['converted_leads'] ?? '0'}}</td>
-                                            <td>{{$data['responsive_followups'] ?? '0'}}</td>
-                                            <td>{{$data['non_responsive_followups'] ?? '0'}}</td>
+                                            <td>{{$data['closed_leads'] ?? '0'}}</td>
+                                            <td>{{$data['non_responsive_leads'] ?? '0'}}</td>
                                         </tr>
                                     @endforeach
                                     @if (count($sourceReport) < 1)
