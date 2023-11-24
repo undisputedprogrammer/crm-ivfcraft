@@ -55,7 +55,7 @@
                 <div class=" flex flex-row space-x-4 border border-base-content rounded-lg p-2">
                     <form @submit.prevent.stop="filterLead($el);" class=" flex flex-col  space-y-2">
 
-                        <div class=" flex flex-col md:flex-row flex-wrap">
+                        <div class=" flex flex-col md:flex-row flex-wrap md:items-end">
 
                             @can('is-admin')
                                 <div class=" flex flex-col ml-3 mb-1.5">

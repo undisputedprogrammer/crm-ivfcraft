@@ -1,6 +1,6 @@
 <div x-data="{
     first: fphistory[0]
-}" class=" mt-2.5">
+}" class=" mt-2.5 h-52 overflow-y-scroll hide-scroll ">
     <p class="text-base font-medium text-secondary">Follow up history</p>
 
     {{-- loading --}}
