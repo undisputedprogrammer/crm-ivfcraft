@@ -22,7 +22,8 @@ export default () => ({
     selectedAgent : null,
     is_genuine : null,
     is_valid : null,
-    creation_date : null,
+    creation_date_from : null,
+    creation_date_to : null,
     segment : null,
     campaign : null,
     source : null,
@@ -37,6 +38,8 @@ export default () => ({
         let segment = formdata.get('segment');
         let campaign = formdata.get('campaign');
         let source = formdata.get('source');
+        let creation_date_from = formdata.get('creation_date_from');
+        let creation_date_to = formdata.get('creation_date_to');
         let filter = {};
         if(is_valid != ''){
             filter.is_valid = is_valid;
@@ -61,6 +64,12 @@ export default () => ({
         }
         if(source != ''){
             filter.source = source;
+        }
+        if(creation_date_from != null && creation_date_from != ''){
+            filter.creation_date_from = creation_date_from;
+        }
+        if(creation_date_to != null && creation_date_to != ''){
+            filter.creation_date_to = creation_date_to;
         }
 
         this.$dispatch('linkaction',{link: link, route: 'followups', fragment: 'page-content', fresh: true, params: filter});

@@ -38,8 +38,8 @@
                                     <span class=" text-info-content text-xs">{{ $lead->city }}</span>
                                 </div>
                             </td>
-                            <td id="city-{{$lead->id}}" class=" py-1">{{ $lead->campaign != '' ? $lead->campaign : 'Unknown' }}</td>
-                            <td id="phone-{{$lead->id}}" :class="'{{$lead->customer_segment}}' != '' ? ' uppercase' : ''" class="py-1">{{ $lead->customer_segment != null ? $lead->customer_segment : 'Unknown' }}</td>
+                            <td id="city-{{$lead->id}}" class=" py-1">{{ $lead->campaign != '' ? $lead->campaign : '---' }}</td>
+                            <td id="phone-{{$lead->id}}" :class="'{{$lead->customer_segment}}' != '' ? ' uppercase' : ''" class="py-1">{{ $lead->customer_segment != null ? $lead->customer_segment : '---' }}</td>
                             <td class=" py-1">
                                 <div id="lead-tick-{{$lead->id}}" class="flex justify-center items-center p-0 h-7 w-7 rounded-full bg-success text-base-100 hidden">
                                 <x-easyadmin::display.icon icon="easyadmin::icons.tick"

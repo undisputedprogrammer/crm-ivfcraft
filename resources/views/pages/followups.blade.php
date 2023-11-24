@@ -20,8 +20,11 @@
         @isset($is_genuine)
             is_genuine = '{{$is_genuine}}';
         @endisset
-        @isset($creation_date)
-            creation_date = '{{$creation_date}}';
+        @isset($creation_date_from)
+            creation_date_from = '{{$creation_date_from}}';
+        @endisset
+        @isset($creation_date_to)
+            creation_date_to = '{{$creation_date_to}}';
         @endisset
         @isset($segment)
             segment = '{{$segment}}';
@@ -46,12 +49,12 @@
         })"
 
         >
-    <div class="min-h-screen flex flex-col flex-auto flex-shrink-0 antialiased bg-base-200">
+    <div class="min-h-screen flex flex-col flex-auto flex-shrink-0 antialiased bg-base-200 px-[1.7%]">
 
 
       <x-sections.side-drawer/>
       {{-- page body --}}
-      <div class=" flex flex-col justify-start items-start w-full bg-base-200 pt-1.5 pl-[3.3%] space-y-2">
+      <div class=" flex flex-col justify-start items-start w-full bg-base-200 pt-1.5  space-y-2">
         <h1 class=" text-primary text-xl font-semibold bg-base-200 ">Pending follow ups</h1>
 
         <div class=" flex flex-row space-x-4 border border-base-content rounded-lg p-2">
@@ -85,7 +88,6 @@
                     <div class=" flex flex-col ml-3 mb-1.5">
                         <label for="" class=" text-xs text-primary font-medium">Status :</label>
                         <select name="status" id="select-status" class=" select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
-                            <option value="none" :selected="'{{$status}}'=='null' || '{{$status}}'=='none'">Fresh Leads</option>
                             <option value="all" :selected="'{{$status}}'=='all' ">All leads</option>
                             @foreach (config('appSettings')['lead_statuses'] as $st)
                             <template x-if="'{{$st}}' != 'Created'">
@@ -148,8 +150,13 @@
                     </div>
 
                     <div class=" flex flex-col ml-3 mb-1.5">
-                        <label for="" class=" text-xs text-primary font-medium">Created date :</label>
-                        <input type="date" :value="creation_date != null ? creation_date : null" name="creation_date" class=" input input-sm text-base-content font-medium">
+                        <label for="" class=" text-xs text-primary font-medium">Created from :</label>
+                        <input type="date" :value="creation_date_from != null ? creation_date_from : null" name="creation_date_from" class=" input input-sm text-base-content font-medium">
+                    </div>
+
+                    <div class=" flex flex-col ml-3 mb-1.5">
+                        <label for="" class=" text-xs text-primary font-medium">Created to :</label>
+                        <input type="date" :value="creation_date_to != null ? creation_date_to : null" name="creation_date_to" class=" input input-sm text-base-content font-medium">
                     </div>
 
 
@@ -164,6 +171,10 @@
                             </button>
                         {{-- </form> --}}
                     </div>
+
+                    <button @click.prevent.stop="$dispatch('linkaction',{link:'{{route('followups')}}', route: 'followups', fragment: 'page-content', fresh: true})" class=" btn btn-sm btn-ghost h-fit self-end ml-3 mb-1.5">
+                        <x-icons.refresh-icon/>
+                    </button>
                 </div>
 
             </form>
@@ -173,7 +184,7 @@
 
       <x-modals.display-image/>
 
-      <div class="lg:h-[calc(100vh-5.875rem)] pt-7 pb-[2.8rem] bg-base-200 w-full flex flex-col lg:flex-row justify-evenly items-center lg:items-start space-y-4 lg:space-y-0">
+      <div class="lg:h-[calc(100vh-5.875rem)] pt-7 pb-[2.8rem] bg-base-200 w-full flex flex-col lg:flex-row justify-start items-center lg:items-start space-y-4 lg:space-y-0 lg:space-x-6">
 
 
 
@@ -183,17 +194,23 @@
         {{-- details section --}}
         <div
         x-data = "{
-                show_remarks_form: false
+                show_remarks_form: false,
+                fpLoading: false
             }"
         class=" w-[96%] lg:w-[50%] min-h-[100%] max-h-[100%] h-fit hide-scroll overflow-y-scroll  bg-base-100 text-base-content rounded-xl p-3 xl:px-6 py-3">
             <h1 class="text-lg text-secondary font-semibold text-center">Follow up details</h1>
             <p x-show="!fpselected" class=" font-semibold text-base text-center mt-4">Select a follow up...</p>
 
+            <div x-show="fpLoading" class=" w-full flex flex-col space-y-2 justify-center items-center py-8">
+                <span class="loading loading-bars loading-md "></span>
+            </div>
+
             <x-helpers.lead-segment-helper/>
-            <div x-show="fpselected" class="flex w-full mt-3">
+            <div x-show="fpselected && !fpLoading" class="flex w-full mt-3">
                 <div
                 {{-- updating values in the details section --}}
                 @fpupdate.window="
+                fpLoading = true;
                 showconsultform = false;
                 $dispatch('resetsection');
                 appointment = $event.detail.appointment;
@@ -235,6 +252,9 @@
                   });
                   show_remarks_form = !fp.remarks || fp.remarks.length ==0;
                   $dispatch('resetaction');
+                  setTimeout(()=>{
+                    fpLoading = false;
+                },500);
                 "
                 class=" w-[44%] border-r border-primary">
                 <h1 class=" font-medium text-base text-secondary">Lead details</h1>

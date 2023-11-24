@@ -1,5 +1,4 @@
 <x-easyadmin::app-layout>
-
     <div x-data="x_overview"
     x-init = "@if(isset($journal))
     journal = {{$journal}};
@@ -163,6 +162,9 @@
                                       </th>
                                       <th>Total Leads</th>
                                       <th>Responsive Leads</th>
+                                      <th>Hot</th>
+                                      <th>Warm</th>
+                                      <th>Cold</th>
                                       <th>Followup initiated leads</th>
                                       <th>Total follow-ups</th>
                                       <th>Responsive follow-ups</th>
@@ -178,8 +180,20 @@
                                         @if (auth()->user()->id == $k || auth()->user()->hasRole('admin'))
                                             <tr class="bg-base-200 hover:bg-base-100">
                                                 <th>{{$agents[$k] ?? '0'}}</th>
-                                                <td>{{$d['lpm'] ?? '0'}}</td>
+                                                <td>
+                                                    <a href="{{route('fresh-leads',[
+                                                        'creation_date_from' => $from,
+                                                        'creation_date_to' => $to,
+                                                        'agent' => $k,
+                                                        'status' => 'all'
+                                                    ])}}" target="blank" class=" hover:text-info hover:underline">
+                                                        {{$d['lpm'] ?? '0'}}
+                                                    </a>
+                                                </td>
                                                 <td>{{$d['responsive_leads'] ?? '0'}}</td>
+                                                <td>{{$d['hot_leads'] ?? '0'}}</td>
+                                                <td>{{$d['warm_leads'] ?? '0'}}</td>
+                                                <td>{{$d['cold_leads'] ?? '0'}}</td>
                                                 <td>{{$d['followup_initiated_leads'] ?? '0'}}</td>
                                                 <td>{{$d['ftm'] ?? '0'}}</td>
                                                 <td>{{$d['responsive_followups'] ?? '0'}}</td>

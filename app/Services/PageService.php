@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Auth;
 
 class PageService
 {
-    public function getLeads($user, $selectedLeads, $selectedCenter, $selectedAgent, $search, $status, $is_valid, $is_genuine, $creation_date, $processed, $segment, $campaign, $source)
+    public function getLeads($user, $selectedLeads, $selectedCenter, $selectedAgent, $search, $status, $is_valid, $is_genuine, $creation_date_from, $creation_date_to, $processed, $segment, $campaign, $source)
     {
         $leadsQuery = Lead::with(['followups' => function ($qr) {
             return $qr->with(['remarks']);
@@ -35,13 +35,15 @@ class PageService
         if ($search != null) {
             $leadsQuery->where('name', 'like', '%' . $search . '%')
             ->orWhere('phone', 'like', '%' . $search . '%');
-        }else{
-            $leadsQuery->where('status', '=', 'Created');
         }
 
         if ($status != null && $status != 'none' && $status != 'all') {
 
-            $leadsQuery->where('status', $status);
+            $leadsQuery->where('status', $status );
+        }
+
+        if($status == null || $status == 'none'){
+            $leadsQuery->where('status', '=', 'Created');
         }
 
         if ($processed != null) {
@@ -50,8 +52,12 @@ class PageService
             $leadsQuery->whereDate('followup_created_at', $today);
         }
 
-        if ($creation_date != null) {
-            $leadsQuery->whereDate('created_at', $creation_date);
+        if ($creation_date_from != null) {
+            $leadsQuery->whereDate('created_at','>=', $creation_date_from);
+        }
+
+        if ($creation_date_to != null) {
+            $leadsQuery->whereDate('created_at','<=', $creation_date_to);
         }
 
         if ($selectedCenter != null && $selectedCenter != 'all') {
@@ -103,9 +109,9 @@ class PageService
         $sources = Source::where('hospital_id', auth()->user()->hospital_id)->get();
 
         if ($selectedLeads != null) {
-            return compact('leads', 'doctors', 'messageTemplates', 'selectedLeads', 'centers', 'agents', 'selectedCenter', 'selectedAgent', 'status', 'is_valid', 'is_genuine', 'segment', 'campaigns', 'sources', 'campaign', 'source', 'search');
+            return compact('leads', 'doctors', 'messageTemplates', 'selectedLeads', 'centers', 'agents', 'selectedCenter', 'selectedAgent', 'status', 'is_valid', 'is_genuine', 'segment', 'campaigns', 'sources', 'campaign', 'source', 'search', 'creation_date_from','creation_date_to','processed');
         } else {
-            return compact('leads', 'doctors', 'messageTemplates', 'centers', 'agents', 'selectedCenter', 'selectedAgent', 'status', 'is_valid', 'is_genuine', 'segment', 'campaigns', 'sources', 'campaign', 'source', 'search');
+            return compact('leads', 'doctors', 'messageTemplates', 'centers', 'agents', 'selectedCenter', 'selectedAgent', 'status', 'is_valid', 'is_genuine', 'segment', 'campaigns', 'sources', 'campaign', 'source', 'search','creation_date_from','creation_date_to','processed');
         }
     }
 
@@ -278,6 +284,8 @@ class PageService
 
         $followup_initiated_leads = Lead::forHospital($hospital->id)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->where('status', '!=', 'Created')->select('assigned_to', DB::raw('COUNT(leads.id) as count, COUNT(CASE WHEN leads.call_status = "Responsive" THEN leads.id END) as responsive_leads'))->groupBy('assigned_to')->get();
 
+        $segment_data = Lead::forHospital($hospital->id)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->select('assigned_to', DB::raw('COUNT(CASE WHEN leads.customer_segment = "hot" THEN leads.id END) as hot_leads, COUNT(CASE WHEN leads.customer_segment = "warm" THEN leads.id END) as warm_leads, COUNT(CASE WHEN leads.customer_segment = "cold" THEN leads.id END) as cold_leads'))->groupBy('assigned_to')->get();
+
         DB::statement("SET SQL_MODE='only_full_group_by'");
 
         $results = [];
@@ -300,6 +308,11 @@ class PageService
         foreach ($followup_initiated_leads as $fil) {
             $results[$fil->assigned_to]['followup_initiated_leads'] = $fil->count;
             $results[$fil->assigned_to]['responsive_leads'] = $fil->responsive_leads;
+        }
+        foreach ($segment_data as $sd) {
+            $results[$sd->assigned_to]['hot_leads'] = $sd->hot_leads;
+            $results[$sd->assigned_to]['warm_leads'] = $sd->warm_leads;
+            $results[$sd->assigned_to]['cold_leads'] = $sd->cold_leads;
         }
 
         return ['counts' => $results, 'agents' => collect($hospital->agents())->pluck('name', 'id')];
@@ -532,7 +545,7 @@ class PageService
         return $genuine_chart_data;
     }
 
-    public function getFollowupData($user, $selectedCenter, $selectedAgent, $search, $status, $is_valid, $is_genuine, $creation_date, $segment, $campaign, $source)
+    public function getFollowupData($user, $selectedCenter, $selectedAgent, $search, $status, $is_valid, $is_genuine, $creation_date_from, $creation_date_to, $segment, $campaign, $source)
     {
 
         $followupsQuery = Followup::whereHas('lead', function ($qr) use ($user) {
@@ -611,10 +624,17 @@ class PageService
             });
         }
 
-        if ($creation_date != null) {
-            $dt = Carbon::createFromFormat('Y-m-d', $creation_date)->format('Y-m-d');
-            $followupsQuery->whereHas('lead', function ($qdt) use ($dt) {
-                return $qdt->whereDate('created_at', $dt);
+        if ($creation_date_from != null) {
+            $dtf = Carbon::createFromFormat('Y-m-d', $creation_date_from)->format('Y-m-d');
+            $followupsQuery->whereHas('lead', function ($qdt) use ($dtf) {
+                return $qdt->whereDate('created_at', '>=', $dtf);
+            });
+        }
+
+        if ($creation_date_to!= null) {
+            $dto = Carbon::createFromFormat('Y-m-d', $creation_date_to)->format('Y-m-d');
+            $followupsQuery->whereHas('lead', function ($qdt) use ($dto) {
+                return $qdt->whereDate('created_at', '<=', $dto);
             });
         }
 
@@ -635,7 +655,7 @@ class PageService
         $campaigns = Campaign::all();
         $sources = Source::where('hospital_id', auth()->user()->hospital_id)->get();
 
-        return compact('followups', 'doctors', 'messageTemplates', 'centers', 'agents', 'selectedCenter', 'selectedAgent', 'status', 'campaigns', 'sources', 'is_valid', 'is_genuine', 'segment', 'campaign', 'source', 'creation_date', 'search');
+        return compact('followups', 'doctors', 'messageTemplates', 'centers', 'agents', 'selectedCenter', 'selectedAgent', 'status', 'campaigns', 'sources', 'is_valid', 'is_genuine', 'segment', 'campaign', 'source', 'creation_date_to', 'creation_date_from', 'search');
     }
 
     public function getSingleFollowupData($user, $id)

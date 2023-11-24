@@ -1,5 +1,6 @@
 <x-easyadmin::app-layout>
 <div x-data="x_leads" x-init="
+        getTableHeading();
         selectedCenter = null;
         @isset($selectedCenter)
             selectedCenter = '{{$selectedCenter}}';
@@ -17,8 +18,11 @@
         @isset($is_genuine)
             is_genuine = '{{$is_genuine}}';
         @endisset
-        @isset($creation_date)
-            creation_date = '{{$creation_date}}';
+        @isset($creation_date_from)
+            creation_date_from = '{{$creation_date_from}}';
+        @endisset
+        @isset($creation_date_to)
+            creation_date_to = '{{$creation_date_to}}';
         @endisset
         @isset($processed)
             isProcessed = true;
@@ -142,8 +146,13 @@
                             </div>
 
                             <div class=" flex flex-col ml-3 mb-1.5">
-                                <label for="" class=" text-xs text-primary font-medium">Created date :</label>
-                                <input type="date" :value="creation_date != null ? creation_date : null" name="creation_date" class=" input input-sm text-base-content font-medium">
+                                <label for="" class=" text-xs text-primary font-medium">Created from :</label>
+                                <input type="date" :value="creation_date_from != null ? creation_date_from : null" name="creation_date_from" class=" input input-sm text-base-content font-medium">
+                            </div>
+
+                            <div class=" flex flex-col ml-3 mb-1.5">
+                                <label for="" class=" text-xs text-primary font-medium">Created to :</label>
+                                <input type="date" :value="creation_date_to != null ? creation_date_to : null" name="creation_date_to" class=" input input-sm text-base-content font-medium">
                             </div>
 
 
@@ -158,6 +167,36 @@
                                     </button>
                                 {{-- </form> --}}
                             </div>
+
+                            <a x-show="!isProcessed" x-cloak class=" btn btn-outline normal-case text-primary btn-sm hover:bg-primary hover:text-black ml-3 mb-1.5"
+                            @click.prevent.stop="leadsProcessedToday();">Processed Today
+                                <x-icons.funnel-icon/>
+                            </a>
+
+                            <a x-show="isProcessed" x-cloak href="" class=" btn btn-outline normal-case text-primary btn-sm hover:bg-primary hover:text-black ml-3 mb-1.5"
+                            @click.prevent.stop="$dispatch('linkaction',{
+                                link: '{{route('fresh-leads')}}',
+                                route: 'fresh-leads',
+                                fragment: 'page-content',
+                                fresh: true
+                            })">Fresh leads
+
+                            </a>
+
+                            <a @click.prevent.stop="createLead = true;" href="" class=" btn btn-sm btn-outline btn-success ml-3 mb-1.5">
+                                New lead
+                                <x-icons.plus-icon/>
+                            </a>
+
+                            <a @click.prevent.stop="referLead = true;" href="" class=" btn btn-sm btn-outline btn-warning ml-3 mb-1.5">
+                                Internal reference
+                                <x-icons.plus-icon/>
+                            </a>
+
+                            <button @click.prevent.stop="$dispatch('linkaction',{link:'{{route('fresh-leads')}}', route: 'fresh-leads', fragment: 'page-content', fresh: true})" class=" btn btn-sm btn-ghost h-fit self-end ml-3 mb-1.5">
+                                <x-icons.refresh-icon/>
+                            </button>
+
                         </div>
 
 
@@ -182,24 +221,7 @@
 
         <div class="w-full flex bg-base-200 px-[1.25%] pt-1.5 space-x-2">
 
-            <a x-show="!isProcessed" x-cloak class=" btn btn-outline normal-case text-primary btn-sm hover:bg-primary hover:text-black"
-            @click.prevent.stop="leadsProcessedToday();">Processed Today</a>
-
-            <a x-show="isProcessed" x-cloak href="" class=" btn btn-outline normal-case text-primary btn-sm hover:bg-primary hover:text-black"
-            @click.prevent.stop="$dispatch('linkaction',{
-                link: '{{route('fresh-leads')}}',
-                route: 'fresh-leads',
-                fragment: 'page-content',
-                fresh: true
-            })">Fresh leads</a>
-
-            <a @click.prevent.stop="createLead = true;" href="" class=" btn btn-sm btn-outline btn-success">
-                New lead
-            </a>
-
-            <a @click.prevent.stop="referLead = true;" href="" class=" btn btn-sm btn-outline btn-warning">
-                Internal reference
-            </a>
+            <h1 class=" font-medium text-base text-base-content" x-text="tableHeading"></h1>
 
         </div>
 
