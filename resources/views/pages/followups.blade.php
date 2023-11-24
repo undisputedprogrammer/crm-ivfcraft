@@ -55,7 +55,7 @@
       <x-sections.side-drawer/>
       {{-- page body --}}
       <div class=" flex flex-col justify-start items-start w-full bg-base-200 pt-1.5  space-y-2">
-        <h1 class=" text-primary text-xl font-semibold bg-base-200 ">Pending follow ups</h1>
+        <h1 class=" text-primary text-xl font-semibold bg-base-200 ">Due and pending follow ups</h1>
 
         <div class=" flex flex-row space-x-4 border border-base-content rounded-lg p-2">
             <form @submit.prevent.stop="filterLead($el,'{{route('followups')}}');" class=" flex flex-col  space-y-2">

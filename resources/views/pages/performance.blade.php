@@ -270,7 +270,6 @@
                                       <th>Total follow-ups</th>
                                       <th>Responsive follow-ups</th>
                                       <th>Non responsive follow-ups</th>
-                                      <th>Leads Consulted</th>
                                       <th>Scheduled follow-ups</th>
                                       {{-- <th></th> --}}
                                     </tr>
@@ -306,10 +305,6 @@
 
                                                 <td class=" text-center">
                                                     {{$d['non_responsive_followups'] ?? '0'}}
-                                                </td>
-
-                                                <td class=" text-center">
-                                                    {{$d['lcm'] ?? '0'}}
                                                 </td>
 
                                                 <td class=" text-center">
