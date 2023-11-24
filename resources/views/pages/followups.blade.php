@@ -60,7 +60,7 @@
         <div class=" flex flex-row space-x-4 border border-base-content rounded-lg p-2">
             <form @submit.prevent.stop="filterLead($el,'{{route('followups')}}');" class=" flex flex-col  space-y-2">
 
-                <div class=" flex flex-col md:flex-row flex-wrap ">
+                <div class=" flex flex-col md:flex-row flex-wrap md:items-end">
 
                     @can('is-admin')
                         <div class=" flex flex-col ml-3 mb-1.5">
@@ -256,7 +256,7 @@
                     fpLoading = false;
                 },500);
                 "
-                class=" w-[44%] border-r border-primary">
+                class=" w-[44%] border-r border-primary  hide-scroll">
                 <h1 class=" font-medium text-base text-secondary">Lead details</h1>
                     <p class="font-medium">Name : <span x-text=" fp.lead != undefined ? fp.lead.name : '' "> </span></p>
                     <p class="font-medium">City : <span x-text="fp.lead != undefined ? fp.lead.city : '' "> </span></p>

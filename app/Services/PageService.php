@@ -284,8 +284,6 @@ class PageService
 
         $followup_initiated_leads = Lead::forHospital($hospital->id)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->where('status', '!=', 'Created')->select('assigned_to', DB::raw('COUNT(leads.id) as count, COUNT(CASE WHEN leads.call_status = "Responsive" THEN leads.id END) as responsive_leads'))->groupBy('assigned_to')->get();
 
-        $segment_data = Lead::forHospital($hospital->id)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->select('assigned_to', DB::raw('COUNT(CASE WHEN leads.customer_segment = "hot" THEN leads.id END) as hot_leads, COUNT(CASE WHEN leads.customer_segment = "warm" THEN leads.id END) as warm_leads, COUNT(CASE WHEN leads.customer_segment = "cold" THEN leads.id END) as cold_leads'))->groupBy('assigned_to')->get();
-
         DB::statement("SET SQL_MODE='only_full_group_by'");
 
         $results = [];
@@ -309,13 +307,46 @@ class PageService
             $results[$fil->assigned_to]['followup_initiated_leads'] = $fil->count;
             $results[$fil->assigned_to]['responsive_leads'] = $fil->responsive_leads;
         }
-        foreach ($segment_data as $sd) {
-            $results[$sd->assigned_to]['hot_leads'] = $sd->hot_leads;
-            $results[$sd->assigned_to]['warm_leads'] = $sd->warm_leads;
-            $results[$sd->assigned_to]['cold_leads'] = $sd->cold_leads;
-        }
+
 
         return ['counts' => $results, 'agents' => collect($hospital->agents())->pluck('name', 'id')];
+    }
+
+    public function getAgentReport($from, $to){
+        if ($from != null && $to != null) {
+            $fromDate = Carbon::createFromFormat('Y-m-d', $from)->format('Y-m-d');
+            $toDate = Carbon::createFromFormat('Y-m-d', $to)->format('Y-m-d');
+        } else {
+            $fromDate = Carbon::today()->startOfMonth()->format('Y-m-d');
+            $toDate = Carbon::today()->format('Y-m-d');
+        }
+
+        $hospital = auth()->user()->hospital_id;
+
+        if (auth()->user()->hasRole('admin')) {
+            $agentReportQuery = Lead::forHospital($hospital);
+        } else {
+            $agentReportQuery = Lead::forHospital($hospital)->where('assigned_to', auth()->user()->id);
+        }
+
+        $results = $agentReportQuery->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->select('assigned_to', DB::raw('COUNT(DISTINCT leads.id) as total_leads, COUNT(CASE WHEN leads.status != "Created" THEN leads.id END) as followup_initiated_leads, COUNT(CASE WHEN leads.is_valid = true THEN leads.id END) as valid_leads, COUNT(CASE WHEN leads.is_genuine = true THEN leads.id END) as genuine_leads, COUNT(CASE WHEN leads.customer_segment = "hot" THEN leads.id END) as hot_leads, COUNT(CASE WHEN leads.customer_segment = "warm" THEN leads.id END) as warm_leads, COUNT(CASE WHEN leads.customer_segment = "cold" THEN leads.id END) as cold_leads, COUNT(CASE WHEN leads.status = "Consulted" THEN leads.id END) as consulted_leads, COUNT(CASE WHEN leads.status = "Closed" THEN leads.id END) as closed_leads, COUNT(CASE WHEN leads.call_status = "Not responsive" THEN leads.id END) as non_responsive_leads'))->groupBy('assigned_to')->get();
+
+        $agentsReport = [];
+        foreach($results as $result){
+            $agentsReport[$result->assigned_to]['total_leads'] = $result->total_leads;
+            $agentsReport[$result->assigned_to]['followup_initiated_leads'] = $result->followup_initiated_leads;
+            $agentsReport[$result->assigned_to]['valid_leads'] = $result->valid_leads;
+            $agentsReport[$result->assigned_to]['genuine_leads'] = $result->genuine_leads;
+            $agentsReport[$result->assigned_to]['hot_leads'] = $result->hot_leads;
+            $agentsReport[$result->assigned_to]['warm_leads'] = $result->warm_leads;
+            $agentsReport[$result->assigned_to]['cold_leads'] = $result->cold_leads;
+            $agentsReport[$result->assigned_to]['consulted_leads'] = $result->consulted_leads;
+            $agentsReport[$result->assigned_to]['closed_leads'] = $result->closed_leads;
+            $agentsReport[$result->assigned_to]['non_responsive_leads'] = $result->non_responsive_leads;
+        }
+
+        return ['agentsReport' => $agentsReport];
+
     }
 
     public function getCampaignReport($from, $to)

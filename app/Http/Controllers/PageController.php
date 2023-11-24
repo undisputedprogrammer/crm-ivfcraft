@@ -50,6 +50,7 @@ class PageController extends SmartController
         $performance = $this->pageService->agentsPerformance($request->from, $request->to);
         $campaignReport = $this->pageService->getCampaignReport($request->from, $request->to);
         $sourceReport = $this->pageService->getSourceReport($request->from, $request->to);
+        $agentsReport = $this->pageService->getAgentReport($request->from, $request->to);
 
         $search = [];
         if($request->from != null && $request->to != null){
@@ -60,7 +61,7 @@ class PageController extends SmartController
             $search['to'] = Carbon::today()->format('Y-m-d');
         }
 
-        return $this->buildResponse('pages.performance', array_merge($overview, $performance, $campaignReport, $search, $sourceReport));
+        return $this->buildResponse('pages.performance', array_merge($overview, $performance, $campaignReport, $search, $sourceReport, $agentsReport));
     }
 
 

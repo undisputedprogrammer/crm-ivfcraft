@@ -7,7 +7,7 @@
         <label tabindex="0" class="btn btn-sm"
         @click.prevent.stop="visit_dropdown.style.visibility ='visible' "><span x-text="lead.q_visit == null || lead.q_visit == 'null' ? 'Not selected' : lead.q_visit " class=" text-secondary"></span><x-icons.down-arrow /></label>
 
-        <ul id="visit-question-dropdown" tabindex="0" class="dropdown-content z-[1] mt-1  menu p-2 shadow rounded-box w-52" :class="theme == 'light' ? ' bg-base-200' : 'bg-neutral' ">
+        <ul id="visit-question-dropdown" tabindex="0" class="dropdown-content z-[20] mt-1  menu p-2 shadow rounded-box w-52" :class="theme == 'light' ? ' bg-base-200' : 'bg-neutral' ">
             <li><a @click.prevent.stop="
                 $dispatch('changequestion',{
                     link: '{{route('lead.answer')}}',

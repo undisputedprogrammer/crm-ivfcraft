@@ -147,8 +147,112 @@
 
                         {{-- @can('is-admin') --}}
 
+                        <div>
+                            <h1 class=" font-medium text-base-content lg:text-lg">Agent Analysis</h1>
+                            <div class="rounded-lg w-fit overflow-hidden border border-opacity-60 h-fit">
+
+                                <div class="overflow-x-auto">
+
+                                    <table class="table">
+                                      <!-- head -->
+                                      <thead>
+                                        <tr class=" bg-base-300 text-secondary">
+                                          <th>
+                                            @if (auth()->user()->hasRole('admin'))
+                                                Agent
+                                                @else
+                                                Name
+                                            @endif
+                                          </th>
+                                          <th>Total Leads</th>
+                                          <th>Followup initiated leads</th>
+                                          <th>Valid leads</th>
+                                          <th>Genuine leads</th>
+                                          <th>Hot</th>
+                                          <th>Warm</th>
+                                          <th>Cold</th>
+                                          <th>Consulted leads</th>
+                                          <th>Closed leads</th>
+                                          <th>Non responsive leads</th>
+                                          {{-- <th></th> --}}
+                                        </tr>
+                                      </thead>
+                                      <tbody class=" text-base-content font-medium text-sm h-fit">
+
+                                        @foreach ($agentsReport as $k => $d)
+                                            @if (auth()->user()->id == $k || auth()->user()->hasRole('admin'))
+                                                <tr class="bg-base-200 hover:bg-base-100">
+                                                    <th class=" text-center">{{$agents[$k] ?? '0'}}</th>
+                                                    <td class=" text-center">
+                                                        <a href="{{route('fresh-leads',[
+                                                            'creation_date_from' => $from,
+                                                            'creation_date_to' => $to,
+                                                            'agent' => $k,
+                                                            'status' => 'all'
+                                                        ])}}" target="blank" class="text-warning hover:underline">
+                                                            {{$d['total_leads'] ?? '0'}}
+                                                        </a>
+                                                    </td>
+
+                                                    <td class=" text-center">
+                                                        {{$d['followup_initiated_leads'] ?? '0'}}
+                                                    </td>
+
+                                                    <td class=" text-center">
+                                                        {{$d['valid_leads'] ?? '0'}}
+                                                    </td>
+
+                                                    <td class=" text-center">
+                                                        {{$d['genuine_leads'] ?? '0'}}
+                                                    </td>
+
+                                                    <td class=" text-center">
+                                                        {{$d['hot_leads'] ?? '0'}}
+                                                    </td>
+
+                                                    <td class=" text-center">
+                                                        {{$d['warm_leads'] ?? '0'}}
+                                                    </td>
+
+                                                    <td class=" text-center">
+                                                        {{$d['cold_leads'] ?? '0'}}
+                                                    </td>
+
+                                                    <td class=" text-center">
+                                                        {{$d['consulted_leads'] ?? '0'}}
+                                                    </td>
+
+                                                    <td class=" text-center">
+                                                        {{$d['closed_leads'] ?? '0'}}
+                                                    </td>
+
+                                                    <td class=" text-center">
+                                                        {{$d['non_responsive_leads'] ?? '0'}}
+                                                    </td>
+                                                    {{-- <td><button class="btn btn-xs btn-ghost text-primary lowercase">view</button></td> --}}
+                                                </tr>
+                                            @endif
+                                        @endforeach
+
+                                        @if (count($counts) < 1)
+                                                <tr>
+                                                    <td>No data for the selected month</td>
+                                                </tr>
+                                        @endif
+
+                                      </tbody>
+                                    </table>
+                                  </div>
+                            </div>
+                        </div>
+
+
+                        <div>
+                        <h1 class=" font-medium text-base-content lg:text-lg">Follow-up Analysis</h1>
                         <div class="rounded-lg w-fit overflow-hidden border border-opacity-60 h-fit">
+
                             <div class="overflow-x-auto">
+
                                 <table class="table">
                                   <!-- head -->
                                   <thead>
@@ -162,9 +266,6 @@
                                       </th>
                                       <th>Total Leads</th>
                                       <th>Responsive Leads</th>
-                                      <th>Hot</th>
-                                      <th>Warm</th>
-                                      <th>Cold</th>
                                       <th>Followup initiated leads</th>
                                       <th>Total follow-ups</th>
                                       <th>Responsive follow-ups</th>
@@ -179,28 +280,41 @@
                                     @foreach ($counts as $k => $d)
                                         @if (auth()->user()->id == $k || auth()->user()->hasRole('admin'))
                                             <tr class="bg-base-200 hover:bg-base-100">
-                                                <th>{{$agents[$k] ?? '0'}}</th>
-                                                <td>
-                                                    <a href="{{route('fresh-leads',[
-                                                        'creation_date_from' => $from,
-                                                        'creation_date_to' => $to,
-                                                        'agent' => $k,
-                                                        'status' => 'all'
-                                                    ])}}" target="blank" class=" hover:text-info hover:underline">
-                                                        {{$d['lpm'] ?? '0'}}
-                                                    </a>
+                                                <th class=" text-center">
+                                                    {{$agents[$k] ?? '0'}}
+                                                </th>
+
+                                                <td class=" text-center">
+                                                    {{$d['lpm'] ?? '0'}}
                                                 </td>
-                                                <td>{{$d['responsive_leads'] ?? '0'}}</td>
-                                                <td>{{$d['hot_leads'] ?? '0'}}</td>
-                                                <td>{{$d['warm_leads'] ?? '0'}}</td>
-                                                <td>{{$d['cold_leads'] ?? '0'}}</td>
-                                                <td>{{$d['followup_initiated_leads'] ?? '0'}}</td>
-                                                <td>{{$d['ftm'] ?? '0'}}</td>
-                                                <td>{{$d['responsive_followups'] ?? '0'}}</td>
-                                                <td>{{$d['non_responsive_followups'] ?? '0'}}</td>
-                                                <td>{{$d['lcm'] ?? '0'}}</td>
-                                                <td>{{$d['pf'] ?? '0'}}</td>
-                                                {{-- <td><button class="btn btn-xs btn-ghost text-primary lowercase">view</button></td> --}}
+
+                                                <td class=" text-center">
+                                                    {{$d['responsive_leads'] ?? '0'}}
+                                                </td>
+
+                                                <td class=" text-center">
+                                                    {{$d['followup_initiated_leads'] ?? '0'}}
+                                                </td>
+
+                                                <td class=" text-center">
+                                                    {{$d['ftm'] ?? '0'}}
+                                                </td>
+
+                                                <td class=" text-center">
+                                                    {{$d['responsive_followups'] ?? '0'}}
+                                                </td>
+
+                                                <td class=" text-center">
+                                                    {{$d['non_responsive_followups'] ?? '0'}}
+                                                </td>
+
+                                                <td class=" text-center">
+                                                    {{$d['lcm'] ?? '0'}}
+                                                </td>
+
+                                                <td class=" text-center">
+                                                    {{$d['pf'] ?? '0'}}
+                                                </td>
                                             </tr>
                                         @endif
                                     @endforeach
@@ -215,9 +329,11 @@
                                 </table>
                               </div>
                         </div>
+                    </div>
 
                         {{-- @endcan --}}
-
+                        <div>
+                        <h1 class=" font-medium text-base-content lg:text-lg">Campaign Analysis</h1>
                         <div class="rounded-lg w-fit overflow-hidden border border-opacity-60">
                             <div class="overflow-x-auto">
                                 <table class="table">
@@ -243,17 +359,49 @@
 
                                     @foreach ($campaignReport as $campaign => $data)
                                         <tr class="bg-base-200 hover:bg-base-100">
-                                            <th>{{$campaign == "" ? 'Direct leads' : $campaign}}</th>
-                                            <td>{{$data['total_leads'] ?? '0'}}</td>
-                                            <td>{{$data['followup_initiated_leads'] ?? '0'}}</td>
-                                            <td>{{$data['valid_leads'] ?? '0'}}</td>
-                                            <td>{{$data['genuine_leads'] ?? '0'}}</td>
-                                            <td>{{$data['hot_leads'] ?? '0'}}</td>
-                                            <td>{{$data['warm_leads'] ?? '0'}}</td>
-                                            <td>{{$data['cold_leads'] ?? '0'}}</td>
-                                            <td>{{$data['leads_converted'] ?? '0'}}</td>
-                                            <td>{{$data['closed_leads'] ?? '0'}}</td>
-                                            <td>{{$data['non_responsive_leads'] ?? '0'}}</td>
+                                            <th class=" text-center">
+                                                {{$campaign == "" ? 'Direct leads' : $campaign}}
+                                            </th>
+
+                                            <td class=" text-center">
+                                                {{$data['total_leads'] ?? '0'}}
+                                            </td>
+
+                                            <td class=" text-center">
+                                                {{$data['followup_initiated_leads'] ?? '0'}}
+                                            </td>
+
+                                            <td class=" text-center">
+                                                {{$data['valid_leads'] ?? '0'}}
+                                            </td>
+
+                                            <td class=" text-center">
+                                                {{$data['genuine_leads'] ?? '0'}}
+                                            </td>
+
+                                            <td class=" text-center">
+                                                {{$data['hot_leads'] ?? '0'}}
+                                            </td>
+
+                                            <td class=" text-center">
+                                                {{$data['warm_leads'] ?? '0'}}
+                                            </td>
+
+                                            <td class=" text-center">
+                                                {{$data['cold_leads'] ?? '0'}}
+                                            </td>
+
+                                            <td class=" text-center">
+                                                {{$data['leads_converted'] ?? '0'}}
+                                            </td>
+
+                                            <td class=" text-center">
+                                                {{$data['closed_leads'] ?? '0'}}
+                                            </td>
+
+                                            <td class=" text-center">
+                                                {{$data['non_responsive_leads'] ?? '0'}}
+                                            </td>
                                         </tr>
                                     @endforeach
                                     @if (count($campaignReport) < 1)
@@ -266,10 +414,12 @@
                                 </table>
                               </div>
                         </div>
+                    </div>
 
 
                         {{-- Source report --}}
-
+                        <div>
+                        <h1 class=" font-medium text-base-content lg:text-lg">Source Analysis</h1>
                         <div class="rounded-lg w-fit overflow-hidden border border-opacity-60">
                             <div class="overflow-x-auto">
                                 <table class="table">
@@ -294,17 +444,50 @@
 
                                     @foreach ($sourceReport as $source => $data)
                                         <tr class="bg-base-200 hover:bg-base-100">
-                                            <th>{{$source}}</th>
-                                            <td>{{$data['total_leads'] ?? '0'}}</td>
-                                            <td>{{$data['followup_initiated_leads'] ?? '0'}}</td>
-                                            <td>{{$data['valid_leads'] ?? '0'}}</td>
-                                            <td>{{$data['genuine_leads'] ?? '0'}}</td>
-                                            <td>{{$data['hot_leads'] ?? '0'}}</td>
-                                            <td>{{$data['warm_leads'] ?? '0'}}</td>
-                                            <td>{{$data['cold_leads'] ?? '0'}}</td>
-                                            <td>{{$data['converted_leads'] ?? '0'}}</td>
-                                            <td>{{$data['closed_leads'] ?? '0'}}</td>
-                                            <td>{{$data['non_responsive_leads'] ?? '0'}}</td>
+
+                                            <th class=" text-center">
+                                                {{$source}}
+                                            </th>
+
+                                            <td class=" text-center">
+                                                {{$data['total_leads'] ?? '0'}}
+                                            </td>
+
+                                            <td class=" text-center">
+                                                {{$data['followup_initiated_leads'] ?? '0'}}
+                                            </td>
+
+                                            <td class=" text-center">
+                                                {{$data['valid_leads'] ?? '0'}}
+                                            </td>
+
+                                            <td class=" text-center">
+                                                {{$data['genuine_leads'] ?? '0'}}
+                                            </td>
+
+                                            <td class=" text-center">
+                                                {{$data['hot_leads'] ?? '0'}}
+                                            </td>
+
+                                            <td class=" text-center">
+                                                {{$data['warm_leads'] ?? '0'}}
+                                            </td>
+
+                                            <td class=" text-center">
+                                                {{$data['cold_leads'] ?? '0'}}
+                                            </td>
+
+                                            <td class=" text-center">
+                                                {{$data['converted_leads'] ?? '0'}}
+                                            </td>
+
+                                            <td class=" text-center">
+                                                {{$data['closed_leads'] ?? '0'}}
+                                            </td>
+
+                                            <td class=" text-center">
+                                                {{$data['non_responsive_leads'] ?? '0'}}
+                                            </td>
                                         </tr>
                                     @endforeach
                                     @if (count($sourceReport) < 1)
@@ -317,6 +500,7 @@
                                 </table>
                               </div>
                         </div>
+                    </div>
 
 
                     </div>

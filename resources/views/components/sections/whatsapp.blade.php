@@ -1,5 +1,5 @@
 @props(['templates'])
-<div x-show="!messageLoading" class=" h-[470px] hide-scroll relative">
+<div x-show="!messageLoading" class=" h-[460px] hide-scroll relative bg-base-200 py-2 rounded-lg">
     <div x-data="{
         open: false,
         displayImage(src){
@@ -52,7 +52,7 @@
     </div>
 
 
-    <div class=" absolute bottom-0 w-full pt-1 z-40">
+    <div class=" absolute bottom-1 w-full pt-1 z-40">
         <form x-data="{
             value : '',
             custom : false,
