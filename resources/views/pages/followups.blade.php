@@ -194,17 +194,23 @@
         {{-- details section --}}
         <div
         x-data = "{
-                show_remarks_form: false
+                show_remarks_form: false,
+                fpLoading: false
             }"
         class=" w-[96%] lg:w-[50%] min-h-[100%] max-h-[100%] h-fit hide-scroll overflow-y-scroll  bg-base-100 text-base-content rounded-xl p-3 xl:px-6 py-3">
             <h1 class="text-lg text-secondary font-semibold text-center">Follow up details</h1>
             <p x-show="!fpselected" class=" font-semibold text-base text-center mt-4">Select a follow up...</p>
 
+            <div x-show="fpLoading" class=" w-full flex flex-col space-y-2 justify-center items-center py-8">
+                <span class="loading loading-bars loading-md "></span>
+            </div>
+
             <x-helpers.lead-segment-helper/>
-            <div x-show="fpselected" class="flex w-full mt-3">
+            <div x-show="fpselected && !fpLoading" class="flex w-full mt-3">
                 <div
                 {{-- updating values in the details section --}}
                 @fpupdate.window="
+                fpLoading = true;
                 showconsultform = false;
                 $dispatch('resetsection');
                 appointment = $event.detail.appointment;
@@ -246,6 +252,9 @@
                   });
                   show_remarks_form = !fp.remarks || fp.remarks.length ==0;
                   $dispatch('resetaction');
+                  setTimeout(()=>{
+                    fpLoading = false;
+                },500);
                 "
                 class=" w-[44%] border-r border-primary">
                 <h1 class=" font-medium text-base text-secondary">Lead details</h1>

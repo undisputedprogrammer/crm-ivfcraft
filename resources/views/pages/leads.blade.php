@@ -169,7 +169,9 @@
                             </div>
 
                             <a x-show="!isProcessed" x-cloak class=" btn btn-outline normal-case text-primary btn-sm hover:bg-primary hover:text-black ml-3 mb-1.5"
-                            @click.prevent.stop="leadsProcessedToday();">Processed Today</a>
+                            @click.prevent.stop="leadsProcessedToday();">Processed Today
+                                <x-icons.funnel-icon/>
+                            </a>
 
                             <a x-show="isProcessed" x-cloak href="" class=" btn btn-outline normal-case text-primary btn-sm hover:bg-primary hover:text-black ml-3 mb-1.5"
                             @click.prevent.stop="$dispatch('linkaction',{
@@ -177,14 +179,18 @@
                                 route: 'fresh-leads',
                                 fragment: 'page-content',
                                 fresh: true
-                            })">Fresh leads</a>
+                            })">Fresh leads
+
+                            </a>
 
                             <a @click.prevent.stop="createLead = true;" href="" class=" btn btn-sm btn-outline btn-success ml-3 mb-1.5">
                                 New lead
+                                <x-icons.plus-icon/>
                             </a>
 
                             <a @click.prevent.stop="referLead = true;" href="" class=" btn btn-sm btn-outline btn-warning ml-3 mb-1.5">
                                 Internal reference
+                                <x-icons.plus-icon/>
                             </a>
 
                             <button @click.prevent.stop="$dispatch('linkaction',{link:'{{route('fresh-leads')}}', route: 'fresh-leads', fragment: 'page-content', fresh: true})" class=" btn btn-sm btn-ghost h-fit self-end ml-3 mb-1.5">
