@@ -186,6 +186,11 @@
                             <a @click.prevent.stop="referLead = true;" href="" class=" btn btn-sm btn-outline btn-warning ml-3 mb-1.5">
                                 Internal reference
                             </a>
+
+                            <button @click.prevent.stop="$dispatch('linkaction',{link:'{{route('fresh-leads')}}', route: 'fresh-leads', fragment: 'page-content', fresh: true})" class=" btn btn-sm btn-ghost h-fit self-end ml-3 mb-1.5">
+                                <x-icons.refresh-icon/>
+                            </button>
+
                         </div>
 
 

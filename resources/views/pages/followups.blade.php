@@ -171,6 +171,10 @@
                             </button>
                         {{-- </form> --}}
                     </div>
+
+                    <button @click.prevent.stop="$dispatch('linkaction',{link:'{{route('followups')}}', route: 'followups', fragment: 'page-content', fresh: true})" class=" btn btn-sm btn-ghost h-fit self-end ml-3 mb-1.5">
+                        <x-icons.refresh-icon/>
+                    </button>
                 </div>
 
             </form>
