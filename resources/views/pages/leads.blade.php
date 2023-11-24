@@ -198,7 +198,7 @@
             </a>
 
             <a @click.prevent.stop="referLead = true;" href="" class=" btn btn-sm btn-outline btn-warning">
-                Refer
+                Internal reference
             </a>
 
         </div>
