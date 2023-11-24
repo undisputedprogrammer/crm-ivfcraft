@@ -4,6 +4,9 @@
         @isset($selectedCenter)
             selectedCenter = '{{$selectedCenter}}';
         @endisset
+        @isset($selectedAgent)
+            selectedAgent = '{{$selectedAgent}}';
+        @endisset
         @isset($status)
             selectedStatus = '{{$status}}';
         @endisset
@@ -19,6 +22,18 @@
         @endisset
         @isset($processed)
             isProcessed = true;
+        @endisset
+        @isset($segment)
+            segment = '{{$segment}}';
+        @endisset
+        @isset($campaign)
+            campaign = '{{$campaign}}';
+        @endisset
+        @isset($source)
+            source = '{{$source}}';
+        @endisset
+        @isset($search)
+            search = '{{$search}}';
         @endisset"
     >
     <div class=" flex flex-col flex-auto flex-shrink-0 antialiased bg-base-100  text-black ">
@@ -29,37 +44,128 @@
 
         <div class=" flex bg-base-200 items-center justify-between px-[1.25%]">
 
-            <div class=" flex space-x-3 items-center justify-start pt-1.5">
+            <div class="flex flex-col items-start justify-start ">
                 <h1 class=" text-primary text-xl font-semibold bg-base-200 ">Leads</h1>
-                <div class=" flex flex-col md:flex-row space-y-2 items-center md:space-y-0 space-x-3">
-                    @can('is-admin')
-                        @php
-                        $route = "fresh-leads";
-                        @endphp
-                        <x-forms.filter-leads :route="$route" :centers="$centers"/>
-                    @endcan
 
-                    {{-- Search lead by name or phone number --}}
-                    <div>
-                        <form @submit.prevent.stop="searchlead();" id="lead-search-form" class=" relative mx-auto text-base-content p-1 bg-neutral rounded-lg">
-                            <input class="border border-primary bg-base-100 input input-sm  focus:outline-none focus:ring-0 focus-within:border-primary text-base-content"
-                              type="text" name="search" placeholder="Search name or phone">
-                            <button type="submit" class="absolute right-2 top-1/2 transform -translate-y-1/2 ">
-                              <x-icons.search-icon/>
-                            </button>
-                        </form>
-                    </div>
+                {{-- change the div here to form --}}
+                <div class=" flex flex-row space-x-4 border border-base-content rounded-lg p-2">
+                    <form @submit.prevent.stop="filterLead($el);" class=" flex flex-col  space-y-2">
 
-                    {{-- filter lead by status --}}
-                    <div>
-                        <x-forms.filter-lead-by-status :status="$status"/>
-                    </div>
+                        <div class=" flex flex-col md:flex-row flex-wrap">
 
-                    <div>
-                        <x-forms.filter-lead-by-date/>
-                    </div>
+                            @can('is-admin')
+                                <div class=" flex flex-col ml-3 mb-1.5">
+                                    <label for="" class=" text-primary font-medium text-xs">Center :</label>
+                                    <select name="center" id="select-center" class=" select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
+                                        <option value="all">All Centers</option>
+                                        @foreach ($centers as $center)
+                                            <option value="{{$center->id}}" :selected="selectedCenter == '{{$center->id}}' ">{{$center->name}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class=" flex flex-col ml-3 mb-1.5">
+                                    <label for="" class=" text-primary font-medium text-xs">Agent :</label>
+                                    <select name="agent" id="select-agent" class=" select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
+                                        <option value="all">All Agents</option>
+                                        @foreach ($agents as $agent)
+                                            <option value="{{$agent->id}}" :selected="selectedAgent == '{{$agent->id}}' ">{{$agent->name}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endcan
+
+
+                            <div class=" flex flex-col ml-3 mb-1.5">
+                                <label for="" class=" text-xs text-primary font-medium">Status :</label>
+                                <select name="status" id="select-status" class=" select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
+                                    <option value="none" :selected="'{{$status}}'=='null' || '{{$status}}'=='none'">Fresh Leads</option>
+                                    <option value="all" :selected="'{{$status}}'=='all' ">All leads</option>
+                                    @foreach (config('appSettings')['lead_statuses'] as $st)
+                                    <template x-if="'{{$st}}' != 'Created'">
+                                        <option value="{{$st}}" :selected="'{{$status}}' == '{{$st}}' ">{{$st}}</option>
+                                    </template>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class=" flex-col flex ml-3 mb-1.5">
+
+                                <label for="" class=" text-xs text-primary font-medium">Segment : </label>
+                                <select name="segment" id="segment" class="select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
+                                    <option value="">Not Selected</option>
+                                    @foreach (config('appSettings.lead_segments') as $segment)
+                                        <option :selected="segment == '{{$segment}}'" value="{{$segment}}">{{ucfirst($segment)}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class=" flex-col flex ml-3 mb-1.5">
+
+                                <label for="" class=" text-xs text-primary font-medium">Campaign : </label>
+                                <select name="campaign" id="campaign" class="select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
+                                    <option value="">Not Selected</option>
+                                    @foreach ($campaigns as $campaign)
+                                        <option :selected="campaign == '{{$campaign->name}}'" value="{{$campaign->name}}">{{ucfirst($campaign->name)}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class=" flex-col flex ml-3 mb-1.5">
+
+                                <label for="" class=" text-xs text-primary font-medium">Sources : </label>
+                                <select name="source" id="source" class="select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
+                                    <option value="">Not Selected</option>
+                                    @foreach ($sources as $source)
+                                        <option :selected="source == '{{$source->id}}'" value="{{$source->id}}">{{ucfirst($source->name)}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class=" flex-col flex ml-3 mb-1.5">
+
+                                <label for="" class=" text-xs text-primary font-medium">Validity :</label>
+                                <select name="is_valid" id="is-valid" class="select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
+                                    <option value="">Not Selected</option>
+                                    <option :selected="is_valid == 'true'" value="true">Valid</option>
+                                    <option :selected="is_valid == 'false'" value="false">Not Valid</option>
+                                </select>
+                            </div>
+
+                            <div class=" flex flex-col ml-3 mb-1.5">
+                                <label for="" class=" text-xs text-primary font-medium">Genuinity :</label>
+                                <select name="is_genuine" id="is-genuine" class="select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
+                                    <option value="">Not Selected</option>
+                                    <option :selected="is_genuine == 'true'" value="true">Genuine</option>
+                                    <option :selected="is_genuine == 'false'" value="false">Not Genuine</option>
+                                </select>
+                            </div>
+
+                            <div class=" flex flex-col ml-3 mb-1.5">
+                                <label for="" class=" text-xs text-primary font-medium">Created date :</label>
+                                <input type="date" :value="creation_date != null ? creation_date : null" name="creation_date" class=" input input-sm text-base-content font-medium">
+                            </div>
+
+
+                            <button type="submit" class=" btn-primary btn btn-sm self-end ml-3 mb-1.5">Filter</button>
+
+                            <div class=" self-end flex flex-row bg-base-100 border border-primary px-1 rounded-lg ml-3 mb-1.5">
+                                {{-- <form @submit.prevent.stop="searchlead();" id="lead-search-form" class=" relative mx-auto text-base-content  rounded-lg"> --}}
+                                    <input class="  bg-base-100 input input-sm  focus:outline-none focus:ring-0 focus-within:border-0 text-base-content"
+                                      type="text" name="search" :value="search" id="search-input" placeholder="Search name or phone">
+                                    <button type="submit" @click.prevent.stop="searchlead();" class=" ">
+                                      <x-icons.search-icon/>
+                                    </button>
+                                {{-- </form> --}}
+                            </div>
+                        </div>
+
+
+                    </form>
+
 
                 </div>
+
 
             </div>
 
@@ -72,6 +178,7 @@
         <x-modals.lead-edit-modal/>
         <x-modals.create-lead-modal :centers="$centers"/>
         <x-modals.display-image/>
+        <x-modals.internal-referance :centers="$centers"/>
 
         <div class="w-full flex bg-base-200 px-[1.25%] pt-1.5 space-x-2">
 
@@ -88,6 +195,10 @@
 
             <a @click.prevent.stop="createLead = true;" href="" class=" btn btn-sm btn-outline btn-success">
                 New lead
+            </a>
+
+            <a @click.prevent.stop="referLead = true;" href="" class=" btn btn-sm btn-outline btn-warning">
+                Refer
             </a>
 
         </div>

@@ -9,5 +9,9 @@ class Source extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['code','name'];
+    protected $fillable = ['hospital_id','code','name', 'is_enabled'];
+
+    public function hospital(){
+        return $this->belongsTo(Hospital::class, 'hospital_id', 'id');
+    }
 }

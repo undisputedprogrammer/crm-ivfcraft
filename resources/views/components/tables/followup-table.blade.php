@@ -8,8 +8,8 @@
             <tr class=" text-secondary ">
               {{-- <th></th> --}}
               <th>Name</th>
-              <th>City</th>
-              <th>Phone</th>
+              <th>Campaign</th>
+              <th>Source</th>
             </tr>
           </thead>
           <tbody>
@@ -25,9 +25,14 @@
                     $dispatch('fpupdate',{followup : {{json_encode($followup)}}, lead: {{json_encode($followup->lead)}}, remarks: {{json_encode($followup->remarks)}}, id: {{$followup->id}}, lead_remarks: {{json_encode($followup->lead->remarks)}}, appointment: {{json_encode($followup->lead->appointment)}}, qnas: {{json_encode($followup->lead->qnas)}} })"
                     >
                     {{-- <th>{{$followup->id}}</th> --}}
-                    <td>{{$followup->lead->name}}</td>
-                    <td>{{$followup->lead->city}}</td>
-                    <td>{{$followup->lead->phone}}</td>
+                    <td>
+                        <div class=" flex flex-col">
+                            <span>{{$followup->lead->name}}</span>
+                            <span class=" text-info-content text-xs">{{$followup->lead->city}}</span>
+                        </div>
+                    </td>
+                    <td>{{$followup->lead->campaign != '' ? $followup->lead->campaign : 'Unknown'}}</td>
+                    <td>{{$followup->lead->source->name}}</td>
                 </tr>
             @endforeach
 

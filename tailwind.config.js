@@ -152,6 +152,8 @@ export default {
 
                     "info": "#799edc",
 
+                    "info-content": "#B9B4C7",
+
                     "success": "#13a094",
 
                     "warning": "#f7ba64",
@@ -172,6 +174,8 @@ export default {
                     "base-100": "#2e3447",
 
                     "info": "#2b9cde",
+
+                    "info-content": "#B9B4C7",
 
                     "success": "#31dd8a",
 

@@ -82,7 +82,7 @@ class LeadsImport implements ToArray, WithHeadingRow
             info("going to create lead");
             $lead = Lead::create([
                 'name' => $row[$this->mainCols->name],
-                'phone' => $row[$this->mainCols->phone],
+                'phone' => str_replace(['+','-',' '] ,'' ,$row[$this->mainCols->phone]),
                 'email' => $row[$this->mainCols->email] ?? '',
                 'city' => $row[$this->mainCols->city] ?? '',
                 'campaign' => $row[$this->mainCols->campaign] ?? '',
@@ -139,7 +139,7 @@ class LeadsImport implements ToArray, WithHeadingRow
     public function checkAndStoreCampaign($campaign){
         $campaign = ucwords(strtolower($campaign));
         $existing_campaign = Campaign::where('name', $campaign)->get()->first();
-        if(!$existing_campaign){
+        if(!$existing_campaign && $campaign != ''){
             Campaign::create([
                 'name' => $campaign
             ]);

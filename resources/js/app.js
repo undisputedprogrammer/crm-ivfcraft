@@ -11,6 +11,7 @@ import messenger from './components/pages/messenger';
 import overview from './components/pages/overview';
 import agents from './components/pages/agents';
 import emails from './components/pages/emails';
+import followups from './components/pages/followups';
 
 Alpine.plugin(persist)
 
@@ -34,6 +35,7 @@ Alpine.data('x_messenger', messenger);
 Alpine.data('x_overview', overview);
 Alpine.data('x_agents', agents);
 Alpine.data('x_emails', emails);
+Alpine.data('x_followups', followups);
 
 Alpine.start();
 

@@ -24,41 +24,29 @@ class SourceController extends SmartController
     }
 
     public function fetch(Request $request){
-        $sources = Source::all();
+        $sources = Source::where('hospital_id',auth()->user()->hospital_id)->get();
         return response()->json(['sources'=> $sources]);
     }
 
-    public function setSource(){
-        $sources = [
-            ['code' => 'FB', 'name' => 'Facebook'],
-            ['code' => 'WA', 'name' => 'WhatsApp']
-        ];
+    public function update(Request $request){
+        $source = Source::find($request->source_id);
 
-        // $non_import_leads = [];
-
-        // $non_import_source = Source::create(['code'=>'', 'name'=>'']);
-
-        foreach($sources as $source){
-            Source::create([
-                'code' => $source['code'],
-                'name' => $source['name']
-            ]);
-        }
-        $facebook_source = Source::where('code','FB')->get()->first();
-
-        $leads= Lead::where('source_id', null)->get();
-
-        foreach($leads as $lead){
-            // if(!in_array($lead->phone, $non_import_leads)){
-                $lead->source_id = $facebook_source->id;
-                $lead->save();
-            // }
-            // else{
-            //     $lead->source_id = $non_import_source->id;
-            //     $lead->save();
-            // }
+        if(in_array($source->code, ['IRF'])){
+            return response()->json(['success'=>false, 'message' => 'Updating this source is restricted']);
         }
 
-        return redirect('/sources');
+        if(!$source){
+            return response()->json(['success' => true, 'message' => 'Could not fetch source !']);
+        }
+        info(filter_var($request->is_enabled, FILTER_VALIDATE_BOOL));
+
+        $source->update([
+            'code' => $request->code,
+            'name' => $request->name,
+            'is_enabled' => filter_var($request->is_enabled, FILTER_VALIDATE_BOOL) == 1 ? true : false
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Source updated !']);
     }
+
 }

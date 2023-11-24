@@ -40,6 +40,11 @@ class FollowupController extends SmartController
         $lead->followup_created = true;
         $lead->status = "Follow-up Started";
         $lead->followup_created_at = Carbon::now();
+
+        if($lead->call_status != "Responsive"){
+            $lead->call_status = $request->call_status;
+        }
+
         $lead->save();
         return response()->json(['success' => true, 'message' => 'Follow up has been initiated for this lead', 'followup' => $followup, 'completed_followup' => $current_followup]);
         // return response()->json(['success'=>true,'message'=>'converted '.$followup->converted]);
@@ -80,17 +85,17 @@ class FollowupController extends SmartController
             'user_id' => $request->user()->id
         ]);
 
-        // if($request->converted == true){
-        //     $next_followup->converted = true;
-        //     $next_followup->save();
-        // }
+        $lead = Lead::find($request->lead_id);
+        if($lead->call_status != "Responsive"){
+            $lead->call_status = $request->call_status;
+        }
+        $lead->save();
 
         return response()->json(['success' => true, 'message' => 'Next follow up scheduled', 'followup' => $followup, 'next_followup' => $next_followup, 'remarks' => $followup->remarks]);
     }
 
     public function convert(Request $request)
     {
-
         $followup = Followup::find($request->followup_id);
         $followup->converted = true;
         $followup->save();
