@@ -265,9 +265,6 @@ class PageService
         // $ftm = Lead::forHospital($hospital->id)->where('followup_created', true)->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
         $ftm = Lead::forHospital($hospital->id)->where('status', '<>', 'Created')->whereDate('leads.created_at', '>=', $fromDate)->whereDate('leads.created_at', '<=', $toDate)->join('followups', 'leads.id', '=', 'followups.lead_id')->where('followups.actual_date', '!=', null)->select('leads.assigned_to', DB::raw('COUNT(followups.id) as count'))->groupBy('leads.assigned_to')->get();
 
-        // $lcm = Lead::forHospital($hospital->id)->where('status', 'Consulted')->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
-        $lcm = Lead::forHospital($hospital->id)->where('status', 'Consulted')->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->select('assigned_to', DB::raw('count(leads.id) as count'))->groupBy('assigned_to')->get();
-
         $pf = DB::table('followups')
             ->join('leads as l', 'l.id', '=', 'followups.lead_id')
             ->where('l.hospital_id', $hospital->id)
@@ -292,9 +289,6 @@ class PageService
         }
         foreach ($ftm as $f) {
             $results[$f->assigned_to]['ftm'] = $f->count;
-        }
-        foreach ($lcm as $l) {
-            $results[$l->assigned_to]['lcm'] = $l->count;
         }
         foreach ($pf as $p) {
             $results[$p->assigned_to]['pf'] = $p->count;
