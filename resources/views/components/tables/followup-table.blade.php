@@ -31,8 +31,8 @@
                             <span class=" text-info-content text-xs">{{$followup->lead->city}}</span>
                         </div>
                     </td>
-                    <td class="py-1">{{$followup->lead->campaign != '' ? $followup->lead->campaign : 'Unknown'}}</td>
-                    <td :class=" '{{$followup->lead->customer_segment}}' != '' ? 'uppercase' : '' " class=" py-1">{{$followup->lead->customer_segment ?? 'Unknown'}}</td>
+                    <td class="py-1">{{$followup->lead->campaign != '' ? $followup->lead->campaign : '---'}}</td>
+                    <td :class=" '{{$followup->lead->customer_segment}}' != '' ? 'uppercase' : '' " class=" py-1">{{$followup->lead->customer_segment ?? '---'}}</td>
                 </tr>
             @endforeach
 

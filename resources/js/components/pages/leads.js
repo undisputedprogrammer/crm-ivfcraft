@@ -9,7 +9,8 @@ export default ()=>({
     theLink : null,
     is_genuine : null,
     is_valid : null,
-    creation_date : null,
+    creation_date_from : null,
+    creation_date_to: null,
     segment : null,
     campaign : null,
     source : null,
@@ -19,6 +20,7 @@ export default ()=>({
     showImage : false,
     referLead : false,
     search : null,
+    tableHeading : 'Showing fresh leads',
     toggleTemplateModal(){
         this.showTemplateModal = !this.showTemplateModal;
     },
@@ -41,6 +43,8 @@ export default ()=>({
         let segment = formdata.get('segment');
         let campaign = formdata.get('campaign');
         let source = formdata.get('source');
+        let creation_date_from = formdata.get('creation_date_from');
+        let creation_date_to = formdata.get('creation_date_to');
         let filter = {};
         if(is_valid != ''){
             filter.is_valid = is_valid;
@@ -65,6 +69,12 @@ export default ()=>({
         }
         if(source != ''){
             filter.source = source;
+        }
+        if(creation_date_from != null && creation_date_from != ''){
+            filter.creation_date_from = creation_date_from;
+        }
+        if(creation_date_to != null && creation_date_to != ''){
+            filter.creation_date_to = creation_date_to;
         }
 
         this.$dispatch('linkaction',{link: this.theLink, route: 'fresh-leads', fragment: 'page-content', fresh: true, params: filter});
@@ -129,5 +139,14 @@ export default ()=>({
     referNewLead(el, url){
         let formdata = new FormData(el);
         this.$dispatch('formsubmit', {url: url, route: 'lead.refer', fragment: 'page-content', formData: formdata, target: 'refer-lead-form'});
+    },
+    getTableHeading(){
+        if(window.location.search.length > 0){
+            this.tableHeading = 'Showing search results';
+        }
+        const params = new URLSearchParams(window.location.search);
+        if(params.has('processed')){
+            this.tableHeading="Showing leads processed today";
+        }
     }
 });

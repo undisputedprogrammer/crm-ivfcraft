@@ -67,7 +67,7 @@ class PageController extends SmartController
     public function leadIndex(Request $request)
     {
 
-        $data = $this->pageService->getLeads($request->user(),$request->selectedLeads,$request->center,$request->agent,$request->search, $request->status, $request->is_valid, $request->is_genuine, $request->creation_date, $request->processed, $request->segment, $request->campaign, $request->source);
+        $data = $this->pageService->getLeads($request->user(),$request->selectedLeads,$request->center,$request->agent,$request->search, $request->status, $request->is_valid, $request->is_genuine, $request->creation_date_from, $request->creation_date_to, $request->processed, $request->segment, $request->campaign, $request->source);
 
         return $this->buildResponse('pages.leads', $data);
 
@@ -102,7 +102,7 @@ class PageController extends SmartController
 
     public function followUps(Request $request)
     {
-        $data = $this->pageService->getFollowupData($request->user(),$request->center,$request->agent, $request->search, $request->status, $request->is_valid, $request->is_genuine, $request->creation_date, $request->segment, $request->campaign, $request->source);
+        $data = $this->pageService->getFollowupData($request->user(),$request->center,$request->agent, $request->search, $request->status, $request->is_valid, $request->is_genuine, $request->creation_date_from, $request->creation_date_to, $request->segment, $request->campaign, $request->source);
 
         return $this->buildResponse('pages.followups', $data);
     }

@@ -20,8 +20,11 @@
         @isset($is_genuine)
             is_genuine = '{{$is_genuine}}';
         @endisset
-        @isset($creation_date)
-            creation_date = '{{$creation_date}}';
+        @isset($creation_date_from)
+            creation_date_from = '{{$creation_date_from}}';
+        @endisset
+        @isset($creation_date_to)
+            creation_date_to = '{{$creation_date_to}}';
         @endisset
         @isset($segment)
             segment = '{{$segment}}';
@@ -46,12 +49,12 @@
         })"
 
         >
-    <div class="min-h-screen flex flex-col flex-auto flex-shrink-0 antialiased bg-base-200">
+    <div class="min-h-screen flex flex-col flex-auto flex-shrink-0 antialiased bg-base-200 px-[1.7%]">
 
 
       <x-sections.side-drawer/>
       {{-- page body --}}
-      <div class=" flex flex-col justify-start items-start w-full bg-base-200 pt-1.5 pl-[3.3%] space-y-2">
+      <div class=" flex flex-col justify-start items-start w-full bg-base-200 pt-1.5  space-y-2">
         <h1 class=" text-primary text-xl font-semibold bg-base-200 ">Pending follow ups</h1>
 
         <div class=" flex flex-row space-x-4 border border-base-content rounded-lg p-2">
@@ -85,7 +88,6 @@
                     <div class=" flex flex-col ml-3 mb-1.5">
                         <label for="" class=" text-xs text-primary font-medium">Status :</label>
                         <select name="status" id="select-status" class=" select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
-                            <option value="none" :selected="'{{$status}}'=='null' || '{{$status}}'=='none'">Fresh Leads</option>
                             <option value="all" :selected="'{{$status}}'=='all' ">All leads</option>
                             @foreach (config('appSettings')['lead_statuses'] as $st)
                             <template x-if="'{{$st}}' != 'Created'">
@@ -148,8 +150,13 @@
                     </div>
 
                     <div class=" flex flex-col ml-3 mb-1.5">
-                        <label for="" class=" text-xs text-primary font-medium">Created date :</label>
-                        <input type="date" :value="creation_date != null ? creation_date : null" name="creation_date" class=" input input-sm text-base-content font-medium">
+                        <label for="" class=" text-xs text-primary font-medium">Created from :</label>
+                        <input type="date" :value="creation_date_from != null ? creation_date_from : null" name="creation_date_from" class=" input input-sm text-base-content font-medium">
+                    </div>
+
+                    <div class=" flex flex-col ml-3 mb-1.5">
+                        <label for="" class=" text-xs text-primary font-medium">Created to :</label>
+                        <input type="date" :value="creation_date_to != null ? creation_date_to : null" name="creation_date_to" class=" input input-sm text-base-content font-medium">
                     </div>
 
 
@@ -173,7 +180,7 @@
 
       <x-modals.display-image/>
 
-      <div class="lg:h-[calc(100vh-5.875rem)] pt-7 pb-[2.8rem] bg-base-200 w-full flex flex-col lg:flex-row justify-evenly items-center lg:items-start space-y-4 lg:space-y-0">
+      <div class="lg:h-[calc(100vh-5.875rem)] pt-7 pb-[2.8rem] bg-base-200 w-full flex flex-col lg:flex-row justify-start items-center lg:items-start space-y-4 lg:space-y-0 lg:space-x-6">
 
 
 
