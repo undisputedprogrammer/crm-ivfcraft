@@ -9,7 +9,7 @@
               {{-- <th></th> --}}
               <th>Name</th>
               <th>Campaign</th>
-              <th>Source</th>
+              <th>Segment</th>
             </tr>
           </thead>
           <tbody>
@@ -19,20 +19,20 @@
             @foreach ($followups as $followup)
 
             {{-- fpupdate event is used to display followup detail to the details section --}}
-                <tr class="text-base-content hover:bg-base-100 cursor-pointer" :class=" fpname == `{{$followup->lead->name}}` ? 'bg-base-100 font-medium' : '' " @click.prevent.stop="
+                <tr class="text-base-content hover:bg-base-100 cursor-pointer py-0" :class=" fpname == `{{$followup->lead->name}}` ? 'bg-base-100 font-medium' : '' " @click.prevent.stop="
 
 
                     $dispatch('fpupdate',{followup : {{json_encode($followup)}}, lead: {{json_encode($followup->lead)}}, remarks: {{json_encode($followup->remarks)}}, id: {{$followup->id}}, lead_remarks: {{json_encode($followup->lead->remarks)}}, appointment: {{json_encode($followup->lead->appointment)}}, qnas: {{json_encode($followup->lead->qnas)}} })"
                     >
                     {{-- <th>{{$followup->id}}</th> --}}
-                    <td>
+                    <td class=" py-1">
                         <div class=" flex flex-col">
                             <span>{{$followup->lead->name}}</span>
                             <span class=" text-info-content text-xs">{{$followup->lead->city}}</span>
                         </div>
                     </td>
-                    <td>{{$followup->lead->campaign != '' ? $followup->lead->campaign : 'Unknown'}}</td>
-                    <td>{{$followup->lead->source->name}}</td>
+                    <td class="py-1">{{$followup->lead->campaign != '' ? $followup->lead->campaign : 'Unknown'}}</td>
+                    <td :class=" '{{$followup->lead->customer_segment}}' != '' ? 'uppercase' : '' " class=" py-1">{{$followup->lead->customer_segment ?? 'Unknown'}}</td>
                 </tr>
             @endforeach
 

@@ -2,7 +2,7 @@
 <div x-show="referLead" x-cloak x-transition class=" absolute w-full h-screen z-30 bg-neutral bg-opacity-70">
 
     <div class="md:w-[40%] h-fit rounded-lg bg-base-100 mx-auto mt-14 bg-opacity-100 flex flex-col items-center p-4">
-        <h1 class="text-secondary font-medium text-lg uppercase">Refer a lead</h1>
+        <h1 class="text-secondary font-medium text-lg uppercase">Internal Reference</h1>
 
         <form x-data="{
             agents: [],

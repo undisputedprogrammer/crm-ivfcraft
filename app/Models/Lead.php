@@ -56,7 +56,7 @@ class Lead extends Model
 
     public function scopeForHospital($query, $hospitalId)
     {
-        $query->where('hospital_id', $hospitalId);
+        $query->where('leads.hospital_id', $hospitalId);
     }
 
     public function scopeForAgent($query, $agentId)

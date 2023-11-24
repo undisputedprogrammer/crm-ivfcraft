@@ -9,7 +9,7 @@
 
         @if ($leads != null && count($leads) > 0)
 
-            <table class="table table-sm">
+            <table class="table table-sm table-compact">
                 <!-- head -->
                 <thead>
                     <tr class=" text-secondary sticky top-0 bg-base-300">
@@ -17,30 +17,30 @@
                         {{-- <th>ID</th> --}}
                         <th>Name</th>
                         <th>Campaign</th>
-                        <th>Source</th>
+                        <th>Segment</th>
                         <th></th>
                     </tr>
                 </thead>
 
                 <tbody>
                     @foreach ($leads as $lead)
-                        <tr x-data="{ questions: null }" class="text-base-content hover:bg-base-100 cursor-pointer"
+                        <tr x-data="{ questions: null }" class="text-base-content hover:bg-base-100 cursor-pointer py-0"
                             :class=" lead.id == `{{ $lead->id }}` ? 'bg-base-100 font-medium' : ''"
                             @click="
                                 $dispatch('detailsupdate',{lead : {{ json_encode($lead) }}, remarks: {{ json_encode($lead->remarks) }}, id: {{ $lead->id }}, followups: {{ $lead->followups }}, qnas: {{ json_encode($lead->qnas) }}})">
 
-                            <th><input type="checkbox" :checked="selectedLeads[{{$lead->id}}] != null ? true : false " @click="selectLead($el,{{$lead}})" class="checkbox checkbox-secondary checkbox-sm individual-checkboxes"></th>
+                            <th><input type="checkbox" :checked="selectedLeads[{{$lead->id}}] != null ? true : false " @click="selectLead($el,{{$lead}})" class="checkbox checkbox-secondary checkbox-sm individual-checkboxes py-1"></th>
 
                             {{-- <th>{{ $lead->id }}</th> --}}
-                            <td id="name-{{$lead->id}}">
+                            <td id="name-{{$lead->id}}" class=" py-1">
                                 <div class="flex flex-col">
                                     <span>{{ $lead->name }}</span>
                                     <span class=" text-info-content text-xs">{{ $lead->city }}</span>
                                 </div>
                             </td>
-                            <td id="city-{{$lead->id}}">{{ $lead->campaign != '' ? $lead->campaign : 'Unknown' }}</td>
-                            <td id="phone-{{$lead->id}}">{{ $lead->source->name }}</td>
-                            <td>
+                            <td id="city-{{$lead->id}}" class=" py-1">{{ $lead->campaign != '' ? $lead->campaign : 'Unknown' }}</td>
+                            <td id="phone-{{$lead->id}}" :class="'{{$lead->customer_segment}}' != '' ? ' uppercase' : ''" class="py-1">{{ $lead->customer_segment != null ? $lead->customer_segment : 'Unknown' }}</td>
+                            <td class=" py-1">
                                 <div id="lead-tick-{{$lead->id}}" class="flex justify-center items-center p-0 h-7 w-7 rounded-full bg-success text-base-100 hidden">
                                 <x-easyadmin::display.icon icon="easyadmin::icons.tick"
                                     height="h-6" widht="h-6" />
