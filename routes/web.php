@@ -134,6 +134,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/center/agents',[PageController::class, 'getAgents'])->name('center.agents');
 
+    Route::get('/agents/logged', [AgentController::class, 'getLoggedInAgents'])->name('agents.logged');
+
     Route::get('/break-in',[BreakController::class, 'breakIn'])->name('break.in');
 
     Route::post('/break-out',[BreakController::class, 'breakOut'])->name('break.out');

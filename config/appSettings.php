@@ -24,7 +24,9 @@ return [
 
     'call_statuses' => ['Responsive', 'Not Responsive'],
 
-    'lead_segments' => ['hot','cold','warm']
+    'lead_segments' => ['hot','cold','warm'],
+
+    'forms' => ['New Lead','Internal Reference']
 ];
 
 ?>

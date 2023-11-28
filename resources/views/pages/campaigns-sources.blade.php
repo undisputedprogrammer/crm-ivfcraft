@@ -73,10 +73,19 @@
             {{-- *************Source create form************** --}}
             <h1 x-show="currentForm == 'create'" class=" font-medium text-base text-primary">Create new source</h1>
 
+            <p class=" text-error text-sm" id="error-displayer"></p>
+
             <form x-show="currentForm == 'create'" x-data="{
                 doSubmit(){
                     let form = document.getElementById('source-create-form');
                     let formdata = new FormData(form);
+                    if(formdata.getAll('forms[]').length < 1){
+                        document.getElementById('error-displayer').innerText = 'Select atleast one form to include in';
+                        setTimeout(()=>{
+                            document.getElementById('error-displayer').innerText = '';
+                        }, 5000);
+                        return false;
+                    }
                     $dispatch('formsubmit',{url:'{{route('source.store')}}', route: 'source.store',fragment: 'page-content', formData: formdata, target: 'source-create-form'});
                 }
             }"
@@ -94,7 +103,19 @@
             }" @submit.prevent.stop="doSubmit();" id="source-create-form" class=" flex flex-col space-y-3 mt-2.5">
                 <input type="text" name="code" required class="input input-bordered text-base-content focus:outline-none min-w-72" placeholder="Enter source short code">
                 <input type="text" name="name" required class="input input-bordered text-base-content focus:outline-none min-w-72" placeholder="Enter source name">
+
+                <div class=" flex flex-col space-y-1">
+                    <h1 class="font-medium text-base text-base-content">Include in :</h1>
+                    @foreach (config('appSettings.forms') as $form)
+                        <div class=" flex flex-row space-x-2 items-center">
+                            <input type="checkbox" name="forms[]" value="{{$form}}" class=" checkbox checkbox-secondary checkbox-xs ring-0 outline-none">
+                            <p class=" text-base-content ">{{$form}}</p>
+                        </div>
+                    @endforeach
+                </div>
+
                 <button type="submit" class=" btn btn-primary w-fit btn-sm">Save</button>
+
             </form>
 
 
@@ -105,7 +126,15 @@
                     if(selectedSource.hasOwnProperty('id') && selectedSource.id != undefined){
                         let form = document.getElementById('source-edit-form');
                         let formdata = new FormData(form);
-                        console.log(formdata.get('is_enabled'));
+
+                        console.log(formdata.getAll('forms[]'));
+                        if(formdata.getAll('forms[]').length < 1){
+                            document.getElementById('error-displayer').innerText = 'Select atleast one form to include in';
+                            setTimeout(()=>{
+                                document.getElementById('error-displayer').innerText = '';
+                            }, 5000);
+                            return false;
+                        }
                         if(formdata.get('is_enabled') == 'on'){
                             formdata.set('is_enabled', true);
                         }else{
@@ -133,6 +162,16 @@
             }" @submit.prevent.stop="doSubmit();" id="source-edit-form" class=" flex flex-col space-y-3 mt-2.5">
                 <input type="text" name="code" :value="selectedSource.code != undefined ? selectedSource.code : 'UNKNOWN'" required class="input input-bordered text-base-content focus:outline-none min-w-72" placeholder="Enter source short code">
                 <input type="text" name="name" :value="selectedSource.name != undefined ? selectedSource.name : 'UNKNOWN'" required class="input input-bordered text-base-content focus:outline-none min-w-72" placeholder="Enter source name">
+
+                <div class=" flex flex-col space-y-1">
+                    <h1 class="font-medium text-base text-base-content">Include in :</h1>
+                    @foreach (config('appSettings.forms') as $form)
+                        <div class=" flex flex-row space-x-2 items-center">
+                            <input type="checkbox" name="forms[]" :checked="selectedSource.forms != undefined && selectedSource.forms.includes('{{$form}}')" value="{{$form}}" class=" checkbox checkbox-secondary checkbox-xs ring-0 outline-none">
+                            <p class=" text-base-content ">{{$form}}</p>
+                        </div>
+                    @endforeach
+                </div>
 
                 <div class=" flex flex-row space-x-2">
                     <p class=" font-medium text-base-content">Enable :</p>

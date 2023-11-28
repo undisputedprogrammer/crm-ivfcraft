@@ -24,6 +24,7 @@ export default () => ({
     is_valid : null,
     creation_date_from : null,
     creation_date_to : null,
+    call_status : null,
     segment : null,
     campaign : null,
     source : null,
@@ -40,6 +41,8 @@ export default () => ({
         let source = formdata.get('source');
         let creation_date_from = formdata.get('creation_date_from');
         let creation_date_to = formdata.get('creation_date_to');
+        let call_status = formdata.get('call_status');
+
         let filter = {};
         if(is_valid != ''){
             filter.is_valid = is_valid;
@@ -70,6 +73,9 @@ export default () => ({
         }
         if(creation_date_to != null && creation_date_to != ''){
             filter.creation_date_to = creation_date_to;
+        }
+        if(call_status != null && call_status != ''){
+            filter.call_status = call_status;
         }
 
         this.$dispatch('linkaction',{link: link, route: 'followups', fragment: 'page-content', fresh: true, params: filter});

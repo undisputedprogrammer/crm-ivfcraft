@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Auth;
 
 class PageService
 {
-    public function getLeads($user, $selectedLeads, $selectedCenter, $selectedAgent, $search, $status, $is_valid, $is_genuine, $creation_date_from, $creation_date_to, $processed, $segment, $campaign, $source)
+    public function getLeads($user, $selectedLeads, $selectedCenter, $selectedAgent, $search, $status, $is_valid, $is_genuine, $creation_date_from, $creation_date_to, $processed, $segment, $campaign, $source, $call_status)
     {
         $leadsQuery = Lead::with(['followups' => function ($qr) {
             return $qr->with(['remarks']);
@@ -43,7 +43,9 @@ class PageService
         }
 
         if($status == null || $status == 'none'){
-            $leadsQuery->where('status', '=', 'Created');
+            if($processed == null){
+                $leadsQuery->where('status', '=', 'Created');
+            }
         }
 
         if ($processed != null) {
@@ -96,6 +98,10 @@ class PageService
             $leadsQuery->where('source_id', $source);
         }
 
+        if ($call_status != null){
+            $leadsQuery->where('call_status', $call_status);
+        }
+
 
         $leads = $leadsQuery->paginate(30);
 
@@ -109,9 +115,9 @@ class PageService
         $sources = Source::where('hospital_id', auth()->user()->hospital_id)->get();
 
         if ($selectedLeads != null) {
-            return compact('leads', 'doctors', 'messageTemplates', 'selectedLeads', 'centers', 'agents', 'selectedCenter', 'selectedAgent', 'status', 'is_valid', 'is_genuine', 'segment', 'campaigns', 'sources', 'campaign', 'source', 'search', 'creation_date_from','creation_date_to','processed');
+            return compact('leads', 'doctors', 'messageTemplates', 'selectedLeads', 'centers', 'agents', 'selectedCenter', 'selectedAgent', 'status', 'is_valid', 'is_genuine', 'segment', 'campaigns', 'sources', 'campaign', 'source', 'search', 'creation_date_from','creation_date_to','processed','call_status');
         } else {
-            return compact('leads', 'doctors', 'messageTemplates', 'centers', 'agents', 'selectedCenter', 'selectedAgent', 'status', 'is_valid', 'is_genuine', 'segment', 'campaigns', 'sources', 'campaign', 'source', 'search','creation_date_from','creation_date_to','processed');
+            return compact('leads', 'doctors', 'messageTemplates', 'centers', 'agents', 'selectedCenter', 'selectedAgent', 'status', 'is_valid', 'is_genuine', 'segment', 'campaigns', 'sources', 'campaign', 'source', 'search','creation_date_from','creation_date_to','processed','call_status');
         }
     }
 
@@ -570,7 +576,7 @@ class PageService
         return $genuine_chart_data;
     }
 
-    public function getFollowupData($user, $selectedCenter, $selectedAgent, $search, $status, $is_valid, $is_genuine, $creation_date_from, $creation_date_to, $segment, $campaign, $source)
+    public function getFollowupData($user, $selectedCenter, $selectedAgent, $search, $status, $is_valid, $is_genuine, $creation_date_from, $creation_date_to, $segment, $campaign, $source, $call_status)
     {
 
         $followupsQuery = Followup::whereHas('lead', function ($qr) use ($user) {
@@ -670,6 +676,12 @@ class PageService
             });
         }
 
+        if($call_status != null){
+            $followupsQuery->whereHas('lead', function($qcs) use($call_status){
+                return $qcs->where('call_status', $call_status);
+            });
+        }
+
         $followups = $followupsQuery->paginate(30);
         $doctors = Doctor::all();
         $messageTemplates = Message::all();
@@ -680,7 +692,7 @@ class PageService
         $campaigns = Campaign::all();
         $sources = Source::where('hospital_id', auth()->user()->hospital_id)->get();
 
-        return compact('followups', 'doctors', 'messageTemplates', 'centers', 'agents', 'selectedCenter', 'selectedAgent', 'status', 'campaigns', 'sources', 'is_valid', 'is_genuine', 'segment', 'campaign', 'source', 'creation_date_to', 'creation_date_from', 'search');
+        return compact('followups', 'doctors', 'messageTemplates', 'centers', 'agents', 'selectedCenter', 'selectedAgent', 'status', 'campaigns', 'sources', 'is_valid', 'is_genuine', 'segment', 'campaign', 'source', 'creation_date_to', 'creation_date_from', 'search', 'call_status');
     }
 
     public function getSingleFollowupData($user, $id)

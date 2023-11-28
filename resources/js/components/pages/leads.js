@@ -15,12 +15,14 @@ export default ()=>({
     campaign : null,
     source : null,
     isProcessed : false,
+    call_status : null,
     editLead : false,
     createLead : false,
     showImage : false,
     referLead : false,
     search : null,
     tableHeading : 'Showing fresh leads',
+    sources : [],
     toggleTemplateModal(){
         this.showTemplateModal = !this.showTemplateModal;
     },
@@ -45,6 +47,8 @@ export default ()=>({
         let source = formdata.get('source');
         let creation_date_from = formdata.get('creation_date_from');
         let creation_date_to = formdata.get('creation_date_to');
+        let call_status = formdata.get('call_status');
+
         let filter = {};
         if(is_valid != ''){
             filter.is_valid = is_valid;
@@ -69,6 +73,9 @@ export default ()=>({
         }
         if(source != ''){
             filter.source = source;
+        }
+        if(call_status != null && call_status != ''){
+            filter.call_status = call_status;
         }
         if(creation_date_from != null && creation_date_from != ''){
             filter.creation_date_from = creation_date_from;
@@ -148,5 +155,14 @@ export default ()=>({
         if(params.has('processed')){
             this.tableHeading="Showing leads processed today";
         }
+    },
+    loadSources(link){
+        axios.get(link)
+        .then( (response) => {
+            this.sources = response.data.sources;
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
     }
 });

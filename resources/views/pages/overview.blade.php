@@ -212,7 +212,7 @@
                                     },
                                     fetchAgents() {
                                         axios.get(
-                                            '{{route('center.agents')}}',
+                                            '{{route('agents.logged')}}',
                                             {
                                                 params: { 'cid': this.center }
                                             }

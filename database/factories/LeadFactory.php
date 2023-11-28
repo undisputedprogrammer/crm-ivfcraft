@@ -5,6 +5,8 @@ namespace Database\Factories;
 use App\Models\Lead;
 use App\Models\User;
 use App\Models\Center;
+use App\Models\Source;
+use App\Models\Followup;
 use App\Models\Hospital;
 use App\Models\Appointment;
 use Illuminate\Support\Carbon;
@@ -35,6 +37,7 @@ class LeadFactory extends Factory
         $check = random_int(1,10);
         $isvalid = $check > 1;
         $isgenuine = $isvalid && $check > 2;
+        $sources = Source::where('hospital_id', $hospital->id)->get();
 
         $ag = count($agents) > 1 ? $agents[random_int(0, count($agents) - 1)] : $agents[0];
         return [
@@ -44,6 +47,7 @@ class LeadFactory extends Factory
             'phone'=>8137033348,
             'email'=>fake()->email(),
             'city'=>fake()->city(),
+            'campaign' => 'Direct leads',
             'is_valid'=> false,
             'is_genuine'=> false,
             'history'=>fake()->paragraph(),
@@ -52,7 +56,9 @@ class LeadFactory extends Factory
             'followup_created'=>false,
             'assigned_to'=> $ag->id,
             'created_by'=> $users[0],
-            'created_at' => Carbon::now()->startOfMonth()->format('Y-m-d')
+            'source_id' => $sources->random()->id,
+            'call_status' => null,
+            'created_at' => Carbon::now()->format('Y-m-d')
         ];
     }
 
@@ -66,15 +72,18 @@ class LeadFactory extends Factory
         }
     }
 
-    // public function configure(): static
-    // {
-    //     return $this->afterCreating(function (Lead $lead) {
-    //         $n = random_int(0, 1);
-    //         if ($n == 1) {
-    //             Appointment::factory()->create([
-    //                 'lead_id' => $lead->id
-    //             ]);
-    //         }
-    //     });
-    // }
+    public function configure(): static
+    {
+        return $this->afterCreating(function (Lead $lead) {
+            $followup = Followup::create([
+                'lead_id' => $lead->id,
+                'followup_count' => 1,
+                'scheduled_date' => Carbon::today(),
+                'user_id' => $lead->assigned_to
+            ]);
+
+            $lead->followup_created = true;
+            $lead->save();
+        });
+    }
 }

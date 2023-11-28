@@ -32,10 +32,12 @@ if ($event.detail.target == $el.id) {
         {
 
         lead.status = $event.detail.content.lead.status;
+        lead.call_status = $event.detail.content.lead.call_status;
         leads[lead.id].status = lead.status;
         document.getElementById('lead-tick-'+lead.id).classList.remove('hidden');
         lead.followup_created = $event.detail.content.lead.followup_created;
         leads[lead.id].followup_created = lead.followup_created;
+        document.getElementById('status-'+lead.id).innerText = lead.status;
         }
 
         if($event.detail.content.followup != null && $event.detail.content.followup != undefined){

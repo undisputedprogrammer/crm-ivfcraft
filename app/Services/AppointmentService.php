@@ -52,6 +52,7 @@ class AppointmentService implements ModelViewConnector
         $lead = Lead::find($request->lead_id);
         $lead->status = "Appointment Fixed";
         $lead->followup_created = true;
+        $lead->call_status = "Responsive";
         $lead->save();
 
         $appointment = Appointment::create([

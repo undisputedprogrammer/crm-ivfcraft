@@ -23,6 +23,8 @@
 
             lead.status = 'Completed';
             fp.lead.status = 'Completed';
+            fps[fp.id] = fp;
+            document.getElementById('status-'+lead.id).innerText = lead.status;
             $dispatch('showtoast', {message: $event.detail.content.message, mode: 'success'});
             $el.reset();
         }else if (typeof $event.detail.content.errors != undefined) {

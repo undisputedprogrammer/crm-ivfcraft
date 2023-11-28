@@ -34,6 +34,12 @@
 
                                     }
 
+                                    if($event.detail.content.lead != null && $event.detail.content.lead != undefined){
+                                        lead.call_status = $event.detail.content.lead.call_status;
+                                        fp.lead = lead;
+                                        fps[fp.id] = fp;
+                                    }
+
                                     historyLoading = true;
                                     axios.get('/api/followup',{
                                         params: {

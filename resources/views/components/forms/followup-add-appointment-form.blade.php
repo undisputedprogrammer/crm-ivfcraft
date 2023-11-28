@@ -40,7 +40,13 @@
                                 fp.actual_date = $event.detail.content.followup.actual_date;
                                 fp.converted = $event.detail.content.followup.converted;
                                 fp.next_followup_date = $event.detail.content.followup.next_followup_date;
+                                document.getElementById('status-'+lead.id).innerText = lead.status;
+                                }
 
+                                if($event.detail.content.lead != null && $event.detail.content.lead != undefined){
+                                    lead.call_status = $event.detail.content.lead.call_status;
+                                    fp.lead = lead;
+                                    fps[fp.id] = fp;
                                 }
 
                                 if($event.detail.content.appointment != null && $event.detail.content.appointment != undefined){

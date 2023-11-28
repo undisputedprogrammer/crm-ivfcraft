@@ -119,4 +119,8 @@ class User extends Authenticatable implements MediaOwner
         }
         return $friends;
     }
+
+    public function audits(){
+        return $this->hasMany(Audit::class);
+    }
 }

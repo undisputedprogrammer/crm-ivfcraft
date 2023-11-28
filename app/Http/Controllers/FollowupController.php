@@ -46,7 +46,7 @@ class FollowupController extends SmartController
         }
 
         $lead->save();
-        return response()->json(['success' => true, 'message' => 'Follow up has been initiated for this lead', 'followup' => $followup, 'completed_followup' => $current_followup]);
+        return response()->json(['success' => true, 'message' => 'Follow up has been initiated for this lead', 'followup' => $followup, 'completed_followup' => $current_followup, 'lead' => $lead]);
         // return response()->json(['success'=>true,'message'=>'converted '.$followup->converted]);
     }
 
@@ -91,7 +91,7 @@ class FollowupController extends SmartController
         }
         $lead->save();
 
-        return response()->json(['success' => true, 'message' => 'Next follow up scheduled', 'followup' => $followup, 'next_followup' => $next_followup, 'remarks' => $followup->remarks]);
+        return response()->json(['success' => true, 'message' => 'Next follow up scheduled', 'followup' => $followup, 'next_followup' => $next_followup, 'remarks' => $followup->remarks, 'lead' => $lead]);
     }
 
     public function convert(Request $request)

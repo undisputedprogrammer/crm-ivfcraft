@@ -30,9 +30,11 @@
 
 
                     lead.followup_created = 1;
-                    lead.status = 'Follow-up Started';
+                    lead.status = $event.detail.content.lead.status;
+                    document.getElementById('status-'+lead.id).innerText = lead.status;
                     leads[lead.id].followup_created = lead.followup_created;
-
+                    lead.call_status = $event.detail.content.lead.call_status;
+                    leads[lead.id] = lead;
                     document.getElementById('lead-tick-'+lead.id).classList.remove('hidden');
                     $dispatch('formerrors', {errors: []});
                 } else if (typeof $event.detail.content.errors != undefined) {

@@ -26,10 +26,12 @@
                     .then( (response) => {
                         this.sources = response.data.sources;
                             this.sources.forEach((source) => {
-                                let optionElement = document.createElement('option');
-                                optionElement.value = source.id;
-                                optionElement.text = source.name;
-                                document.getElementById('lead-source').appendChild(optionElement);
+                                if(source.forms.includes('New Lead')){
+                                    let optionElement = document.createElement('option');
+                                    optionElement.value = source.id;
+                                    optionElement.text = source.name;
+                                    document.getElementById('lead-source').appendChild(optionElement);
+                                }
                             });
                     })
                     .catch(function (error) {
