@@ -1,6 +1,15 @@
 <x-easyadmin::app-layout>
 
-    <div class="min-h-screen flex flex-col flex-auto flex-shrink-0 antialiased bg-base-200  text-black ">
+    <div class="min-h-screen flex flex-col flex-auto flex-shrink-0 antialiased bg-base-200  text-black "
+
+    @pageaction.window="
+            page = $event.detail.page;
+            $dispatch('linkaction',{
+                link: $event.detail.link,
+                route: currentroute,
+                fragment: 'page-content',
+            })"
+    >
 
 
       <x-sections.side-drawer/>
@@ -15,6 +24,17 @@
         resetEdit(){
             this.currentForm = 'create';
             this.selectedSource = {};
+        },
+        returnRefresh(){
+            let urlParams = new URLSearchParams(window.location.search);
+            console.log(urlParams.get('page'));
+            if(urlParams.has('page')){
+                console.log('has params')
+                this.$dispatch('linkaction',{link: '{{route('sources.index')}}', route: 'sources.index', fragment: 'page-content', fresh: true, params: {page: urlParams.get('page')} });
+            }
+            else{
+                $dispatch('linkaction',{link: '{{route('sources.index')}}', route: 'sources.index', fragment: 'page-content', fresh: true});
+            }
         }
       }"
 
@@ -24,7 +44,8 @@
 
         <div class=" flex flex-col lg:flex-row items-start w-full  space-y-3 lg:space-y-0 lg:space-x-8 mt-4">
 
-            <div class=" rounded-lg  border-secondary border overflow-x-auto w-[40%]">
+            <div class=" flex flex-col lg:w-[40%]">
+            <div class=" rounded-lg  border-secondary border overflow-x-auto w-full">
                 <table class="table table-sm  rounded-lg">
                     <!-- head -->
                     <thead class="rounded-t-lg">
@@ -64,6 +85,12 @@
                 </table>
         </div>
 
+        <div class=" mt-1.5">
+            {{$sources->links()}}
+        </div>
+
+    </div>
+
         <div
         @toggleEdit.window="
       console.log('event recieved');
@@ -79,13 +106,13 @@
                 doSubmit(){
                     let form = document.getElementById('source-create-form');
                     let formdata = new FormData(form);
-                    if(formdata.getAll('forms[]').length < 1){
+                    {{-- if(formdata.getAll('forms[]').length < 1){
                         document.getElementById('error-displayer').innerText = 'Select atleast one form to include in';
                         setTimeout(()=>{
                             document.getElementById('error-displayer').innerText = '';
                         }, 5000);
                         return false;
-                    }
+                    } --}}
                     $dispatch('formsubmit',{url:'{{route('source.store')}}', route: 'source.store',fragment: 'page-content', formData: formdata, target: 'source-create-form'});
                 }
             }"
@@ -93,7 +120,7 @@
             if($event.detail.target == $el.id){
                 if ($event.detail.content.success) {
                     $dispatch('showtoast', {message: $event.detail.content.message, mode: 'success'});
-                    $dispatch('linkaction',{link: '{{route('sources.index')}}', route: 'sources.index', fragment: 'page-content', fresh: true});
+                    returnRefresh();
                 } else if (typeof $event.detail.content.errors != undefined) {
                     $dispatch('showtoast', {message: $event.detail.content.message, mode: 'error'});
 
@@ -127,21 +154,21 @@
                         let form = document.getElementById('source-edit-form');
                         let formdata = new FormData(form);
 
-                        console.log(formdata.getAll('forms[]'));
-                        if(formdata.getAll('forms[]').length < 1){
+
+                        {{-- if(formdata.getAll('forms[]').length < 1){
                             document.getElementById('error-displayer').innerText = 'Select atleast one form to include in';
                             setTimeout(()=>{
                                 document.getElementById('error-displayer').innerText = '';
                             }, 5000);
                             return false;
-                        }
+                        } --}}
                         if(formdata.get('is_enabled') == 'on'){
                             formdata.set('is_enabled', true);
                         }else{
                             formdata.set('is_enabled', false);
                         }
                         formdata.append('source_id', selectedSource.id);
-                        $dispatch('formsubmit',{url:'{{route('source.update')}}', route: 'source.update',fragment: 'page-content', formData: formdata, target: 'source-edit-form'});
+                        returnRefresh();
                     }
                     else{
                         $dispatch('showtoast', {message: 'Could not find source details, please refresh and try again !', mode: 'error'});

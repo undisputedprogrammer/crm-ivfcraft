@@ -26,7 +26,7 @@ class SourceController extends SmartController
             'hospital_id' => auth()->user()->hospital_id,
             'code' => strtoupper($request->code),
             'name' => $request->name,
-            'forms' => implode(',',$request->forms)
+            'forms' => is_array($request->forms) ? implode(',',$request->forms) : ''
         ]);
         return response()->json(['success'=>true, 'message' => 'New source added !']);
     }
@@ -57,7 +57,7 @@ class SourceController extends SmartController
         $source->update([
             'code' => $request->code,
             'name' => $request->name,
-            'forms' => implode(',', $request->forms),
+            'forms' => is_array($request->forms) ? implode(',', $request->forms) : '',
             'is_enabled' => filter_var($request->is_enabled, FILTER_VALIDATE_BOOL) == 1 ? true : false
         ]);
 
