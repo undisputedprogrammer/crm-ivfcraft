@@ -38,7 +38,12 @@
         @endisset
         @isset($search)
             search = '{{$search}}';
-        @endisset"
+        @endisset
+        @isset($call_status)
+            call_status = '{{$call_status}}';
+        @endisset
+        loadSources('{{route('sources.fetch')}}');
+        "
     >
     <div class=" flex flex-col flex-auto flex-shrink-0 antialiased bg-base-100  text-black ">
 
@@ -146,6 +151,15 @@
                             </div>
 
                             <div class=" flex flex-col ml-3 mb-1.5">
+                                <label for="" class=" text-xs text-primary font-medium">Call status :</label>
+                                <select name="call_status" id="call-status-filter" class="select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
+                                    <option value="">Not Selected</option>
+                                    <option :selected="call_status == 'Responsive'" value="Responsive">Responsive</option>
+                                    <option :selected="call_status == 'Not responsive'" value="Not responsive">Not responsive</option>
+                                </select>
+                            </div>
+
+                            <div class=" flex flex-col ml-3 mb-1.5">
                                 <label for="" class=" text-xs text-primary font-medium">Created from :</label>
                                 <input type="date" :value="creation_date_from != null ? creation_date_from : null" name="creation_date_from" class=" input input-sm text-base-content font-medium">
                             </div>
@@ -226,6 +240,7 @@
         </div>
 
         <x-helpers.lead-segment-helper/>
+        <x-helpers.pageaction-helper/>
 
       <div x-data="{
         convert: false
@@ -233,32 +248,7 @@
 
 
         {{-- pagination event handler --}}
-        @pageaction.window="
-        params = {};
-        selectedCenter !== null && (params.center = selectedCenter);
-        if(selectedStatus != null && selectedStatus != 'none'){
-            params.status = selectedStatus;
-        }
-        is_valid !== null && (params.is_valid = is_valid);
-        is_genuine !== null && (params.is_genuine = is_genuine);
 
-        if(Object.keys(params).length > 0){
-            details = {
-                link: $event.detail.link,
-                route: currentroute,
-                fragment: 'page-content',
-                params: params
-            };
-        }else{
-            details = {
-                link: $event.detail.link,
-                route: currentroute,
-                fragment: 'page-content'
-            };
-        }
-
-        $dispatch('linkaction', details);
-        "
 
         {{-- Event handler to handle the change cutomer segment event --}}
         @changesegment.window="
@@ -474,6 +464,8 @@
                         is_genuine: lead.is_genuine,
                     });" type="checkbox" name="is_genuine" :checked=" lead.is_genuine == 1 ? true : false " class="checkbox checkbox-sm checkbox-success focus:ring-0" />
                 </div>
+
+                <p class="text-sm font-medium">Call responsiveness : <span :class="lead.call_status == 'Responsive' ? ' text-success' : 'text-error' " x-text="lead.call_status ? lead.call_status : '---' "> </span></p>
 
                 <p class="text-sm font-medium">Source : <span x-text="lead.source ? lead.source.name : 'UNKNOWN' "> </span></p>
 

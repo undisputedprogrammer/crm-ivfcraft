@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Center;
 use Illuminate\Http\Request;
 use App\Services\AgentService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Ynotz\EasyAdmin\Traits\HasMVConnector;
 use Ynotz\SmartPages\Http\Controllers\SmartController;
@@ -71,5 +72,17 @@ class AgentController extends SmartController
         })->with(['centers'])->get();
 
         return ['agents' => $agents];
+    }
+
+    public function getLoggedInAgents(Request $request){
+        $agents = User::where('hospital_id', auth()->user()->hospital_id)->whereHas('roles', function ($q) {
+            return $q->where('name', 'agent');
+        })->whereHas('centers', function($qc) use($request) {
+            return $qc->where('centers.id', $request->cid);
+        })->whereHas('audits', function ($qa) {
+            return $qa->whereDate('login', Carbon::today()->format('Y-m-d'));
+        })->get();
+
+        return response()->json(['agents' => $agents]);
     }
 }

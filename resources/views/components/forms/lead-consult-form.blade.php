@@ -29,7 +29,9 @@
 
                                         if($event.detail.content.lead != null || $event.detail.content.lead != undefined){
                                             lead.status = $event.detail.content.lead.status;
-                                            {{-- console.log(lead.status); --}}
+                                            fp.lead = lead;
+                                            fps[fp.id] = fp;
+                                            document.getElementById('status-'+lead.id).innerText = lead.status;
                                         }
 
                                         if($event.detail.content.followup != null || $event.detail.content.followup != undefined){

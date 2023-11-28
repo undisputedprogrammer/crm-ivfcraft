@@ -18,6 +18,8 @@
                         <th>Name</th>
                         <th>Campaign</th>
                         <th>Segment</th>
+                        <th>Status</th>
+                        <th>Created Date</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -38,14 +40,20 @@
                                     <span class=" text-info-content text-xs">{{ $lead->city }}</span>
                                 </div>
                             </td>
-                            <td id="city-{{$lead->id}}" class=" py-1">{{ $lead->campaign != '' ? $lead->campaign : '---' }}</td>
-                            <td id="phone-{{$lead->id}}" :class="'{{$lead->customer_segment}}' != '' ? ' uppercase' : ''" class="py-1">{{ $lead->customer_segment != null ? $lead->customer_segment : '---' }}</td>
+                            <td id="campaign-{{$lead->id}}" class=" py-1">{{ $lead->campaign != '' ? $lead->campaign : '---' }}</td>
+                            <td id="segment-{{$lead->id}}" :class="'{{$lead->customer_segment}}' != '' ? ' uppercase' : ''" class="py-1 uppercase">{{ $lead->customer_segment != null ? $lead->customer_segment : '---' }}</td>
+
+                            <td class="py-1  text-warning" id="status-{{$lead->id}}">{{$lead->status}}</td>
+
+                            <td class="py-1">{{$lead->created_at->format('d M Y')}}</td>
+
                             <td class=" py-1">
-                                <div id="lead-tick-{{$lead->id}}" class="flex justify-center items-center p-0 h-7 w-7 rounded-full bg-success text-base-100 hidden">
+                                <div id="lead-tick-{{$lead->id}}" class="flex justify-center items-center p-0 h-4 w-4 rounded-full bg-success text-base-100 hidden">
                                 <x-easyadmin::display.icon icon="easyadmin::icons.tick"
-                                    height="h-6" widht="h-6" />
+                                    height="h-4" widht="h-4" />
                                 </div>
                             </td>
+
                         </tr>
                     @endforeach
 

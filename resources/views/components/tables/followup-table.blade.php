@@ -10,6 +10,7 @@
               <th>Name</th>
               <th>Campaign</th>
               <th>Segment</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
@@ -24,7 +25,6 @@
 
                     $dispatch('fpupdate',{followup : {{json_encode($followup)}}, lead: {{json_encode($followup->lead)}}, remarks: {{json_encode($followup->remarks)}}, id: {{$followup->id}}, lead_remarks: {{json_encode($followup->lead->remarks)}}, appointment: {{json_encode($followup->lead->appointment)}}, qnas: {{json_encode($followup->lead->qnas)}} })"
                     >
-                    {{-- <th>{{$followup->id}}</th> --}}
                     <td class=" py-1">
                         <div class=" flex flex-col">
                             <span>{{$followup->lead->name}}</span>
@@ -32,7 +32,12 @@
                         </div>
                     </td>
                     <td class="py-1">{{$followup->lead->campaign != '' ? $followup->lead->campaign : '---'}}</td>
-                    <td :class=" '{{$followup->lead->customer_segment}}' != '' ? 'uppercase' : '' " class=" py-1">{{$followup->lead->customer_segment ?? '---'}}</td>
+
+                    <td id="segment-{{$followup->lead->id}}" class=" py-1 uppercase">{{$followup->lead->customer_segment ?? '---'}}</td>
+
+                    <td id="status-{{$followup->lead->id}}" class="py-1 uppercase text-warning">
+                        {{$followup->lead->status}}
+                    </td>
                 </tr>
             @endforeach
 

@@ -22,6 +22,14 @@
         if ($event.detail.content.success) {
 
             lead.status = 'Closed';
+            if(leads != undefined){
+                leads[lead.id] = lead;
+            }
+            if(fp != undefined){
+                fp.lead = lead;
+                fps[fp.id] = fp;
+            }
+            document.getElementById('status-'+lead.id).innerText = lead.status;
             document.getElementById('lead-tick-'+lead.id).classList.remove('hidden');
             $dispatch('showtoast', {message: $event.detail.content.message, mode: 'success'});
             $el.reset();

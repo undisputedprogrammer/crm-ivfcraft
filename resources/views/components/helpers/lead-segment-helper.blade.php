@@ -30,8 +30,14 @@
                 }
             }
             lead.customer_segment = response.data.customer_segment;
+            if(fp != undefined){
+                fp.lead = lead;
+                fps[fp.id] = fp;
+            }
+            document.getElementById('segment-'+lead.id).innerText = lead.customer_segment;
             ajaxLoading = false;
             $dispatch('showtoast', {message: response.data.message, mode: 'success'});
+            document.getElementById('segment-'+lead.id).innerText = lead.customer_segment;
         }).catch(function(error){
             console.log(error);
             ajaxLoading = false;

@@ -40,7 +40,7 @@
                                 fp.actual_date = $event.detail.content.followup.actual_date;
                                 fp.converted = $event.detail.content.followup.converted;
                                 fp.next_followup_date = $event.detail.content.followup.next_followup_date;
-
+                                document.getElementById('status-'+lead.id).innerText = lead.status;
                                 }
 
                                 if($event.detail.content.appointment != null && $event.detail.content.appointment != undefined){

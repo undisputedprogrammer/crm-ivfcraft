@@ -46,7 +46,7 @@ class FollowupController extends SmartController
         }
 
         $lead->save();
-        return response()->json(['success' => true, 'message' => 'Follow up has been initiated for this lead', 'followup' => $followup, 'completed_followup' => $current_followup]);
+        return response()->json(['success' => true, 'message' => 'Follow up has been initiated for this lead', 'followup' => $followup, 'completed_followup' => $current_followup, 'lead' => $lead]);
         // return response()->json(['success'=>true,'message'=>'converted '.$followup->converted]);
     }
 

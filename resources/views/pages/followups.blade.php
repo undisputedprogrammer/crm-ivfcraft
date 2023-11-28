@@ -37,18 +37,52 @@
         @endisset
         @isset($search)
             search = '{{$search}}';
+        @endisset
+        @isset($call_status)
+            call_status = '{{$call_status}}';
         @endisset"
 
-        {{-- pagination event handler --}}
-        @pageaction.window="
-        console.log($event.detail);
-        $dispatch('linkaction',{
-            link: $event.detail.link,
-            route: currentroute,
-            fragment: 'page-content',
+        {{-- Event handlers --}}
+        @changevalid.window="
+        ajaxLoading = true;
+        axios.get($event.detail.link,{
+            params:{
+                lead_id : lead.id,
+                is_valid : $event.detail.is_valid
+            }
+        }).then(function(response){
+            lead.is_valid = response.data.is_valid;
+            fp.lead = lead;
+            fps[fp.id] = fp;
+            ajaxLoading = false;
+            $dispatch('showtoast', {message: response.data.message, mode: 'success'});
+        }).catch(function(error){
+            ajaxLoading = false;
+            console.log(error);
         })"
 
+        @changegenuine.window="
+        ajaxLoading = true;
+        axios.get($event.detail.link,{
+            params:{
+                lead_id : lead.id,
+                is_genuine : $event.detail.is_genuine
+            }
+        }).then(function(response){
+            lead.is_genuine = response.data.is_genuine;
+            fp.lead = lead;
+            fps[fp.id] = fp;
+            ajaxLoading = false;
+            $dispatch('showtoast', {message: response.data.message, mode: 'success'});
+        }).catch(function(error){
+            ajaxLoading = false;
+            console.log(error);
+        })"
         >
+
+        {{-- handle pageaction event --}}
+        <x-helpers.pageaction-helper/>
+
     <div class="min-h-screen flex flex-col flex-auto flex-shrink-0 antialiased bg-base-200 px-[1.7%]">
 
 
@@ -146,6 +180,15 @@
                             <option value="">Not Selected</option>
                             <option :selected="is_genuine == 'true'" value="true">Genuine</option>
                             <option :selected="is_genuine == 'false'" value="false">Not Genuine</option>
+                        </select>
+                    </div>
+
+                    <div class=" flex flex-col ml-3 mb-1.5">
+                        <label for="" class=" text-xs text-primary font-medium">Call status :</label>
+                        <select name="call_status" id="call-status-filter" class="select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
+                            <option value="">Not Selected</option>
+                            <option :selected="call_status == 'Responsive'" value="Responsive">Responsive</option>
+                            <option :selected="call_status == 'Not responsive'" value="Not responsive">Not responsive</option>
                         </select>
                     </div>
 
@@ -270,17 +313,27 @@
                         })"><x-icons.envolope-icon/></a>
                     </p>
 
-                    <div class=" flex items-center space-x-2">
+                    <div class=" flex items-center space-x-2 mt-0.5">
                         <p class=" font-medium">Is valid : </p>
 
-                        <input  type="checkbox" name="is_valid"  :checked=" isValid == 1 ? true : false" class="checkbox checkbox-sm cursor-not-allowed pointer-events-none checkbox-success focus:ring-0" />
+                        <input type="checkbox" name="is_valid"  :checked=" isValid == 1 ? true : false" class="checkbox checkbox-sm checkbox-success focus:ring-0"
+                        @change.prevent.stop="$dispatch('changevalid',{
+                            link: '{{route('change-valid')}}',
+                            is_valid: lead.is_valid,
+                        });"/>
                     </div>
 
-                    <div class=" flex items-center space-x-2  ">
+                    <div class=" flex items-center space-x-2 mt-0.5 ">
                         <p class=" font-medium ">Is genuine : </p>
 
-                        <input  type="checkbox" name="is_genuine"  :checked=" isGenuine == 1 ? true : false " class="checkbox checkbox-sm cursor-not-allowed pointer-events-none checkbox-success focus:ring-0" />
+                        <input  type="checkbox" name="is_genuine"  :checked=" isGenuine == 1 ? true : false " class="checkbox checkbox-sm  checkbox-success focus:ring-0"
+                        @change.prevent.stop="$dispatch('changegenuine',{
+                            link: '{{route('change-genuine')}}',
+                            is_genuine: lead.is_genuine,
+                        });"/>
                     </div>
+
+                    <p class="text-sm font-medium">Call responsiveness : <span :class="lead.call_status == 'Responsive' ? ' text-success' : 'text-error' " x-text="lead.call_status ? lead.call_status : '---' "> </span></p>
 
                     <p class="font-medium">Source : <span x-text=" fp.lead != undefined && fp.lead.source ? fp.lead.source.name : 'UNKNOWN' "> </span></p>
 
@@ -401,9 +454,9 @@
 
                             <template x-if="fp.lead != null && fp.lead.status == 'Appointment Fixed'">
                                 <div>
-                                    <h2 class="font-medium ">Follow-up Scheduled Date: <span x-text="formatDateOnly(fp.scheduled_date)" class="text-warning"></span></h2>
+                                    <h2 class="font-medium ">Current follow-up scheduled date: <span x-text="formatDateOnly(fp.scheduled_date)" class="text-warning"></span></h2>
 
-                                    <h2 class="font-medium ">Appointment Scheduled Date:
+                                    <h2 class="font-medium ">Appointment scheduled date:
                                         <span x-text="formatDateOnly(fp.lead.appointment.appointment_date)" class="text-warning"></span>
                                     </h2>
                                 </div>

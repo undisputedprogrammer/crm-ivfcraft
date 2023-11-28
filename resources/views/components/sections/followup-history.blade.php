@@ -8,8 +8,6 @@
         <span class="loading loading-bars loading-xs text-center my-4 text-primary"></span>
     </div>
 
-    <p x-show="lead.status == 'Consulted'" class=" font-medium text-base-content">Treatment status : <span x-text="lead.treatment_status" class=" text-primary uppercase"></span></p>
-
     {{-- looping through history --}}
     <template x-show="!historyLoading" x-for="item in fphistory" >
         <div x-data="{agent: item.user, lead: item.lead}" x-show="item.actual_date != null" class=" mt-2 mr-1 bg-neutral p-2 rounded-lg">

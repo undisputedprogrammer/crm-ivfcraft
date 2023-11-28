@@ -75,6 +75,17 @@
                     </select>
                 </div>
 
+                <div class=" flex-col flex">
+                    <label for="" class="font-medium text-base-content">Source :</label>
+                    <select required name="source" id="lead-refer-source" class=" select min-w-72 md:w-96 select-bordered border-secondary">
+                        <template x-for="source in sources">
+                            <template x-if="source.forms.includes('Internal Reference')">
+                                <option x-text="source.name"></option>
+                            </template>
+                        </template>
+                    </select>
+                </div>
+
 
             <div class=" flex space-x-2 md:w-96">
                 <button type="submit" class=" btn btn-success btn-sm">Save</button>
