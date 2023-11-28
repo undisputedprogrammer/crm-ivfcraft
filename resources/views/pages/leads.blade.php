@@ -482,10 +482,10 @@
 
                 <div x-show=" followups[0] != undefined && followups[0].next_followup_date != null " class=" mt-2.5">
                     <h1 class=" text-secondary text-sm font-medium">Follow up details</h1>
-                    <h1 x-text="lead.followup_created == 1 ? 'Follow up Initiated' : 'Follow up is not initiated for this lead' " class="  font-medium text-primary"></h1>
+                    <h1 x-text="lead.followup_created == 1 ? 'Follow up Scheduled' : 'Follow up is not initiated for this lead' " class="  font-medium text-primary"></h1>
 
                     <p x-show="lead.followup_created == 1" class=" font-medium ">
-                        <span>Follow up initiated at : </span>
+                        <span>Follow up scheduled at : </span>
                         <span class="text-primary" x-text="lead.followup_created == 1  ? formatDateOnly(followups[0].next_followup_date) : '---' "></span>
                     </p>
 
