@@ -43,6 +43,12 @@
                                 document.getElementById('status-'+lead.id).innerText = lead.status;
                                 }
 
+                                if($event.detail.content.lead != null && $event.detail.content.lead != undefined){
+                                    lead.call_status = $event.detail.content.lead.call_status;
+                                    fp.lead = lead;
+                                    fps[fp.id] = fp;
+                                }
+
                                 if($event.detail.content.appointment != null && $event.detail.content.appointment != undefined){
                                     lead.appointment = $event.detail.content.appointment;
                                     fp.lead.appointment = $event.detail.content.appointment;
