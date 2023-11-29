@@ -139,7 +139,7 @@ class PageController extends SmartController
     }
 
     public function sourceIndex(Request $request){
-        $sources = Source::where('hospital_id', auth()->user()->hospital_id)->get();
+        $sources = Source::where('hospital_id', auth()->user()->hospital_id)->paginate(10);
         return $this->buildResponse('pages.campaigns-sources', compact('sources'));
     }
 }

@@ -199,35 +199,90 @@
                                                     </td>
 
                                                     <td class=" text-center">
-                                                        {{$d['valid_leads'] ?? '0'}}
+                                                        <a href="{{route('fresh-leads',[
+                                                            'creation_date_from' => $from,
+                                                            'creation_date_to' => $to,
+                                                            'agent' => $k,
+                                                            'status' => 'all',
+                                                            'is_valid' => 'true'
+                                                        ])}}" target="blank" class="hover:text-blue-600 hover:underline">{{$d['valid_leads'] ?? '0'}}
+                                                        </a>
                                                     </td>
 
                                                     <td class=" text-center">
-                                                        {{$d['genuine_leads'] ?? '0'}}
+                                                        <a href="{{route('fresh-leads',[
+                                                            'creation_date_from' => $from,
+                                                            'creation_date_to' => $to,
+                                                            'agent' => $k,
+                                                            'status' => 'all',
+                                                            'is_genuine' => 'true'
+                                                        ])}}" target="blank" class="hover:text-blue-600 hover:underline">{{$d['genuine_leads'] ?? '0'}}
+                                                        </a>
                                                     </td>
 
                                                     <td class=" text-center">
-                                                        {{$d['hot_leads'] ?? '0'}}
+                                                        <a href="{{route('fresh-leads',[
+                                                            'creation_date_from' => $from,
+                                                            'creation_date_to' => $to,
+                                                            'agent' => $k,
+                                                            'status' => 'all',
+                                                            'segment' => 'hot'
+                                                        ])}}" target="blank" class="hover:text-blue-600 hover:underline">{{$d['hot_leads'] ?? '0'}}
+                                                        </a>
                                                     </td>
 
                                                     <td class=" text-center">
-                                                        {{$d['warm_leads'] ?? '0'}}
+                                                        <a href="{{route('fresh-leads',[
+                                                            'creation_date_from' => $from,
+                                                            'creation_date_to' => $to,
+                                                            'agent' => $k,
+                                                            'status' => 'all',
+                                                            'segment' => 'warm'
+                                                        ])}}" target="blank" class="hover:text-blue-600 hover:underline">{{$d['warm_leads'] ?? '0'}}
+                                                        </a>
                                                     </td>
 
                                                     <td class=" text-center">
-                                                        {{$d['cold_leads'] ?? '0'}}
+                                                        <a href="{{route('fresh-leads',[
+                                                            'creation_date_from' => $from,
+                                                            'creation_date_to' => $to,
+                                                            'agent' => $k,
+                                                            'status' => 'all',
+                                                            'segment' => 'cold'
+                                                        ])}}" target="blank" class="hover:text-blue-600 hover:underline">{{$d['cold_leads'] ?? '0'}}
+                                                        </a>
                                                     </td>
 
                                                     <td class=" text-center">
-                                                        {{$d['consulted_leads'] ?? '0'}}
+                                                        <a href="{{route('fresh-leads',[
+                                                            'creation_date_from' => $from,
+                                                            'creation_date_to' => $to,
+                                                            'agent' => $k,
+                                                            'status' => 'Consulted',
+                                                        ])}}" target="blank" class="hover:text-blue-600 hover:underline">{{$d['consulted_leads'] ?? '0'}}
+                                                        </a>
                                                     </td>
 
                                                     <td class=" text-center">
-                                                        {{$d['closed_leads'] ?? '0'}}
+                                                        <a href="{{route('fresh-leads',[
+                                                            'creation_date_from' => $from,
+                                                            'creation_date_to' => $to,
+                                                            'agent' => $k,
+                                                            'status' => 'Closed',
+                                                        ])}}" target="blank" class="hover:text-blue-600 hover:underline">{{$d['closed_leads'] ?? '0'}}
+                                                        </a>
                                                     </td>
 
                                                     <td class=" text-center">
-                                                        {{$d['non_responsive_leads'] ?? '0'}}
+                                                        <a href="{{route('fresh-leads',[
+                                                            'creation_date_from' => $from,
+                                                            'creation_date_to' => $to,
+                                                            'agent' => $k,
+                                                            'status' => 'all',
+                                                            'call_status' => 'Not responsive',
+                                                        ])}}" target="blank" class="hover:text-blue-600 hover:underline">{{$d['non_responsive_leads'] ?? '0'}}
+                                                        </a>
+
                                                     </td>
                                                     {{-- <td><button class="btn btn-xs btn-ghost text-primary lowercase">view</button></td> --}}
                                                 </tr>

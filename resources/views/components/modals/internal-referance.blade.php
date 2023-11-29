@@ -80,7 +80,7 @@
                     <select required name="source" id="lead-refer-source" class=" select min-w-72 md:w-96 select-bordered border-secondary">
                         <template x-for="source in sources">
                             <template x-if="source.forms.includes('Internal Reference')">
-                                <option x-text="source.name"></option>
+                                <option :value="source.id" x-text="source.name"></option>
                             </template>
                         </template>
                     </select>

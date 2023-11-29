@@ -308,16 +308,16 @@ class LeadController extends SmartController
 
         $center = Center::find($request->center);
 
-        $source = Source::where('code','IRF')->where('hospital_id', auth()->user()->hospital_id)->get()->first();
+        if(!$request->source){
+            return response()->json(['success'=>false, 'message' => 'Could not find source !']);
+        }
+
+        $source = Source::find($request->source);
 
         if(!$source){
-            $source = Source::create([
-                'hospital_id' => auth()->user()->hospital_id,
-                'code' => 'IRF',
-                'name' => 'Internal Reference',
-                'is_enabled' => true
-            ]);
+            return response()->json(['success'=>false, 'message' => 'Could not find source !']);
         }
+
 
         $lead = Lead::create([
             'hospital_id' => Auth::user()->hospital_id,
