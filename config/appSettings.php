@@ -20,7 +20,7 @@ return [
         ]
     ],
 
-    'lead_statuses' => ['Created','Follow-up Started', 'Appointment Fixed','Consulted','Closed','Completed'],
+    'lead_statuses' => ['Created','Follow-up Started', 'Appointment Fixed','Consulted', 'Consulted (Inc Completed)','Completed', 'Closed'],
 
     'call_statuses' => ['Responsive', 'Not Responsive'],
 
