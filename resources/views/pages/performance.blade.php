@@ -171,7 +171,7 @@
                                           <th>Hot</th>
                                           <th>Warm</th>
                                           <th>Cold</th>
-                                          <th>Consulted leads</th>
+                                          <th>Consulted/Completed leads</th>
                                           <th>Closed leads</th>
                                           <th>Non responsive leads</th>
                                           {{-- <th></th> --}}
@@ -258,7 +258,7 @@
                                                             'creation_date_from' => $from,
                                                             'creation_date_to' => $to,
                                                             'agent' => $k,
-                                                            'status' => 'Consulted',
+                                                            'status' => 'Consulted (Inc Completed)',
                                                         ])}}" target="blank" class="hover:text-blue-600 hover:underline">{{$d['consulted_leads'] ?? '0'}}
                                                         </a>
                                                     </td>
@@ -398,7 +398,7 @@
                                       <th>Hot</th>
                                       <th>Warm</th>
                                       <th>Cold</th>
-                                      <th>Leads Consulted</th>
+                                      <th>Leads Consulted/Completed</th>
                                       <th>Closed leads</th>
                                       <th>Non responsive leads</th>
                                       {{-- <th></th> --}}
@@ -484,7 +484,7 @@
                                       <th>Hot</th>
                                       <th>Warm</th>
                                       <th>Cold</th>
-                                      <th>Leads Consulted</th>
+                                      <th>Leads Consulted/Completed</th>
                                       <th>Closed leads</th>
                                       <th>Non responsive leads</th>
                                     </tr>

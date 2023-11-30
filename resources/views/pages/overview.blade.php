@@ -189,6 +189,7 @@
                                     centers: [],
                                     agents: [],
                                     allAgents: [],
+                                    selectedAgents : [],
                                     fetchCenters() {
                                         axios.get(
                                             '{{route('hospital.centers')}}',
@@ -208,11 +209,16 @@
                                     isDisabled() {
                                         return this.fileName == ''
                                             || this.hospital == ''
-                                            || this.center =='';
+                                            || this.center =='' || this.selectedAgents.length < 1;
                                     },
                                     fetchAgents() {
+                                        if(this.center == ''){
+                                            return null;
+                                        }
+                                        this.allAgents = [];
+                                        this.selectedAgents = [];
                                         axios.get(
-                                            '{{route('agents.logged')}}',
+                                            '{{route('center.agents')}}',
                                             {
                                                 params: { 'cid': this.center }
                                             }
@@ -229,6 +235,10 @@
                                         $dispatch('formsubmit', { url: '{{ route('import-leads') }}', route: 'import-leads', fragment: 'page-content', formData: formdata, target: 'import-form' });
                                         form.reset();
                                         this.fileName = '';
+                                    },
+                                    resetForm(){
+                                        $el.reset();
+                                        this.allAgents = [];
                                     }
                                 }"
                                 x-init="
@@ -301,7 +311,7 @@
 
                                     <template x-for="a in allAgents">
                                         <label :for="'check-'+a.id" class="flex space-x-1 items-center mb-1 w-fit">
-                                            <input type="checkbox" :id="'check-'+a.id" name="agents[]" :value="a.id" class="checkbox checkbox-secondary checkbox-xs">
+                                            <input type="checkbox" :id="'check-'+a.id" name="agents[]" :value="a.id" x-model="selectedAgents" class="checkbox checkbox-secondary checkbox-xs">
                                             <span x-text="a.name" class=" text-base-content"></span>
                                         </label>
                                     </template>
@@ -316,7 +326,7 @@
 
                                 <button type="submit" class="btn btn-sm btn-success normal-case" :disabled="isDisabled()">Import</button>
                                 <div>
-                                    <button class="btn btn-sm btn-ghost text-base-content opacity-60 normal-case" type="reset">Cancel</button>
+                                    <button class="btn btn-sm btn-ghost text-base-content opacity-60 normal-case" type="reset" @click.prevent.stop="resetForm();">Cancel</button>
                                 </div>
                             </form>
                         </div>

@@ -429,7 +429,7 @@
             <div class=" border-r border-primary pr-1.5 w-[46%]">
                 <h1 class=" text-secondary font-medium text-base flex space-x-1 items-center">
                     <span>Lead Details</span>
-                    <button @click.prevent.stop="editLead = true;" class=" btn btn-ghost btn-xs btn-warning text-warning">
+                    <button x-show="lead.source != null && lead.source.name != 'Facebook'" @click.prevent.stop="editLead = true;" class=" btn btn-ghost btn-xs btn-warning text-warning">
                         <x-easyadmin::display.icon icon="easyadmin::icons.edit" height="h-4" width="w-4"/>
                     </button>
                 </h1>

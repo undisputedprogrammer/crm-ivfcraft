@@ -38,8 +38,11 @@ class PageService
         }
 
         if ($status != null && $status != 'none' && $status != 'all') {
-
-            $leadsQuery->where('status', $status );
+            if($status == 'Consulted (Inc Completed)'){
+                $leadsQuery->where('status', 'Consulted')->orWhere('status', 'Completed');
+            }else{
+                $leadsQuery->where('status', $status );
+            }
         }
 
         if($status == null || $status == 'none'){
@@ -329,7 +332,7 @@ class PageService
             $agentReportQuery = Lead::forHospital($hospital)->where('assigned_to', auth()->user()->id);
         }
 
-        $results = $agentReportQuery->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->select('assigned_to', DB::raw('COUNT(DISTINCT leads.id) as total_leads, COUNT(CASE WHEN leads.status != "Created" THEN leads.id END) as followup_initiated_leads, COUNT(CASE WHEN leads.is_valid = true THEN leads.id END) as valid_leads, COUNT(CASE WHEN leads.is_genuine = true THEN leads.id END) as genuine_leads, COUNT(CASE WHEN leads.customer_segment = "hot" THEN leads.id END) as hot_leads, COUNT(CASE WHEN leads.customer_segment = "warm" THEN leads.id END) as warm_leads, COUNT(CASE WHEN leads.customer_segment = "cold" THEN leads.id END) as cold_leads, COUNT(CASE WHEN leads.status = "Consulted" THEN leads.id END) as consulted_leads, COUNT(CASE WHEN leads.status = "Closed" THEN leads.id END) as closed_leads, COUNT(CASE WHEN leads.call_status = "Not responsive" THEN leads.id END) as non_responsive_leads'))->groupBy('assigned_to')->get();
+        $results = $agentReportQuery->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->select('assigned_to', DB::raw('COUNT(DISTINCT leads.id) as total_leads, COUNT(CASE WHEN leads.status != "Created" THEN leads.id END) as followup_initiated_leads, COUNT(CASE WHEN leads.is_valid = true THEN leads.id END) as valid_leads, COUNT(CASE WHEN leads.is_genuine = true THEN leads.id END) as genuine_leads, COUNT(CASE WHEN leads.customer_segment = "hot" THEN leads.id END) as hot_leads, COUNT(CASE WHEN leads.customer_segment = "warm" THEN leads.id END) as warm_leads, COUNT(CASE WHEN leads.customer_segment = "cold" THEN leads.id END) as cold_leads, COUNT(CASE WHEN leads.status = "Consulted" OR leads.status = "Completed" THEN leads.id END) as consulted_leads, COUNT(CASE WHEN leads.status = "Closed" THEN leads.id END) as closed_leads, COUNT(CASE WHEN leads.call_status = "Not responsive" THEN leads.id END) as non_responsive_leads'))->groupBy('assigned_to')->get();
 
         $agentsReport = [];
         foreach($results as $result){
@@ -371,7 +374,7 @@ class PageService
 
         // $campaignQuery =
 
-        $total_leads = $campaignQuery->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->select('campaign', DB::raw('COUNT(DISTINCT leads.id) as total_leads, COUNT(DISTINCT CASE WHEN leads.status != "Created" THEN leads.id END) as followup_initiated_leads, COUNT(DISTINCT CASE WHEN leads.status = "Consulted" THEN leads.id END) as leads_converted, COUNT(DISTINCT CASE WHEN leads.customer_segment = "hot" THEN leads.id END) as hot_leads, COUNT(DISTINCT CASE WHEN leads.customer_segment = "warm" THEN leads.id END) as warm_leads, COUNT(DISTINCT CASE WHEN leads.customer_segment = "cold" THEN leads.id END) as cold_leads, COUNT(DISTINCT CASE WHEN leads.is_valid = true THEN leads.id END) as valid_leads, COUNT(DISTINCT CASE WHEN leads.is_genuine = true THEN leads.id END) as genuine_leads, COUNT(DISTINCT CASE WHEN leads.status = "Closed" THEN leads.id END) as closed_leads, COUNT(DISTINCT CASE WHEN leads.call_status = "Not responsive" THEN leads.id END) as non_responsive_leads'))->groupBy('campaign')->get();
+        $total_leads = $campaignQuery->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->select('campaign', DB::raw('COUNT(DISTINCT leads.id) as total_leads, COUNT(DISTINCT CASE WHEN leads.status != "Created" THEN leads.id END) as followup_initiated_leads, COUNT(DISTINCT CASE WHEN leads.status = "Consulted" OR leads.status = "Completed" THEN leads.id END) as leads_converted, COUNT(DISTINCT CASE WHEN leads.customer_segment = "hot" THEN leads.id END) as hot_leads, COUNT(DISTINCT CASE WHEN leads.customer_segment = "warm" THEN leads.id END) as warm_leads, COUNT(DISTINCT CASE WHEN leads.customer_segment = "cold" THEN leads.id END) as cold_leads, COUNT(DISTINCT CASE WHEN leads.is_valid = true THEN leads.id END) as valid_leads, COUNT(DISTINCT CASE WHEN leads.is_genuine = true THEN leads.id END) as genuine_leads, COUNT(DISTINCT CASE WHEN leads.status = "Closed" THEN leads.id END) as closed_leads, COUNT(DISTINCT CASE WHEN leads.call_status = "Not responsive" THEN leads.id END) as non_responsive_leads'))->groupBy('campaign')->get();
 
         // $followup_initiated_leads = Lead::forHospital($hospital)->whereMonth('created_at', $searchMonth)->whereYear('created_at',$searchYear)->select('campaign', DB::raw('SUM(CASE WHEN leads.status != "Created" THEN 1 END) as followup_initiated_leads'))->groupBy('campaign')->get();
 
@@ -469,7 +472,7 @@ class PageService
                 DB::raw('COUNT(DISTINCT leads.id) as total_leads'),
                 DB::raw('COUNT(DISTINCT CASE WHEN leads.is_valid = true THEN leads.id END) as valid_leads'),
                 DB::raw('COUNT(DISTINCT CASE WHEN leads.is_genuine = true THEN leads.id END) as genuine_leads'),
-                DB::raw('COUNT(DISTINCT CASE WHEN leads.customer_segment = "hot" THEN leads.id END) as hot_leads, COUNT(DISTINCT CASE WHEN leads.customer_segment = "warm" THEN leads.id END) as warm_leads, COUNT(DISTINCT CASE WHEN leads.customer_segment ="cold" THEN leads.id END) as cold_leads, COUNT(DISTINCT CASE WHEN leads.status = "Consulted" THEN leads.id END) as converted_leads, COUNT(DISTINCT CASE WHEN leads.status = "Closed" THEN leads.id END) as closed_leads, COUNT(DISTINCT CASE WHEN leads.call_status = "Not responsive" THEN leads.id END) as non_responsive_leads, COUNT(DISTINCT CASE WHEN leads.status != "Created" THEN leads.id END) as followup_initiated_leads')
+                DB::raw('COUNT(DISTINCT CASE WHEN leads.customer_segment = "hot" THEN leads.id END) as hot_leads, COUNT(DISTINCT CASE WHEN leads.customer_segment = "warm" THEN leads.id END) as warm_leads, COUNT(DISTINCT CASE WHEN leads.customer_segment ="cold" THEN leads.id END) as cold_leads, COUNT(DISTINCT CASE WHEN leads.status = "Consulted" OR leads.status = "Completed" THEN leads.id END) as converted_leads, COUNT(DISTINCT CASE WHEN leads.status = "Closed" THEN leads.id END) as closed_leads, COUNT(DISTINCT CASE WHEN leads.call_status = "Not responsive" THEN leads.id END) as non_responsive_leads, COUNT(DISTINCT CASE WHEN leads.status != "Created" THEN leads.id END) as followup_initiated_leads')
             )
             ->groupBy('source_id')->get();
 
