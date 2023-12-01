@@ -20,6 +20,7 @@ export default () => ({
     showImage: false,
     selectedCenter : null,
     selectedAgent : null,
+    selectedStatus : null,
     is_genuine : null,
     is_valid : null,
     creation_date_from : null,
