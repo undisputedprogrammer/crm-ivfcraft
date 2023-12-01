@@ -25,7 +25,7 @@ return new class extends Migration
             $table->text('history')->nullable();
             $table->text('q_visit')->nullable();
             $table->text('q_decide')->nullable();
-            $table->enum('customer_segment',['hot','warm','cold'])->nullable();
+            $table->enum('customer_segment',['hot','warm','cold'])->nullable()->default(null);
             $table->enum('status', ['Created', 'Follow-up Started', 'Appointment Fixed', 'Consulted', 'Completed', 'Closed'])->default('Created')->nullable();
             $table->enum('treatment_status', ['Continuing','Discontinued','Not decided'])->nullable();
             $table->boolean('followup_created')->default(false);

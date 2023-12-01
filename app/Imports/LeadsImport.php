@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Helpers\PublicHelper;
 use App\Models\Lead;
 use App\Models\User;
 use App\Models\Answer;
@@ -82,7 +83,7 @@ class LeadsImport implements ToArray, WithHeadingRow
             info("going to create lead");
             $lead = Lead::create([
                 'name' => $row[$this->mainCols->name],
-                'phone' => str_replace(['+','-',' '] ,'' ,$row[$this->mainCols->phone]),
+                'phone' => PublicHelper::formatPhoneNumber($row[$this->mainCols->phone]),
                 'email' => $row[$this->mainCols->email] ?? '',
                 'city' => $row[$this->mainCols->city] ?? '',
                 'campaign' => $row[$this->mainCols->campaign] ?? '',
