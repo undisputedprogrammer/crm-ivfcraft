@@ -17,7 +17,7 @@
 
         creation_date_to !== null && (params.creation_date_to = creation_date_to);
 
-        if(isProcessed != undefined){
+        if(typeof isProcessed !== 'undefined'){
             isProcessed == true && (params.processed = true);
         }
 
