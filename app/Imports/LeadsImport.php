@@ -59,7 +59,7 @@ class LeadsImport implements ToArray, WithHeadingRow
             }
             $this->totalCount++;
 
-            $existing_count = Lead::where('phone', $row[$this->mainCols->phone])->get()->count();
+            $existing_count = Lead::where('phone', PublicHelper::formatPhoneNumber($row[$this->mainCols->phone]))->get()->count();
             if($existing_count > 0){
                 continue;
             }
