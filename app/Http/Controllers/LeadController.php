@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\PublicHelper;
 use Carbon\Carbon;
 use App\Models\Lead;
 use App\Models\User;
@@ -252,7 +253,7 @@ class LeadController extends SmartController
             'hospital_id' => Auth::user()->hospital_id,
             'center_id' => $request->center ? $request->center : User::find(Auth::user()->id)->centers()->first()->id,
             'name' => $request->name,
-            'phone' => str_replace(['+','-',' '],'',$request->phone),
+            'phone' => PublicHelper::formatPhoneNumber($request->phone),
             'email' => $request->email,
             'city' => $request->city,
             'assigned_to' => $agentIds[$next_assign_index],
@@ -323,7 +324,7 @@ class LeadController extends SmartController
             'hospital_id' => Auth::user()->hospital_id,
             'center_id' => $request->center ? $request->center : User::find(Auth::user()->id)->centers()->first()->id,
             'name' => $request->name,
-            'phone' => str_replace(['+','-',' '],'',$request->phone),
+            'phone' => PublicHelper::formatPhoneNumber($request->phone),
             'email' => $request->email,
             'city' => $request->city,
             'assigned_to' => $request->agent,

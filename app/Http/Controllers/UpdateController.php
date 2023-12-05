@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\PublicHelper;
 use App\Models\Hospital;
 use App\Models\Lead;
 use App\Models\Source;
@@ -51,5 +52,20 @@ class UpdateController extends Controller
         }
 
         return redirect('/');
+    }
+
+    public static function updateAllNumbers(){
+        $leads = Lead::all();
+        foreach($leads as $lead){
+            $lead->phone = PublicHelper::formatPhoneNumber($lead->phone);
+            $lead->save();
+            $phone = $lead->phone;
+            $dlq = Lead::where('phone', $lead->phone)->where('id', '!=', $lead->id)->orWhere('phone', $phone)->where('id','!=',$lead->id);
+            $dupleads = $dlq->get()->count();
+            if( $dupleads > 0){
+                $dup_ids = $dlq->get()->pluck('id')->toArray();
+                info($dupleads.' duplicate of '.$lead->phone.' in ids '.implode(',',$dup_ids));
+            }
+        }
     }
 }
