@@ -32,8 +32,8 @@ export default ()=>({
     },
     searchlead(){
         let searchString = document.getElementById('search-input').value;
-
-        this.$dispatch('linkaction',{link: this.theLink, route:'fresh-leads',fragment:'page-content',fresh: true, params:{search: searchString}});
+        let status = 'all';
+        this.$dispatch('linkaction',{link: this.theLink, route:'fresh-leads',fragment:'page-content',fresh: true, params:{search: searchString, status: status}});
     },
     filterLead(el){
         let formdata = new FormData(el);
