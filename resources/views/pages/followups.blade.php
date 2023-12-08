@@ -366,6 +366,10 @@
                         </ul>
                     </div>
 
+                    <p class=" text-base-content text-base font-semibold mt-1">Follow-up scheduled date :
+                        <span class="text-warning" x-text="formatDateOnly(fp.scheduled_date)"></span>
+                    </p>
+
                     <x-sections.followup-history/>
 
                 </div>
