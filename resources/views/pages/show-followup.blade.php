@@ -249,7 +249,7 @@
 
                     <div x-show="selected_section == 'new_follow_up'" class="pt-4">
 
-                        <h2 class="font-medium ">Follow-up Scheduled Date: <span x-text="formatDateOnly(fp.scheduled_date)" class="text-warning"></span></h2>
+                        <h2 x-show="fp.lead.status != 'Closed' && fp.lead.status != 'Completed' " class="font-medium ">Follow-up Scheduled Date: <span x-text="formatDateOnly(fp.scheduled_date)" class="text-warning"></span></h2>
 
                         <template x-if="fp.lead.status == 'Appointment Fixed'">
                             <h2 class="font-medium ">Appointment Scheduled Date:
