@@ -589,8 +589,11 @@ class PageService
                 return $qr->with('doctor');
             }, 'source']);
         }, 'remarks'])
-            ->whereDate('scheduled_date', '<=', date('Y-m-d'))
             ->where('actual_date', null);
+
+        if($search == null){
+            $followupsQuery->whereDate('scheduled_date', '<=', date('Y-m-d'));
+        }
 
         if ($user->hasRole('agent')) {
             $followupsQuery->whereHas('lead', function ($query) use ($user) {
