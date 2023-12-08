@@ -480,6 +480,14 @@
                     <p class=" text-sm font-medium ">Lead Segment : <span x-text = "lead.customer_segment != null ? lead.customer_segment : 'UNKNOWN' " :class="lead.customer_segment != null ? ' uppercase text-warning' : ' text-error' "></span></p>
                 </div>
 
+                <div x-show="lead.followup_created == 1 && lead.status != 'Created'" class=" my-1">
+                    <h1 class=" text-base text-secondary font-semibold" x-text="lead.status != 'Closed' && lead.status != 'Completed' ? 'Next follow-up scheduled to ' : 'Last follow-up at ' "></h1>
+                        {{-- Show next followup date --}}
+                        <p x-show="lead.status != 'Closed' && lead.status != 'Completed'" class="text-primary font-semibold" x-text="lead.followup_created == 1 ? formatDateOnly(followups[followups.length - 1].scheduled_date) : '---' "></p>
+                        {{-- Show last follow-up date --}}
+                        <p x-show="lead.status == 'Closed' || lead.status == 'Completed'" class="text-primary font-semibold" x-text="lead.followup_created == 1 ? formatDateOnly(followups[followups.length - 1].actual_date) : '---' "></p>
+                </div>
+
                 <div x-show=" followups[0] != undefined && followups[0].next_followup_date != null " class=" mt-2.5">
                     <h1 class=" text-secondary text-sm font-medium">Follow up details</h1>
                     <h1 x-text="lead.followup_created == 0 ? 'Follow-up not initiated' : '' " class="  font-medium text-primary"></h1>
@@ -488,15 +496,6 @@
                         <span>Follow up started at : </span>
                         <span class="text-primary" x-text="lead.followup_created == 1  ? formatDateOnly(followups[0].next_followup_date) : '---' "></span>
                     </p>
-
-                    <p x-show="lead.followup_created == 1 " class=" font-medium ">
-                        <span x-text="lead.status != 'Closed' && lead.status != 'Completed' ? 'Next follow-up scheduled to :' : 'Last follow-up at :' "></span>
-                        {{-- Show next followup date --}}
-                        <span x-show="lead.status != 'Closed' && lead.status != 'Completed'" class="text-primary" x-text="lead.followup_created == 1 ? formatDateOnly(followups[followups.length - 1].scheduled_date) : '---' "></span>
-                        {{-- Show last follow-up date --}}
-                        <span x-show="lead.status == 'Closed' || lead.status == 'Completed'" class="text-primary" x-text="lead.followup_created == 1 ? formatDateOnly(followups[followups.length - 1].actual_date) : '---' "></span>
-                    </p>
-
 
                     <p x-show="lead.status == 'Appointment Fixed' && lead.followup_created == 0"  class=" font-medium text-success my-1">Appointment Scheduled</p>
 
