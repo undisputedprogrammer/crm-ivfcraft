@@ -164,6 +164,7 @@ Route::middleware('auth')->group(function () {
     // update routes
     Route::get('/update/set-call-status', [UpdateController::class, 'setCallStatusForAllLeads']);
     Route::get('/update/set-sources', [UpdateController::class, 'setDistinctSourcesForHospital']);
+    Route::get('/update/numbers', [UpdateController::class, 'updateAllNumbers']);
     // update routes end
 
     // Route::get('/start-queue', function () {
