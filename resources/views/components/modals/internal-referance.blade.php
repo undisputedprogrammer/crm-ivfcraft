@@ -33,7 +33,7 @@
             } else{
                 $dispatch('formerrors', {errors: $event.detail.content.errors});
             }
-        }">
+        }" autocomplete="off">
 
             <div class=" flex-col flex">
                 <label for="" class="font-medium text-base-content">Name :</label>
@@ -85,6 +85,11 @@
                         </template>
                     </select>
                 </div>
+
+                @php
+                    $refercampaigninputId = "campaign-input-refer";
+                @endphp
+                <x-helpers.campaign-autocomplete :inputId="$refercampaigninputId"/>
 
 
             <div class=" flex space-x-2 md:w-96">

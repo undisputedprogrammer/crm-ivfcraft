@@ -17,6 +17,7 @@
                         {{-- <th>ID</th> --}}
                         <th>Name</th>
                         <th>Campaign</th>
+                        <th>Source</th>
                         <th>Segment</th>
                         <th>Status</th>
                         <th>Created Date</th>
@@ -41,6 +42,7 @@
                                 </div>
                             </td>
                             <td id="campaign-{{$lead->id}}" class=" py-1">{{ $lead->campaign != '' ? $lead->campaign : '---' }}</td>
+                            <td id="source-{{$lead->id}}" class=" py-1"> {{ $lead->source->name != '' ? $lead->source->name : '---'}}</td>
                             <td id="segment-{{$lead->id}}" :class="'{{$lead->customer_segment}}' != '' ? ' uppercase' : ''" class="py-1 uppercase">{{ $lead->customer_segment != null ? $lead->customer_segment : '---' }}</td>
 
                             <td class="py-1  text-warning" id="status-{{$lead->id}}">{{$lead->status}}</td>

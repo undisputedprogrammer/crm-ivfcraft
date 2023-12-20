@@ -1,5 +1,7 @@
-@props(['centers'])
-<div x-show="createLead" x-cloak x-transition class=" absolute w-full h-screen z-30 bg-neutral bg-opacity-70">
+@props(['centers','campaigns'])
+<div
+x-init = "setCampaignsArray('{{$campaigns}}')"
+x-show="createLead" x-cloak x-transition class=" absolute w-full h-screen z-30 bg-neutral bg-opacity-70">
 
     <div class="md:w-[40%] h-fit rounded-lg bg-base-100 mx-auto mt-14 bg-opacity-100 flex flex-col items-center p-4">
         <h1 class="text-secondary font-medium text-lg uppercase">Create new lead</h1>
@@ -55,7 +57,7 @@
             } else{
                 $dispatch('formerrors', {errors: $event.detail.content.errors});
             }
-        }">
+        }" autocomplete="off">
 
             <div class=" flex-col flex">
                 <label for="" class="font-medium text-base-content">Name :</label>
@@ -93,6 +95,11 @@
 
                     </select>
                 </div>
+
+                @php
+                    $inputId = "campaign-input";
+                @endphp
+                <x-helpers.campaign-autocomplete :inputId="$inputId"/>
 
             <div class=" flex space-x-2 md:w-96">
                 <button type="submit" class=" btn btn-success btn-sm">Save</button>
