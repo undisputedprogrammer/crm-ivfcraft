@@ -23,6 +23,11 @@ export default ()=>({
     search : null,
     tableHeading : 'Showing fresh leads',
     sources : [],
+    c : null,
+    campaigns : [],
+    container : document.getElementById('autocomplete-items'),
+    matches : [],
+    autoComplete : false,
     toggleTemplateModal(){
         this.showTemplateModal = !this.showTemplateModal;
     },
@@ -164,5 +169,34 @@ export default ()=>({
         .catch(function (error) {
             console.log(error);
         });
+    },
+    setCampaignsArray(campaignObject){
+        campaignObject = JSON.parse(campaignObject.replace(/&quot;/g, '"'));
+        this.campaigns = new Array();
+        campaignObject.forEach((c) => {
+            this.campaigns.push(c.name)
+        });
+    },
+    campaignInputChanged(value){
+        let campaigns = Array.from(this.campaigns);
+        let matches = [];
+        let i = 0;
+        this.autoComplete = false;
+        campaigns.forEach((c)=>{
+            if(c.toLowerCase().includes(value.toLowerCase())){
+                matches[i] = c;
+                i++;
+            }
+        })
+
+        if(matches.length > 0 ){
+            this.autoComplete = true;
+        }
+
+        return matches;
+    },
+    completeInput(input, inputId){
+        document.getElementById(inputId).value = input;
+        this.autoComplete = false;
     }
 });

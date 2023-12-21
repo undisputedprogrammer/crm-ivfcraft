@@ -21,6 +21,7 @@ use App\Http\Controllers\WhatsAppApiController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\HospitalController;
 use App\Http\Controllers\BreakController;
+use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\CreateFollowupController;
 use App\Http\Controllers\InternalChatController;
 use App\Http\Controllers\JournalController;
@@ -93,7 +94,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/password/reset', [AgentController::class, 'reset'])->name('user-password.reset');
     Route::post('/password/reset', [AgentController::class, 'change'])->name('password.change');
 
-
+    // Route::get('/manage/campaigns', [CampaignController::class, 'index'])->name('campaign.index');
 
     Route::get('/templates', [TemplateController::class, 'index'])->name('template.index');
     Route::post('/template', [TemplateController::class, 'store'])->name('template.store');
@@ -162,14 +163,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/post-internal-message', [InternalChatController::class, 'postMessage'])->name('internal_chat.post_message');
 
     // update routes
-    Route::get('/update/set-call-status', [UpdateController::class, 'setCallStatusForAllLeads']);
-    Route::get('/update/set-sources', [UpdateController::class, 'setDistinctSourcesForHospital']);
+    // Route::get('/update/set-call-status', [UpdateController::class, 'setCallStatusForAllLeads']);
+    // Route::get('/update/set-sources', [UpdateController::class, 'setDistinctSourcesForHospital']);
+    // Route::get('/update/numbers', [UpdateController::class, 'updateAllNumbers']);
     // update routes end
 
-    // Route::get('/start-queue', function () {
-    //     Artisan::call('queue:work');
-    //     return 'ok';
-    // });
+
 });
 
 Route::get('/', [PageController::class, 'home']);

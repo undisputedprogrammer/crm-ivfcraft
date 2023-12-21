@@ -54,18 +54,29 @@ class UpdateController extends Controller
         return redirect('/');
     }
 
-    public static function updateAllNumbers(){
+    public function updateAllNumbers(){
         $leads = Lead::all();
+
         foreach($leads as $lead){
-            $lead->phone = PublicHelper::formatPhoneNumber($lead->phone);
-            $lead->save();
-            $phone = $lead->phone;
-            $dlq = Lead::where('phone', $lead->phone)->where('id', '!=', $lead->id)->orWhere('phone', $phone)->where('id','!=',$lead->id);
-            $dupleads = $dlq->get()->count();
-            if( $dupleads > 0){
-                $dup_ids = $dlq->get()->pluck('id')->toArray();
-                info($dupleads.' duplicate of '.$lead->phone.' in ids '.implode(',',$dup_ids));
+            if(strlen($lead->phone) < 12){
+                $phone = str_replace(['+','-',' '] ,'' ,$lead->phone);
+                if (substr($phone, 0, 1) === '0'){
+                    $phone = preg_replace('/0/', '', $phone, 1);
+                }
+            }else{
+                continue;
+            }
+
+            $duplicates = Lead::where('phone','91'.$phone)->get()->first();
+
+            if($duplicates == null){
+                $lead->phone = PublicHelper::formatPhoneNumber($lead->phone);
+                $lead->save();
+            }else{
+                info('Duplicate number '.$phone.' at id'.$lead->id);
             }
         }
+
+        return response('OK');
     }
 }

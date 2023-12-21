@@ -225,7 +225,8 @@ class LeadController extends SmartController
             'name' => 'required|min:3',
             'city' => 'required|min:3',
             'phone' => 'required|min:10',
-            'email' => 'required|email'
+            'email' => 'required|email',
+            'campaign' => 'required'
         ]);
 
         $assigned_to = $request->assign_to ? $request->assign_to : Auth::user()->id;
@@ -258,8 +259,11 @@ class LeadController extends SmartController
             'city' => $request->city,
             'assigned_to' => $agentIds[$next_assign_index],
             'created_by' => Auth::user()->id,
-            'source_id' => $request->source
+            'source_id' => $request->source,
+            'campaign' => ucwords(strtolower($request->campaign))
         ]);
+
+        PublicHelper::checkAndStoreCampaign($request->campaign);
 
         $center->last_assigned = $agentIds[$next_assign_index];
         $center->save();
@@ -284,6 +288,8 @@ class LeadController extends SmartController
             'lead' => $lead
         ], 200);
     }
+
+
 
     public function createFollowup($lead)
     {
@@ -329,8 +335,19 @@ class LeadController extends SmartController
             'city' => $request->city,
             'assigned_to' => $request->agent,
             'created_by' => Auth::user()->id,
-            'source_id' => $source->id
+            'source_id' => $source->id,
+            'campaign' => ucwords(strtolower($request->campaign))
         ]);
+
+        $campaignCheck = PublicHelper::checkAndStoreCampaign($request->campaign);
+
+        if(!$campaignCheck){
+            $lead->delete();
+            return response()->json([
+                'success' => false,
+                'message' => 'Could not create lead !'
+            ]);
+        }
 
         $followup_created = $this->createFollowup($lead);
 

@@ -229,7 +229,7 @@
         <x-modals.template-select-modal :templates="$messageTemplates"/>
         <x-display.sending/>
         <x-modals.lead-edit-modal/>
-        <x-modals.create-lead-modal :centers="$centers"/>
+        <x-modals.create-lead-modal :centers="$centers" :campaigns="$campaigns"/>
         <x-modals.display-image/>
         <x-modals.internal-referance :centers="$centers"/>
 

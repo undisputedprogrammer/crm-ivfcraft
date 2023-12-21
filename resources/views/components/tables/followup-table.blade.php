@@ -9,6 +9,7 @@
               {{-- <th></th> --}}
               <th>Name</th>
               <th>Campaign</th>
+              <th>Source</th>
               <th>Segment</th>
               <th>Status</th>
             </tr>
@@ -32,6 +33,8 @@
                         </div>
                     </td>
                     <td class="py-1">{{$followup->lead->campaign != '' ? $followup->lead->campaign : '---'}}</td>
+
+                    <td class="py-1">{{ $followup->lead->source->name != '' ? $followup->lead->source->name : '---' }}</td>
 
                     <td id="segment-{{$followup->lead->id}}" class=" py-1 uppercase">{{$followup->lead->customer_segment ?? '---'}}</td>
 
