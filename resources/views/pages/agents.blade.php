@@ -121,6 +121,7 @@
                     name = $event.detail.name;
                     email = $event.detail.email;
                     center_id = $event.detail.center_id;
+                    enabled = $event.detail.enabled;
                     mode='edit';
                 "  x-transition>
                 <h2 class="text-lg font-semibold text-primary ">Edit Agent</h2>
@@ -129,7 +130,10 @@
                         x-data="{
                             doSubmit() {
                                 let form = document.getElementById('agent-edit-form');
+                                let inputEnabled = document.getElementById('input-enabled');
                                 let fd = new FormData(form);
+                                {{-- console.log(inputEnabled.checked); --}}
+                                fd.append('enabled', inputEnabled.checked);
                                 $dispatch('formsubmit', {url: '{{route('agents.update', '_X_')}}'.replace('_X_', id), formData: fd, target: 'agent-edit-form'});
                             }
                         }"
@@ -160,6 +164,12 @@
                             <span class="label-text">Email</span>
                             </label>
                             <input type="email" name="email" x-model="email" placeholder="Email" class="input input-bordered w-full max-w-xs" />
+                        </div>
+
+                        <div class="flex space-x-2 w-full max-w-xs mt-4">
+                            <label for="enabled" class="font-semibold text-base">Enabled :</label>
+                            <input type="checkbox" name="enabled" :checked="enabled" id="input-enabled"
+                            class="checkbox checkbox-secondary checkbox-sm">
                         </div>
 
 

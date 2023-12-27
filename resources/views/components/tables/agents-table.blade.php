@@ -22,7 +22,7 @@
                     <td>{{$agent->name}}</td>
                     <td>{{$agent->email}}</td>
                     <td class=" flex">
-                        <button @click.prevent.stop="$dispatch('agentedit', {id: {{$agent->id}}, name: '{{$agent->name}}', email: '{{$agent->email}}'});" class="btn btn-ghost btn-xs text-warning" type="button">
+                        <button @click.prevent.stop="$dispatch('agentedit', {id: {{$agent->id}}, name: '{{$agent->name}}', email: '{{$agent->email}}', enabled: '{{$agent->enabled}}' == 1 ? true : false});" class="btn btn-ghost btn-xs text-warning" type="button">
                             <x-easyadmin::display.icon icon="easyadmin::icons.edit" height="h-4" width="w-4"/>
                         </button>
                         <button class="btn btn-ghost btn-xs text-warning"

@@ -5,6 +5,7 @@ export default () => ({
     name: "",
     email: "",
     center_id: "",
+    enabled: true,
     audits:[],
     auditsLoading: false,
     journalsLoading: true,

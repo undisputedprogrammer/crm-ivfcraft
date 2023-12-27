@@ -56,13 +56,20 @@ class AgentService implements ModelViewConnector
         $details = $request->validate([
             'name'=>'required|string',
             'email'=>'required|email',
-
         ]);
 
         $agent = User::find($id);
+        $enabled = null;
+
+        if($request->enabled == 'true'){
+            $enabled = true;
+        }else{
+            $enabled = false;
+        }
 
         $agent->name = $request->name;
         $agent->email = $request->email;
+        $agent->enabled = $enabled;
         // $agent->center_id = $request->center_id;
         $agent->save();
 
