@@ -32,6 +32,7 @@ class User extends Authenticatable implements MediaOwner
         'designation',
         'hospital_id',
         'password',
+        'enabled'
     ];
 
     /**

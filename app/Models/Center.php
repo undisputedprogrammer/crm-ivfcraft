@@ -26,7 +26,7 @@ class Center extends Model
     {
         $arr = [];
         foreach ($this->users as $u) {
-            if($u->hasRole('agent')){
+            if($u->hasRole('agent') && $u->enabled){
                 $arr[] = $u;
             }
         }
