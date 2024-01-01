@@ -349,6 +349,12 @@
 
                     <p x-show=" fp.lead != undefined && fp.lead.status == 'Consulted' " class="font-medium">Treatment status: <span class=" uppercase !text-warning" x-text="fp.lead != undefined && fp.lead.treatment_status != null ? fp.lead.treatment_status : '---' "></span></p>
 
+                    @if (auth()->user()->hasRole('admin'))
+                        <div class=" flex items-center space-x-2">
+                            <p class=" text-sm font-medium ">Assigned to : <span class="" x-text = "fp.lead.assigned.name"></span></p>
+                        </div>
+                    @endif
+
                     <div x-show="leadremarks.length != 0" class="mt-2.5">
                         <p class=" text-base font-medium text-secondary">Lead remarks</p>
 

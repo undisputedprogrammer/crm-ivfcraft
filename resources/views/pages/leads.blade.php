@@ -480,6 +480,12 @@
                     <p class=" text-sm font-medium ">Lead Segment : <span x-text = "lead.customer_segment != null ? lead.customer_segment : 'UNKNOWN' " :class="lead.customer_segment != null ? ' uppercase text-warning' : ' text-error' "></span></p>
                 </div>
 
+                @if (auth()->user()->hasRole('admin'))
+                    <div class=" flex items-center space-x-2">
+                        <p class=" text-sm font-medium ">Assigned to : <span class="" x-text = "lead.assigned.name"></span></p>
+                    </div>
+                @endif
+
                 <div x-show="lead.followup_created == 1 && lead.status != 'Created'" class=" my-1">
                     <h1 class=" text-base text-secondary font-semibold" x-text="lead.status != 'Closed' && lead.status != 'Completed' ? 'Next follow-up scheduled to ' : 'Last follow-up at ' "></h1>
                         {{-- Show next followup date --}}
