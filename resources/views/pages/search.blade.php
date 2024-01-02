@@ -266,6 +266,12 @@
 
                             <p class=" text-base font-medium">Lead Segment : <span class=" uppercase text-secondary" x-text="fp.lead != undefined ? fp.lead.customer_segment : '' "></span></p>
 
+                            @if (auth()->user()->hasRole('admin'))
+                                <div class=" flex items-center space-x-2">
+                                    <p class=" text-sm font-medium ">Assigned to : <span class="" x-text = "fp.lead.assigned.name"></span></p>
+                                </div>
+                            @endif
+
                             <div class="mt-2.5" x-show="leadremarks.length > 0">
                                 <p class=" text-base font-medium text-secondary">Lead remarks</p>
 

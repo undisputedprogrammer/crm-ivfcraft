@@ -150,6 +150,12 @@
 
                     <p class="font-medium">Lead Status: <span class=" uppercase !text-warning" x-text="fp.lead != undefined && fp.lead.status != null ? fp.lead.status : '-' "></span></p>
 
+                    @if (auth()->user()->hasRole('admin'))
+                        <div class=" flex items-center space-x-2">
+                            <p class=" text-sm font-medium ">Assigned to : <span class="" x-text = "fp.lead.assigned.name"></span></p>
+                        </div>
+                    @endif
+
                     <div class="mt-2.5">
                         <p class=" text-base font-medium text-secondary">Lead remarks</p>
 

@@ -25,7 +25,7 @@ class PageService
     {
         $leadsQuery = Lead::with(['followups' => function ($qr) {
             return $qr->with(['remarks']);
-        }, 'appointment', 'source'])->where('hospital_id', $user->hospital_id);
+        }, 'appointment', 'source', 'assigned'])->where('hospital_id', $user->hospital_id);
 
 
         $leadsQuery->when($user->hasRole('agent'), function ($query) use ($user) {
@@ -587,7 +587,7 @@ class PageService
         })->with(['lead' => function ($q) use ($user) {
             return $q->with(['appointment' => function ($qr) {
                 return $qr->with('doctor');
-            }, 'source']);
+            }, 'source', 'assigned']);
         }, 'remarks'])
             ->where('actual_date', null);
 
@@ -710,7 +710,7 @@ class PageService
         })->with(['lead' => function ($q) {
             return $q->with(['appointment' => function ($qry) {
                 return $qry->with('doctor');
-            }, 'remarks', 'source']);
+            }, 'remarks', 'source', 'assigned']);
         }, 'remarks'])->latest()->get()->first();
 
         $doctors = Doctor::all();
