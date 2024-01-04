@@ -46,11 +46,17 @@ class PageController extends SmartController
 
     public function performance(Request $request)
     {
-        $overview = $this->pageService->getPerformaceOverview($request->from, $request->to);
-        $performance = $this->pageService->agentsPerformance($request->from, $request->to);
-        $campaignReport = $this->pageService->getCampaignReport($request->from, $request->to);
-        $sourceReport = $this->pageService->getSourceReport($request->from, $request->to);
-        $agentsReport = $this->pageService->getAgentReport($request->from, $request->to);
+        $overview = $this->pageService->getPerformaceOverview($request->from, $request->to, $request->center);
+
+        $performance = $this->pageService->agentsPerformance($request->from, $request->to, $request->center);
+
+        $campaignReport = $this->pageService->getCampaignReport($request->from, $request->to, $request->center);
+
+        $sourceReport = $this->pageService->getSourceReport($request->from, $request->to, $request->center);
+
+        $agentsReport = $this->pageService->getAgentReport($request->from, $request->to, $request->center);
+
+        $centers = Center::where('hospital_id', auth()->user()->hospital_id)->get()->toArray();
 
         $search = [];
         if($request->from != null && $request->to != null){
@@ -60,8 +66,11 @@ class PageController extends SmartController
             $search['from'] = Carbon::today()->startOfMonth()->format('Y-m-d');
             $search['to'] = Carbon::today()->format('Y-m-d');
         }
+        if($request->center != null){
+            $search['selectedCenter'] = $request->center;
+        }
 
-        return $this->buildResponse('pages.performance', array_merge($overview, $performance, $campaignReport, $search, $sourceReport, $agentsReport));
+        return $this->buildResponse('pages.performance', array_merge($overview, $performance, $campaignReport, $search, $sourceReport, $agentsReport, $centers));
     }
 
 

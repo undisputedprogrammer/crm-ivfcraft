@@ -138,7 +138,7 @@ class LeadsImport implements ToArray, WithHeadingRow
     }
 
     public function checkAndStoreCampaign($campaign){
-        $campaign = ucwords(strtolower($campaign));
+        $campaign = ltrim(ucwords(strtolower($campaign)));
         $existing_campaign = Campaign::where('name', $campaign)->get()->first();
         if(!$existing_campaign && $campaign != ''){
             Campaign::create([

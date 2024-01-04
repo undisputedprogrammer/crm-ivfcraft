@@ -67,4 +67,13 @@ class Lead extends Model
     public function source(){
         return $this->belongsTo(Source::class, 'source_id', 'id');
     }
+
+    public function scopeForCenter($query, $centerID)
+    {
+        if($centerID != null){
+            $query->where('center_id', $centerID);
+        }else{
+            $query;
+        }
+    }
 }
