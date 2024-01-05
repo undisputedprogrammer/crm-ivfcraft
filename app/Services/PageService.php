@@ -208,7 +208,7 @@ class PageService
         return compact('lpm', 'ftm', 'lcm', 'pf', 'hospitals', 'centers', 'journal', 'process_chart_data', 'valid_chart_data', 'genuine_chart_data');
     }
 
-    public function getPerformaceOverview($from = null, $to = null)
+    public function getPerformaceOverview($from = null, $to = null, $center = null)
     {
         if ($from != null && $to != null) {
             $fromDate = Carbon::createFromFormat('Y-m-d', $from)->format('Y-m-d');
@@ -227,14 +227,23 @@ class PageService
 
         if ($authUser->hasRole('admin')) {
 
-            $lpm = Lead::forHospital($hospital->id)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->count();
+            $lpmQuery = Lead::forHospital($hospital->id)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate);
+            $ftmQuery = Lead::forHospital($hospital->id)->where('status', '<>', 'Created')->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate);
+            $lcmQuery = Lead::forHospital($hospital->id)->where('status', 'Consulted')->whereDate('created_at', '>=', $fromDate)->whereYear('created_at', '<=', $toDate);
 
-            $ftm = Lead::forHospital($hospital->id)->where('status', '<>', 'Created')->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->count();
+            if($center != null){
+                $lpmQuery->where('center_id', $center);
+                $ftmQuery->where('center_id', $center);
+                $lcmQuery->where('center_id', $center);
+            }
+            $lpm = $lpmQuery->count();
 
-            $lcm = Lead::forHospital($hospital->id)->where('status', 'Consulted')->whereDate('created_at', '>=', $fromDate)->whereYear('created_at', '<=', $toDate)->count();
+            $ftm = $ftmQuery->count();
 
-            $pf = Followup::whereHas('lead', function ($query) use ($hospital) {
-                $query->where('hospital_id', $hospital->id);
+            $lcm = $lcmQuery->count();
+
+            $pf = Followup::whereHas('lead', function ($query) use ($hospital, $center) {
+                $query->where('hospital_id', $hospital->id)->forCenter($center);
             })->where('actual_date', null)->count();
         } else {
             $lpm = Lead::forAgent($authUser->id)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->count();
@@ -256,7 +265,7 @@ class PageService
         return compact('lpm', 'ftm', 'lcm', 'pf', 'hospitals', 'centers', 'process_chart_data', 'valid_chart_data', 'genuine_chart_data');
     }
 
-    public function agentsPerformance($from, $to)
+    public function agentsPerformance($from, $to, $center = null)
     {
         if ($from != null && $to != null) {
             $fromDate = Carbon::createFromFormat('Y-m-d', $from)->format('Y-m-d');
@@ -266,29 +275,37 @@ class PageService
             $toDate = Carbon::today()->format('Y-m-d');
         }
 
+
+
         DB::statement("SET SQL_MODE=''");
         $hospital = auth()->user()->hospital;
 
-        $lpm = Lead::forHospital($hospital->id)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->select('assigned_to', DB::raw('count(leads.id) as count'))->groupBy('assigned_to')->get();
+        $lpm = Lead::forHospital($hospital->id)->forCenter($center)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->select('assigned_to', DB::raw('count(leads.id) as count'))->groupBy('assigned_to')->get();
 
         // $ftm = Lead::forHospital($hospital->id)->where('followup_created', true)->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
-        $ftm = Lead::forHospital($hospital->id)->where('status', '<>', 'Created')->whereDate('leads.created_at', '>=', $fromDate)->whereDate('leads.created_at', '<=', $toDate)->join('followups', 'leads.id', '=', 'followups.lead_id')->where('followups.actual_date', '!=', null)->select('leads.assigned_to', DB::raw('COUNT(followups.id) as count'))->groupBy('leads.assigned_to')->get();
+        $ftm = Lead::forHospital($hospital->id)->forCenter($center)->where('status', '<>', 'Created')->whereDate('leads.created_at', '>=', $fromDate)->whereDate('leads.created_at', '<=', $toDate)->join('followups', 'leads.id', '=', 'followups.lead_id')->where('followups.actual_date', '!=', null)->select('leads.assigned_to', DB::raw('COUNT(followups.id) as count'))->groupBy('leads.assigned_to')->get();
 
-        $pf = DB::table('followups')
-            ->join('leads as l', 'l.id', '=', 'followups.lead_id')
-            ->where('l.hospital_id', $hospital->id)
-            ->whereDate('l.created_at', '>=', $fromDate)
-            ->whereDate('l.created_at', '<=', $toDate)
-            ->where('followups.actual_date', null)
-            ->select('l.assigned_to', DB::raw('COUNT(l.id) as count'))
+        $pfQuery = DB::table('followups')
+        ->join('leads as l', 'l.id', '=', 'followups.lead_id')
+        ->where('l.hospital_id', $hospital->id)
+        ->whereDate('l.created_at', '>=', $fromDate)
+        ->whereDate('l.created_at', '<=', $toDate)
+        ->where('followups.actual_date', null);
+        if($center != null){
+            $centerObj = Center::find($center);
+            $agentIDs = collect($centerObj->agents())->pluck('id')->toArray();
+            $pfQuery->whereIn('l.assigned_to', $agentIDs);
+        }
+
+        $pf = $pfQuery->select('l.assigned_to', DB::raw('COUNT(l.id) as count'))
             ->groupBy('l.assigned_to')
             ->get();
 
-        $responsive_followups = Followup::whereHas('lead', function ($q) use ($hospital) {
-            return $q->forHospital($hospital->id);
+        $responsive_followups = Followup::whereHas('lead', function ($q) use ($hospital, $center) {
+            return $q->forHospital($hospital->id)->forCenter($center);
         })->join('leads', 'followups.lead_id', '=', 'leads.id')->whereDate('leads.created_at', '>=', $fromDate)->whereDate('leads.created_at', '<=', $toDate)->select('leads.assigned_to', DB::raw('COUNT(CASE WHEN followups.call_status = "Responsive" THEN 1 END) as responsive'), DB::raw('COUNT(CASE WHEN followups.call_status != "Responsive" THEN 1 END) as non_responsive'))->groupBy('leads.assigned_to')->get();
 
-        $followup_initiated_leads = Lead::forHospital($hospital->id)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->where('status', '!=', 'Created')->select('assigned_to', DB::raw('COUNT(leads.id) as count, COUNT(CASE WHEN leads.call_status = "Responsive" THEN leads.id END) as responsive_leads'))->groupBy('assigned_to')->get();
+        $followup_initiated_leads = Lead::forHospital($hospital->id)->forCenter($center)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->where('status', '!=', 'Created')->select('assigned_to', DB::raw('COUNT(leads.id) as count, COUNT(CASE WHEN leads.call_status = "Responsive" THEN leads.id END) as responsive_leads'))->groupBy('assigned_to')->get();
 
         DB::statement("SET SQL_MODE='only_full_group_by'");
 
@@ -300,8 +317,15 @@ class PageService
             $results[$f->assigned_to]['ftm'] = $f->count;
         }
         foreach ($pf as $p) {
-            $results[$p->assigned_to]['pf'] = $p->count;
+            if($center != null){
+                if(in_array($p->assigned_to, $agentIDs)){
+                    $results[$p->assigned_to]['pf'] = $p->count;
+                }
+            }else{
+                $results[$p->assigned_to]['pf'] = $p->count;
+            }
         }
+
         foreach ($responsive_followups as $rf) {
             $results[$rf->assigned_to]['responsive_followups'] = $rf->responsive;
             $results[$rf->assigned_to]['non_responsive_followups'] = $rf->non_responsive;
@@ -311,11 +335,15 @@ class PageService
             $results[$fil->assigned_to]['responsive_leads'] = $fil->responsive_leads;
         }
 
-
-        return ['counts' => $results, 'agents' => collect($hospital->agents())->pluck('name', 'id')];
+        if($center != null){
+            $agents = collect($centerObj->agents())->pluck('name','id');
+        }else{
+            $agents = collect($hospital->agents())->pluck('name', 'id');
+        }
+        return ['counts' => $results, 'agents' => $agents];
     }
 
-    public function getAgentReport($from, $to){
+    public function getAgentReport($from, $to, $centerID = null){
         if ($from != null && $to != null) {
             $fromDate = Carbon::createFromFormat('Y-m-d', $from)->format('Y-m-d');
             $toDate = Carbon::createFromFormat('Y-m-d', $to)->format('Y-m-d');
@@ -327,9 +355,9 @@ class PageService
         $hospital = auth()->user()->hospital_id;
 
         if (auth()->user()->hasRole('admin')) {
-            $agentReportQuery = Lead::forHospital($hospital);
+            $agentReportQuery = Lead::forHospital($hospital)->forCenter($centerID);
         } else {
-            $agentReportQuery = Lead::forHospital($hospital)->where('assigned_to', auth()->user()->id);
+            $agentReportQuery = Lead::forHospital($hospital)->forCenter($centerID)->where('assigned_to', auth()->user()->id);
         }
 
         $results = $agentReportQuery->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->select('assigned_to', DB::raw('COUNT(DISTINCT leads.id) as total_leads, COUNT(CASE WHEN leads.status != "Created" THEN leads.id END) as followup_initiated_leads, COUNT(CASE WHEN leads.is_valid = true THEN leads.id END) as valid_leads, COUNT(CASE WHEN leads.is_genuine = true THEN leads.id END) as genuine_leads, COUNT(CASE WHEN leads.customer_segment = "hot" THEN leads.id END) as hot_leads, COUNT(CASE WHEN leads.customer_segment = "warm" THEN leads.id END) as warm_leads, COUNT(CASE WHEN leads.customer_segment = "cold" THEN leads.id END) as cold_leads, COUNT(CASE WHEN leads.status = "Consulted" OR leads.status = "Completed" THEN leads.id END) as consulted_leads, COUNT(CASE WHEN leads.status = "Closed" THEN leads.id END) as closed_leads, COUNT(CASE WHEN leads.call_status = "Not responsive" THEN leads.id END) as non_responsive_leads'))->groupBy('assigned_to')->get();
@@ -352,7 +380,7 @@ class PageService
 
     }
 
-    public function getCampaignReport($from, $to)
+    public function getCampaignReport($from, $to, $centerID = null)
     {
         if ($from != null && $to != null) {
             $fromDate = Carbon::createFromFormat('Y-m-d', $from)->format('Y-m-d');
@@ -367,9 +395,9 @@ class PageService
         $campaigns = Campaign::all();
 
         if (auth()->user()->hasRole('admin')) {
-            $campaignQuery = Lead::forHospital($hospital);
+            $campaignQuery = Lead::forHospital($hospital)->forCenter($centerID);
         } else {
-            $campaignQuery = Lead::forHospital($hospital)->where('assigned_to', auth()->user()->id);
+            $campaignQuery = Lead::forHospital($hospital)->forCenter($centerID)->where('assigned_to', auth()->user()->id);
         }
 
         // $campaignQuery =
@@ -444,7 +472,7 @@ class PageService
         return ['campaignReport' => $campaingReport, 'campaigns' => $campaigns];
     }
 
-    public function getSourceReport($from, $to)
+    public function getSourceReport($from, $to, $centerID = null)
     {
 
         if ($from != null && $to != null) {
@@ -459,9 +487,9 @@ class PageService
         DB::statement("SET SQL_MODE=''");
 
         if (auth()->user()->hasRole('admin')) {
-            $reportsQuery = Lead::forHospital($hospital_id);
+            $reportsQuery = Lead::forHospital($hospital_id)->forCenter($centerID);
         } else {
-            $reportsQuery = Lead::forHospital($hospital_id)->where('leads.assigned_to', auth()->user()->id);
+            $reportsQuery = Lead::forHospital($hospital_id)->forCenter($centerID)->where('leads.assigned_to', auth()->user()->id);
         }
         $reports = $reportsQuery->whereDate('leads.created_at', '>=', $fromDate)
             ->whereDate('leads.created_at', '<=', $toDate)

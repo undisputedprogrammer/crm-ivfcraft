@@ -16,8 +16,8 @@
     @isset($genuine_chart_data)
         genuineChartData = JSON.parse('{{$genuine_chart_data}}');
     @endisset
-    @isset($from)
-        console.log('{{$from}}');
+    @isset($selectedCenter)
+        selectedCenter = {{$selectedCenter}}
     @endisset
     initChart();
     "
@@ -52,6 +52,16 @@
                                     <input type="date" name="to" required value="{{$to}}" class=" input input-sm input-bordered border-primary">
                                 </div>
 
+                                <div class=" flex flex-col">
+                                    <label for="" class=" text-primary font-medium">Center :</label>
+                                    <select name="center" id="select-center" class="select select-bordered select-primary select-sm text-xs">
+                                        <option value="" :selected="selectedCenter == null">All centers</option>
+                                        @foreach ($centers as $center)
+                                            <option :selected="selectedCenter == {{$center->id}}" value="{{$center->id}}">{{$center->name}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
                                 <button type="submit" class=" btn btn-sm btn-primary h-fit self-end">Search</button>
 
                                 <button @click.prevent.stop="resetPerformancePage()" class=" btn btn-sm btn-ghost h-fit self-end">
@@ -60,6 +70,10 @@
                             </div>
                         </form>
 
+                    </div>
+
+                    <div x-show="isSearchResults" x-init="checkForParams()" class="font-semibold text-lg text-base-content">
+                        Showing search results
                     </div>
 
                     <div

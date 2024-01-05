@@ -1,6 +1,8 @@
 import axios from "axios";
 import Chart from "chart.js/auto";
 export default () => ({
+    selectedCenter : null,
+    isSearchResults : false,
     journal: null,
     chartCanvas : null,
     validChartCanvas : null,
@@ -177,10 +179,15 @@ export default () => ({
         let formdata = new FormData(el);
         let from = formdata.get('from');
         let to = formdata.get('to');
-        this.$dispatch('linkaction',{link:'/performance', route: 'performance',fragment:'page-content',params:{
+        let center = formdata.get('center');
+        let params = {
             from: from,
             to: to
-        }});
+        };
+        if(center != null && center != ''){
+            params.center = center;
+        }
+        this.$dispatch('linkaction',{link:'/performance', route: 'performance',fragment:'page-content',params:params});
     },
     getParams(){
         let queryString = window.location.search;
@@ -189,5 +196,12 @@ export default () => ({
     },
     resetPerformancePage(){
         this.$dispatch('linkaction',{link:'/performance', route: 'performance',fragment:'page-content', fresh: true});
+    },
+    checkForParams(){
+        let queryString = window.location.search;
+        let params = new URLSearchParams(queryString);
+        if(params.size != 0){
+            this.isSearchResults = true;
+        }
     }
 });
