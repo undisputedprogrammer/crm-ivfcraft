@@ -80,7 +80,7 @@
                                             <div class="form-control">
                                             <label class="label cursor-pointer">
                                                 {{-- <span class="label-text">Remember me</span> --}}
-                                                <input @change="toggleCampaign({{$campaign->id}})" type="checkbox" checked="checked" class="checkbox checkbox-primary" />
+                                                <input @change="toggleCampaign({{$campaign->id}})" type="checkbox" @if($campaign->enabled) checked @endif class="checkbox checkbox-primary" />
                                             </label>
                                             </div>
                                         </td>
