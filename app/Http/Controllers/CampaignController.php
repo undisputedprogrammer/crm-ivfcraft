@@ -18,7 +18,7 @@ class CampaignController extends SmartController
         return $this->buildResponse('pages.manage-campaigns', compact('campaigns'));
     }
     public function all(Request $request){
-        $campaigns = Campaign::all();
+        $campaigns = Campaign::orderBy('name')->get();
         return response()->json([
             'campaigns' => $campaigns
         ]);
