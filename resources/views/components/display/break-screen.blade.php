@@ -1,4 +1,4 @@
-<div x-show="isBreak == true" x-cloak x-transition class=" w-full h-screen bg-black absolute top-0  left-0 flex flex-col justify-center items-center z-50">
+<div x-show="typeof isBreak != 'undefined' && isBreak == true" x-cloak x-transition class=" w-full h-screen bg-black absolute top-0  left-0 flex flex-col justify-center items-center z-50">
     <h1 class=" text-xl text-center w-full font-bold text-base-content py-5">Break time</h1>
     <form x-data="{
         error : '',

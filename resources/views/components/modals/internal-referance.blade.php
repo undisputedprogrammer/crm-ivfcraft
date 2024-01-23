@@ -6,6 +6,10 @@
 
         <form x-data="{
             agents: [],
+            showCampaignForm: false,
+            {{-- sources: [],
+            campaigns: [], --}}
+            campaignName: '',
             loadAgents(cid){
                 axios.get('{{route('center.agents')}}',{
                     params:{
@@ -16,10 +20,36 @@
                 }).catch((e)=>{
                     console.log(e);
                 });
+            },
+            loadCampaigns() {
+                $dispatch('formsubmit', {url: '{{route('campaign.all')}}', target: 'lead-campaigns'});
+            },
+            createCampaign(campaign) {
+                let fd = new FormData();
+                fd.append('name', campaign);
+                $dispatch('formsubmit', { url: '{{ route('campaign.store') }}', route: 'campaign.store', fragment: 'page-content', formData: fd, target: 'new-campaign-iref-form' });
+                showCampaignForm = false;
             }
-        }"  @submit.prevent.stop="referNewLead($el, '{{route('lead.refer')}}')"
+        }"
+        @submit.prevent.stop="referNewLead($el, '{{route('lead.refer')}}')"
         id="refer-lead-form" action="" class=" flex flex-col space-y-2 mt-4 w-full items-center text-base-content"
         @formresponse.window="
+        if($event.detail.target == 'new-campaign-iref-form'){
+            console.log($event.detail.content);
+            if ($event.detail.content.success) {
+                console.log('campaigns');
+                console.log(campaigns);
+                campaigns.push($event.detail.content.campaign);
+                console.log(campaigns);
+                campaignName = $event.detail.content.campaign.name;
+                $dispatch('showtoast', {message: $event.detail.content.message, mode: 'success'});
+            } else if (typeof $event.detail.content.errors != undefined) {
+                $dispatch('showtoast', {message: $event.detail.content.message, mode: 'error'});
+
+            } else{
+                $dispatch('formerrors', {errors: $event.detail.content.errors});
+            }
+        }
         if($event.detail.target == $el.id){
             referLead = false;
             if ($event.detail.content.success) {
@@ -86,16 +116,21 @@
                     </select>
                 </div>
 
-                @php
-                    $refercampaigninputId = "campaign-input-refer";
-                @endphp
-                <x-helpers.campaign-autocomplete :inputId="$refercampaigninputId"/>
+                <div class=" flex-col flex">
+                    <label for="" class="font-medium text-base-content">Campaign :</label>
+                    <select required name="campaign" id="lead-source" class=" select min-w-72 md:w-96 select-bordered border-secondary">
+                        <template x-for="c in campaigns">
+                            <option :value="c.name"><span x-text="c.name"></span></option>
+                        </template>
+                    </select>
+                </div>
 
 
-            <div class=" flex space-x-2 md:w-96">
-                <button type="submit" class=" btn btn-success btn-sm">Save</button>
+            <div class=" flex justify-between md:w-96">
                 <button @click.prevent.stop="referLead = false;" class=" btn btn-error btn-sm">Cancel</button>
+                <button type="submit" class=" btn btn-success btn-sm">Save</button>
             </div>
+            {{-- <x-modals.new-campaign-modal formId="create-campaign-iref"/> --}}
         </form>
     </div>
 

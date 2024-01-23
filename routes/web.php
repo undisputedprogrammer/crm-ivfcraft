@@ -94,7 +94,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/password/reset', [AgentController::class, 'reset'])->name('user-password.reset');
     Route::post('/password/reset', [AgentController::class, 'change'])->name('password.change');
 
-    // Route::get('/manage/campaigns', [CampaignController::class, 'index'])->name('campaign.index');
+    Route::get('/campaigns', [CampaignController::class, 'index'])->name('campaign.index');
+    Route::post('/campaigns/all', [CampaignController::class, 'all'])->name('campaign.all');
+    Route::post('/campaigns', [CampaignController::class, 'store'])->name('campaign.store');
+    Route::post('/campaigns/{id}/toggle', [CampaignController::class, 'toggle'])->name('campaign.toggle');
 
     Route::get('/templates', [TemplateController::class, 'index'])->name('template.index');
     Route::post('/template', [TemplateController::class, 'store'])->name('template.store');

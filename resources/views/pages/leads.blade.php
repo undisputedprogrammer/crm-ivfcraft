@@ -482,7 +482,7 @@
 
                 @if (auth()->user()->hasRole('admin'))
                     <div class=" flex items-center space-x-2">
-                        <p class=" text-sm font-medium ">Assigned to : <span class="" x-text = "lead.assigned.name"></span></p>
+                        <p class=" text-sm font-medium ">Assigned to : <span class="" x-text = "lead.assigned != null ? lead.assigned.name : ''"></span></p>
                     </div>
                 @endif
 

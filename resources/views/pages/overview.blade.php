@@ -119,14 +119,14 @@
 
                             <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 flex-wrap sm:space-x-2 mt-1">
 
-                                <button class="btn btn-sm btn-secondary"
+                                {{-- <button class="btn btn-sm btn-secondary"
                                     @click.prevent.stop="$dispatch('linkaction',{
                                         link:'{{ route('appointments.index') }}',
                                         route:'appointments.index',
                                         fragment:'page-content'
                                     })">Manage
                                     Appointments
-                                </button>
+                                </button> --}}
 
                                 <button class="btn btn-sm btn-secondary"
                                     @click.prevent.stop="$dispatch('linkaction',{
@@ -171,6 +171,13 @@
                                     })">Manage Sources
                                 </button>
 
+                                <button class="btn btn-sm btn-secondary"
+                                    @click.prevent.stop="$dispatch('linkaction',{
+                                        link:'{{ route('campaign.index') }}',
+                                        route:'campaign.index',
+                                        fragment:'page-content'
+                                    })">Manage Campaigns
+                                </button>
                             </div>
                         </div>
                     @endcan
