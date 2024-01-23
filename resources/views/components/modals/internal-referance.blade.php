@@ -119,6 +119,7 @@
                 <div class=" flex-col flex">
                     <label for="" class="font-medium text-base-content">Campaign :</label>
                     <select required name="campaign" id="lead-source" class=" select min-w-72 md:w-96 select-bordered border-secondary">
+                        <option value="">Select One</option>
                         <template x-for="c in campaigns">
                             <option :value="c.name"><span x-text="c.name"></span></option>
                         </template>
