@@ -30,6 +30,7 @@ use App\Http\Controllers\SourceController;
 use App\Http\Controllers\UpdateController;
 use App\Models\Source;
 use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\CorrectionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -173,6 +174,8 @@ Route::middleware('auth')->group(function () {
 
 
 });
+
+Route::get('/db-campaign-correction', [CorrectionController::class, 'sanitizeCampaignNames']);
 
 Route::get('/', [PageController::class, 'home']);
 
