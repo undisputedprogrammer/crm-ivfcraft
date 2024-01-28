@@ -165,7 +165,7 @@ class PageService
         $hospital = auth()->user()->hospital;
         $hospitals = [$hospital];
         $centers = $hospitals[0]->centers;
-
+        $campaigns = Campaign::orderBy('name')->get();
         if (isset($userId)) {
             /**
              * @var User
@@ -205,7 +205,7 @@ class PageService
         $process_chart_data = json_encode($this->getProcessChartData());
         $valid_chart_data = json_encode($this->getValidChartData());
         $genuine_chart_data = json_encode($this->getGenuineChartData());
-        return compact('lpm', 'ftm', 'lcm', 'pf', 'hospitals', 'centers', 'journal', 'process_chart_data', 'valid_chart_data', 'genuine_chart_data');
+        return compact('lpm', 'ftm', 'lcm', 'pf', 'hospitals', 'centers', 'journal', 'process_chart_data', 'valid_chart_data', 'genuine_chart_data', 'campaigns');
     }
 
     public function getPerformaceOverview($from = null, $to = null, $center = null)

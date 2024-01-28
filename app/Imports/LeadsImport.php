@@ -21,6 +21,7 @@ use function PHPUnit\Framework\isNan;
 
 class LeadsImport implements ToArray, WithHeadingRow
 {
+    private $campaign;
     private $agents = [];
     private $x = 0;
     private $hospital = null;
@@ -29,10 +30,11 @@ class LeadsImport implements ToArray, WithHeadingRow
     private $mainCols = [];
     private $totalCount = 0;
     private $importedCount = 0;
-    public function __construct(array $headings, $hospital, $center, $agents = null)
+    public function __construct(array $headings, $hospital, $center, $agents = null, $campaign)
     {
         $this->headings = $headings;
         $this->hospital = $hospital;
+        $this->campaign = $campaign;
         $this->center = $center;
         $this->mainCols = $hospital->main_cols;
         $this->agents = $agents ?? $center->agents();
@@ -86,7 +88,8 @@ class LeadsImport implements ToArray, WithHeadingRow
                 'phone' => PublicHelper::formatPhoneNumber($row[$this->mainCols->phone]),
                 'email' => $row[$this->mainCols->email] ?? '',
                 'city' => $row[$this->mainCols->city] ?? '',
-                'campaign' => $row[$this->mainCols->campaign] ?? '',
+                'campaign' => $this->campaign,
+                // 'campaign' => $row[$this->mainCols->campaign] ?? '',
                 'qnas' => $qarr,
                 'is_valid' => false,
                 'is_genuine' => false,
@@ -102,7 +105,7 @@ class LeadsImport implements ToArray, WithHeadingRow
             info("lead created");
             $this->createFollowup($lead);
 
-            $this->checkAndStoreCampaign($lead->campaign);
+            // $this->checkAndStoreCampaign($lead->campaign);
 
             $this->x++;
             if ($this->x == count($this->agents)) {

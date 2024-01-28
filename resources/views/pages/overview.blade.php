@@ -191,8 +191,10 @@
                                 x-data="{
                                     fileName: '',
                                     hospital: '',
+                                    campaign: '',
                                     center: '',
                                     hospitals: [],
+                                    campaigns: [],
                                     centers: [],
                                     agents: [],
                                     allAgents: [],
@@ -216,6 +218,7 @@
                                     isDisabled() {
                                         return this.fileName == ''
                                             || this.hospital == ''
+                                            || this.campaign == ''
                                             || this.center =='' || this.selectedAgents.length < 1;
                                     },
                                     fetchAgents() {
@@ -250,6 +253,7 @@
                                 }"
                                 x-init="
                                     hospitals={{Js::from($hospitals)}};
+                                    campaigns={{Js::from($campaigns)}};
                                     hospital = hospitals[0];
                                     centers = {{Js::from($centers)}};
                                     $center = centers[0];
@@ -291,10 +295,22 @@
                                     <label class="label">
                                         <span class="label-text">Hospital</span>
                                     </label>
-                                    <select name="hospital" x-model="hospital" class="select select-bordered text-base-content">
+                                    <select name="hospital" x-model="hospital" class="select select-bordered text-base-content" required>
                                         <option disabled value="">Pick one</option>
                                         <template x-for="h in hospitals">
                                         <option :value="h.id" x-text="h.name"></option>
+                                        </template>
+                                    </select>
+                                </div>
+
+                                <div class="form-control w-full max-w-xs">
+                                    <label class="label">
+                                        <span class="label-text">Campaign</span>
+                                    </label>
+                                    <select name="campaign" x-model="campaign" class="select select-bordered text-base-content" required>
+                                        <option disabled value="">Pick one</option>
+                                        <template x-for="c in campaigns">
+                                        <option :value="c.name" x-text="c.name"></option>
                                         </template>
                                     </select>
                                 </div>

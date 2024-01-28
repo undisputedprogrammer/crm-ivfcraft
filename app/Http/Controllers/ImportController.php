@@ -28,11 +28,12 @@ class ImportController extends SmartController
 
             $headings = (new HeadingRowImport)->toArray($request->file('sheet'));
             $agents = User::find($request->input('agents'));
-            info($agents);
-            info($headings[0][0]);
+            // info($agents);
+            // info($headings[0][0]);
             $hospital = Hospital::find($request->input('hospital'));
+            $campaign = $request->input('campaign');
             $center = Center::find($request->input('center'));
-            $import = new LeadsImport($headings[0][0], $hospital, $center, $agents);
+            $import = new LeadsImport($headings[0][0], $hospital, $center, $agents, $campaign);
             Excel::import($import, request()->file('sheet'));
 
             $msg = "{$import->getImportedCount()} of {$import->getTotalCount()} leads imported";
