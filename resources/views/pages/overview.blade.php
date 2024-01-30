@@ -265,6 +265,8 @@
                                             fetchAgents();
                                         }
                                     );
+                                    console.log('campaigns');
+                                    console.log(campaigns);
                                 "
                                 @submit.prevent.stop="doSubmit();"
                                 @formresponse.window="
