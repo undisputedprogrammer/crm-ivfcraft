@@ -187,8 +187,8 @@ class WhatsAppApiController extends SmartController
 
         // Storing inbound messages
         if (isset($request['entry'][0]['changes'][0]['value']['messages'][0]['from'])) {
-            $reciever = $request->entry[0]['changes'][0]['value']['metadata']['display_phone_number'];
-
+            $reciever = trim($request->entry[0]['changes'][0]['value']['metadata']['display_phone_number']);
+            $center = Center::where('phone', $reciever)->get()->first();
             $sender = $request['entry'][0]['changes'][0]['value']['messages'][0]['from'];
 
             $wamid = $request['entry'][0]['changes'][0]['value']['messages'][0]['id'];
@@ -197,16 +197,12 @@ class WhatsAppApiController extends SmartController
 
 
 
-            $lead = Lead::where('phone', $sender)
-                ->orWhere('phone', '91' . $sender)->orWhere('phone', '+' . $sender)->whereHas('center', function ($query) use ($reciever) {
-                    return $query->where('phone', $reciever);
-                })->get()->first();
+            $lead = Lead::where('center_id', $center->id)->where('phone', $sender)
+                ->orWhere('phone', '91' . $sender)->orWhere('phone', '+' . $sender)->get()->first();
 
             if ($lead == null) {
                 $phone = $sender - 910000000000;
-                $lead = Lead::where('phone', $phone)->whereHas('center', function ($query) use ($reciever) {
-                    return $query->where('phone', $reciever);
-                })->get()->first();
+                $lead = Lead::where('center_id', $center->id)->where('phone', $phone)->get()->first();
             }
 
             if ($lead == null) {
