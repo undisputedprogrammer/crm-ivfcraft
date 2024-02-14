@@ -275,7 +275,14 @@ class PageService
 
             $lpmQuery = Lead::forHospital($hospital->id)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate);
             $ftmQuery = Lead::forHospital($hospital->id)->where('status', '<>', 'Created')->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate);
-            $lcmQuery = Lead::forHospital($hospital->id)->where('status', 'Consulted')->whereDate('created_at', '>=', $fromDate)->whereYear('created_at', '<=', $toDate);
+            $lcmQuery = Lead::forHospital($hospital->id)->whereIn('status', [
+                'Consulted',
+                'Continuing Medication',
+                'Discontinued Medication',
+                'Undecided On Medication',
+                'Procedure Scheduled',
+                'Completed',
+                ])->whereDate('created_at', '>=', $fromDate)->whereYear('created_at', '<=', $toDate);
 
             if($center != null){
                 $lpmQuery->where('center_id', $center);
