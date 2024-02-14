@@ -232,7 +232,14 @@ class PageService
 
             $ftm = Lead::forAgent($authUser->id)->where('status', '<>', 'Created')->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
 
-            $lcm = Lead::forAgent($authUser->id)->where('status', 'Consulted')->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
+            $lcm = Lead::forAgent($authUser->id)->whereIn('status', [
+                'Consulted',
+                'Continuing Medication',
+                'Discontinued Medication',
+                'Undecided On Medication',
+                'Procedure Scheduled',
+                'Completed',
+                ])->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
 
 
             $pf = Followup::whereHas('lead', function ($query) use ($authUser) {
