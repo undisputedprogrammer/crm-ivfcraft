@@ -116,7 +116,7 @@
 
                         <div class="flex flex-col space-y-1 bg-base-200 w-full lg:w-1/4 rounded-xl items-center py-4">
                             <label  class=" font-medium text-primary w-[90%] flex justify-between">
-                                <span>Leads converted this month</span>
+                                <span>Leads consulted this month</span>
                                 @php
                                     if ($lpm != 0) {
                                         $ctm = $lcm / $lpm;
