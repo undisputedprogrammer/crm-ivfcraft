@@ -1,4 +1,4 @@
-<div x-show= "selected_action == 'Add Followup'" class=" bg-base-200 lg:w-fit rounded-lg p-3 mt-3">
+<div x-show= "(['Add Followup', 'Continue Medication', 'Discontinue Medication', 'Not Decided']).includes(selected_action)" class=" bg-base-200 lg:w-fit rounded-lg p-3 mt-3">
     <h1 x-show="fp.actual_date != null" class=" font-medium text-warning">Current Follow-up is complete</h1>
     <form x-show="fp.next_followup_date == null" x-transition
         x-data ="
@@ -11,7 +11,17 @@
                                     formdata.append('converted',fp.converted);
                                     console.log(fp.converted);
                                 }
-
+                                switch(selected_action) {
+                                    case 'Continue Medication':
+                                        formdata.append('lead_status', 'Continuing Medication');
+                                        break;
+                                    case 'Discontinue Medication':
+                                        formdata.append('lead_status', 'Discontinued Medication');
+                                        break;
+                                    case 'Not Decided':
+                                        formdata.append('lead_status', 'Undecided On Medication');
+                                        break;
+                                }
                                 $dispatch('formsubmit',{url:'{{ route('next-followup') }}', route: 'next-followup',fragment: 'page-content', formData: formdata, target: 'next-followup-form'});
                             }}"
         @submit.prevent.stop="doSubmit();"
@@ -79,15 +89,15 @@
         </div>
 
         <div class=" flex flex-col space-y-1 my-2.5">
-            <p for="call_status" class=" font-medium ">How was the call ?</p>
+            <p for="call_status" class=" font-medium ">Was the call answered?</p>
                 <div class=" flex space-x-1 items-center">
-                    <input type="radio" name="call_status" id="responsive" value="Responsive" required>
-                    <label for="responsive">Responsive</label>
+                    <input type="radio" name="call_status" id="responsive" value="Responsive" required :checked="(['Continue Medication', 'Discontinue Medication', 'Not Decided']).includes(selected_action)">
+                    <label for="responsive" >Yes</label>
                 </div>
 
                 <div class=" flex space-x-1 items-center">
-                    <input type="radio" name="call_status" id="non-responsive" value="Not responsive">
-                    <label for="non-resposive">Not responsive</label>
+                    <input type="radio" name="call_status" id="non-responsive" value="Not responsive" :disabled="(['Continue Medication', 'Discontinue Medication', 'Not Decided']).includes(selected_action)">
+                    <label for="non-resposive">No</label>
                 </div>
         </div>
 

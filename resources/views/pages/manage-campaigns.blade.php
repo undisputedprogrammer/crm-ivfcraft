@@ -17,7 +17,10 @@
             campaigns: [],
             selectedCampaign: null,
             toggleCampaign(cid) {
-                $dispatch('formsubmit', {url: '{{route('campaign.toggle', ['id' => '_X_'])}}'.replace('_X_', cid), target: 'campaign_toggle'});
+                $dispatch('formsubmit', {url: '{{route('campaign.toggle', ['id' => '_X_'])}}'.replace('_X_', cid), target: 'campaign_toggle_form'});
+            },
+            toggleCampaignForm(cid) {
+                $dispatch('formsubmit', {url: '{{route('campaign.toggle_form', ['id' => '_X_'])}}'.replace('_X_', cid), target: 'campaign_toggle_form'});
             },
             {{-- toggleEdit(cid) {
                 this.selectedCampaign = this.campaigns.filter((c) => {
@@ -60,6 +63,7 @@
                                     {{-- <th>Status</th> --}}
                                     <th>Created at</th>
                                     <th>Enabled?</th>
+                                    {{-- <th>Show in form dropdowns?</th> --}}
                                 </tr>
                             </thead>
 
@@ -78,12 +82,19 @@
                                         <td>{{ $campaign->created_at->format('d M Y') }}</td>
                                         <td>
                                             <div class="form-control">
-                                            <label class="label cursor-pointer">
+                                            <label class="label cursor-pointer justify-center">
                                                 {{-- <span class="label-text">Remember me</span> --}}
-                                                <input @change="toggleCampaign({{$campaign->id}})" type="checkbox" @if($campaign->enabled) checked @endif class="checkbox checkbox-primary" />
+                                                <input @change="toggleCampaign({{$campaign->id}})" type="checkbox" @if($campaign->isEnabled) checked @endif class="checkbox checkbox-primary" />
                                             </label>
                                             </div>
                                         </td>
+                                        {{-- <td>
+                                            <div class="form-control">
+                                            <label class="label cursor-pointer justify-center">
+                                                <input @change="toggleCampaignForm({{$campaign->id}})" type="checkbox" @if($campaign->enable_in_forms) checked @endif class="checkbox checkbox-primary" />
+                                            </label>
+                                            </div>
+                                        </td> --}}
 
                                     </tr>
                                 @endforeach
@@ -116,6 +127,13 @@
                         }
                     }"
                         @formresponse.window="
+                        if ($event.detail.target == 'campaign_toggle_form') {
+                            if ($event.detail) {
+                                $dispatch('showtoast', {message: $event.detail.content.message, mode: $event.detail.content.mode});
+                            } else {
+                                $dispatch('showtoast', {message: $event.detail.content.message, mode: $event.detail.content.mode});
+                            }
+                        }
                         if ($event.detail.target == 'campaign_toggle') {
                             if ($event.detail) {
                                 $dispatch('showtoast', {message: $event.detail.content.message, mode: $event.detail.content.mode});

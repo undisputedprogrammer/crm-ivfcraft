@@ -8,6 +8,7 @@ use App\Models\Lead;
 use App\Models\User;
 use App\Models\Center;
 use App\Models\Followup;
+use App\Models\Remark;
 use App\Models\Source;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -174,6 +175,29 @@ class LeadController extends SmartController
         }
     }
 
+    public function statusUpdate(Request $request)
+    {
+        $lead = Lead::find($request->lead_id);
+
+        if($lead != null){
+            $lead->status = $request->status;
+            $lead->save();
+            $followup = $this->createFollowup($lead, $request->followup_date);
+            $today_date = Carbon::today()->format('M d, Y');
+            if ($followup != null) {
+                Remark::create([
+                    'remarkable_type' => Followup::class,
+                    'remarkable_id' => $followup->id,
+                    'remark' => "Lead re-opened on $today_date: ".$request->remarks,
+                    'user_id' => auth()->user()->id
+                ]);
+            }
+            return response()->json(['success' => true, 'lead' => $lead, 'message' => 'Lead status Updated Successfully']);
+        }else{
+            return response()->json(['success' => false, 'message' => 'Failed!, Could not update lead']);
+        }
+    }
+
     public function setTreatmentStatus(Request $request){
         $lead = Lead::find($request->lead_id);
         $lead->treatment_status = $request->treatment_status;
@@ -250,6 +274,21 @@ class LeadController extends SmartController
             $next_assign_index = 0;
         }
 
+        $lquery = Lead::where(
+            'phone',
+            PublicHelper::formatPhoneNumber($request->phone)
+        )->where('hospital_id', auth()->user()->hospital_id);
+        if (auth()->user()->hospital_id == 2) {
+            $lquery->where('campaign', $request->campaign);
+        }
+        $existing_lead = $lquery->get()->first();
+        if ($existing_lead != null){
+            $agentId = $existing_lead->id;
+            continue;
+        } else {
+            $agentId = $agentIds[$next_assign_index];
+        }
+
         $lead = Lead::create([
             'hospital_id' => Auth::user()->hospital_id,
             'center_id' => $request->center ? $request->center : User::find(Auth::user()->id)->centers()->first()->id,
@@ -257,7 +296,7 @@ class LeadController extends SmartController
             'phone' => PublicHelper::formatPhoneNumber($request->phone),
             'email' => $request->email,
             'city' => $request->city,
-            'assigned_to' => $agentIds[$next_assign_index],
+            'assigned_to' => $agentId,
             'created_by' => Auth::user()->id,
             'source_id' => $request->source,
             'campaign' => ucwords(strtolower($request->campaign))
@@ -270,7 +309,7 @@ class LeadController extends SmartController
 
         $followup_created = $this->createFollowup($lead);
 
-        if($followup_created){
+        if($followup_created != null){
             $lead->followup_created = true;
             // $lead->followup_created_at = Carbon::now();
             $lead->save();
@@ -291,16 +330,16 @@ class LeadController extends SmartController
 
 
 
-    public function createFollowup($lead)
+    public function createFollowup($lead, $followup_date = null)
     {
-        $followup = $followup = Followup::create([
+        $followup = Followup::create([
             'lead_id' => $lead->id,
             'followup_count' => 1,
-            'scheduled_date' => Carbon::today(),
+            'scheduled_date' => $followup_date != null ? Carbon::createFromFormat('Y-m-d', $followup_date) : Carbon::today(),
             'user_id' => $lead->assigned_to
         ]);
 
-        return true;
+        return $followup;
     }
 
     public function refer(Request $request){
@@ -325,6 +364,20 @@ class LeadController extends SmartController
             return response()->json(['success'=>false, 'message' => 'Could not find source !']);
         }
 
+        $lquery = Lead::where(
+            'phone',
+            PublicHelper::formatPhoneNumber($request->phone)
+        )->where('hospital_id', auth()->user()->hospital_id);
+        if (auth()->user()->hospital_id == 2) {
+            $lquery->where('campaign', $request->campaign);
+        }
+        $existing_lead = $lquery->get()->first();
+        if ($existing_lead != null){
+            $agentId = $existing_lead->id;
+            continue;
+        } else {
+            $agentId = $request->agent;
+        }
 
         $lead = Lead::create([
             'hospital_id' => Auth::user()->hospital_id,
@@ -333,7 +386,7 @@ class LeadController extends SmartController
             'phone' => PublicHelper::formatPhoneNumber($request->phone),
             'email' => $request->email,
             'city' => $request->city,
-            'assigned_to' => $request->agent,
+            'assigned_to' => $agentId,
             'created_by' => Auth::user()->id,
             'source_id' => $source->id,
             'campaign' => ucwords(strtolower($request->campaign))
@@ -351,7 +404,7 @@ class LeadController extends SmartController
 
         $followup_created = $this->createFollowup($lead);
 
-        if($followup_created){
+        if($followup_created != null){
             $lead->followup_created = true;
             // $lead->followup_created_at = Carbon::now();
             $lead->save();

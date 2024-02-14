@@ -64,7 +64,7 @@
 
                             @can('is-admin')
                                 <div class=" flex flex-col ml-3 mb-1.5">
-                                    <label for="" class=" text-primary font-medium text-xs">Center :</label>
+                                    <label  class=" text-primary font-medium text-xs">Center :</label>
                                     <select name="center" id="select-center" class=" select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
                                         <option value="all">All Centers</option>
                                         @foreach ($centers as $center)
@@ -74,7 +74,7 @@
                                 </div>
 
                                 <div class=" flex flex-col ml-3 mb-1.5">
-                                    <label for="" class=" text-primary font-medium text-xs">Agent :</label>
+                                    <label  class=" text-primary font-medium text-xs">Agent :</label>
                                     <select name="agent" id="select-agent" class=" select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
                                         <option value="all">All Agents</option>
                                         @foreach ($agents as $agent)
@@ -86,7 +86,7 @@
 
 
                             <div class=" flex flex-col ml-3 mb-1.5">
-                                <label for="" class=" text-xs text-primary font-medium">Status :</label>
+                                <label  class=" text-xs text-primary font-medium">Status :</label>
                                 <select name="status" id="select-status" class=" select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
                                     <option value="none" :selected="'{{$status}}'=='null' || '{{$status}}'=='none'">Fresh Leads</option>
                                     <option value="all" :selected="'{{$status}}'=='all' ">All leads</option>
@@ -100,7 +100,7 @@
 
                             <div class=" flex-col flex ml-3 mb-1.5">
 
-                                <label for="" class=" text-xs text-primary font-medium">Segment : </label>
+                                <label  class=" text-xs text-primary font-medium">Segment : </label>
                                 <select name="segment" id="segment" class="select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
                                     <option value="">Not Selected</option>
                                     @foreach (config('appSettings.lead_segments') as $segment)
@@ -111,7 +111,7 @@
 
                             <div class=" flex-col flex ml-3 mb-1.5">
 
-                                <label for="" class=" text-xs text-primary font-medium">Campaign : </label>
+                                <label  class=" text-xs text-primary font-medium">Campaign : </label>
                                 <select name="campaign" id="campaign" class="select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
                                     <option value="">Not Selected</option>
                                     @foreach ($campaigns as $campaign)
@@ -122,7 +122,7 @@
 
                             <div class=" flex-col flex ml-3 mb-1.5">
 
-                                <label for="" class=" text-xs text-primary font-medium">Sources : </label>
+                                <label  class=" text-xs text-primary font-medium">Sources : </label>
                                 <select name="source" id="source" class="select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
                                     <option value="">Not Selected</option>
                                     @foreach ($sources as $source)
@@ -133,7 +133,7 @@
 
                             <div class=" flex-col flex ml-3 mb-1.5">
 
-                                <label for="" class=" text-xs text-primary font-medium">Validity :</label>
+                                <label  class=" text-xs text-primary font-medium">Validity :</label>
                                 <select name="is_valid" id="is-valid" class="select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
                                     <option value="">Not Selected</option>
                                     <option :selected="is_valid == 'true'" value="true">Valid</option>
@@ -142,7 +142,7 @@
                             </div>
 
                             <div class=" flex flex-col ml-3 mb-1.5">
-                                <label for="" class=" text-xs text-primary font-medium">Genuinity :</label>
+                                <label  class=" text-xs text-primary font-medium">Genuinity :</label>
                                 <select name="is_genuine" id="is-genuine" class="select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
                                     <option value="">Not Selected</option>
                                     <option :selected="is_genuine == 'true'" value="true">Genuine</option>
@@ -151,7 +151,7 @@
                             </div>
 
                             <div class=" flex flex-col ml-3 mb-1.5">
-                                <label for="" class=" text-xs text-primary font-medium">Call status :</label>
+                                <label  class=" text-xs text-primary font-medium">Call status :</label>
                                 <select name="call_status" id="call-status-filter" class="select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
                                     <option value="">Not Selected</option>
                                     <option :selected="call_status == 'Responsive'" value="Responsive">Responsive</option>
@@ -160,13 +160,19 @@
                             </div>
 
                             <div class=" flex flex-col ml-3 mb-1.5">
-                                <label for="" class=" text-xs text-primary font-medium">Created from :</label>
-                                <input type="date" :value="creation_date_from != null ? creation_date_from : null" name="creation_date_from" class=" input input-sm text-base-content font-medium">
+                                <label  class=" text-xs text-primary font-medium">Created from :</label>
+                                <div x-data="{date: ''}" x-init="date = '{{$creation_date_from}}';" class="relative">
+                                    <input x-model="date" type="date" :value="creation_date_from != null ? creation_date_from : null" name="creation_date_from" class=" input input-sm text-base-content font-medium">
+                                    <div class="absolute top-0 left-0 z-30 w-4/5 bg-base-100 m-1 text-base-content" x-text="date.length > 0 ? formatDateOnly(date) : '_ _ _'"></div>
+                                </div>
                             </div>
 
                             <div class=" flex flex-col ml-3 mb-1.5">
-                                <label for="" class=" text-xs text-primary font-medium">Created to :</label>
-                                <input type="date" :value="creation_date_to != null ? creation_date_to : null" name="creation_date_to" class=" input input-sm text-base-content font-medium">
+                                <label  class=" text-xs text-primary font-medium">Created to :</label>
+                                <div x-data="{date: ''}" x-init="date = '{{$creation_date_to}}';" class="relative">
+                                    <input x-model="date" type="date" :value="creation_date_to != null ? creation_date_to : null" name="creation_date_to" class=" input input-sm text-base-content font-medium">
+                                    <div class="absolute top-0 left-0 z-30 w-4/5 bg-base-100 m-1 text-base-content" x-text="date.length > 0 ? formatDateOnly(date) : '_ _ _'"></div>
+                                </div>
                             </div>
 
 
@@ -322,6 +328,8 @@
                 chats : [],
                 expiry_timestamp: null,
                 custom_enabled: false,
+                fphistory: [],
+                historyLoading: false,
                 loadWhatsApp(){
                     this.selected_section = 'wp';
                     this.messageLoading = true;
@@ -415,7 +423,22 @@
                 name = lead.name;
                 qnas = lead.qnas;
             }
-            console.log(qnas);
+            axios.get('/api/followup',{
+                params: {
+                id: null,
+                lead_id: lead.id
+                }
+              }).then(function (response) {
+                fphistory = response.data.followup;
+                console.log('response.data.followup');
+                console.log(response.data.followup);
+                historyLoading = false;
+
+              }).catch(function (error){
+                console.log(error);
+                historyLoading = false;
+              });
+            {{-- console.log(qnas); --}}
             show_remarks_form =  !followup_remarks || followup_remarks.length == 0,
             convert = false;
             $dispatch('resetactions');
@@ -434,6 +457,7 @@
                     </button>
                 </h1>
                 <div class=" mb-1">
+                    <p class="text-sm font-medium">Created On : <span x-text="lead.created_at != null && lead.created_at != undefined ? formatDateOnly(lead.created_at) : ''"> </span></p>
                     <p class="text-sm font-medium">Name : <span x-text="lead.name"> </span></p>
                     <p class="text-sm font-medium">City : <span x-text="lead.city"> </span></p>
                     <p class="text-sm font-medium">Phone : <span x-text="lead.phone"> </span></p>
@@ -506,7 +530,7 @@
                     <p x-show="lead.status == 'Appointment Fixed' && lead.followup_created == 0"  class=" font-medium text-success my-1">Appointment Scheduled</p>
 
                 </div>
-
+                <x-sections.followup-history/>
             </div>
             {{-- Details section ends --}}
 
@@ -640,7 +664,7 @@
 
                     <div x-show="messageLoading" class=" w-full flex flex-col space-y-2 justify-center items-center py-8">
                         <span class="loading loading-bars loading-md "></span>
-                        <label for="">Please wait while we load messages...</label>
+                        <label >Please wait while we load messages...</label>
                     </div>
 
                 </div>

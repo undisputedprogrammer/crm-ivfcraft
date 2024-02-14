@@ -36,7 +36,7 @@
     }
     ">
         <div class=" mt-3 flex flex-col space-y-2">
-            <p class=" font-medium text-error">Are you sure you want to complete this lead? </p>
+            <p class=" font-medium text-error">Confirm that procedure was completed. </p>
             <label class="cursor-pointer label justify-start p-0 space-x-2">
                 <span class="label-text">Yes</span>
                 <input type="checkbox" required class="checkbox checkbox-success checkbox-xs" />

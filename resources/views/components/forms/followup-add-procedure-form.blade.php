@@ -1,8 +1,8 @@
 @props(['doctors'])
-{{-- schedule appointment form --}}
-<div x-show="selected_action == 'Schedule Appointment'" class=" bg-base-200 lg:w-fit rounded-lg p-2.5 mt-3">
-<template x-if="lead.status == 'Appointment Fixed' ">
-    <p class=" text-warning font-medium py-2"><span>Appointment scheduled for this lead on </span><span x-text="formatDateOnly(lead.appointment.appointment_date);" class="text-base-content"></span></p>
+{{-- schedule procedure form --}}
+<div x-show="selected_action == 'Schedule Procedure'" class=" bg-base-200 lg:w-fit rounded-lg p-2.5 mt-3">
+<template x-if="lead.status == 'procedure Fixed' ">
+    <p class=" text-warning font-medium py-2"><span>procedure scheduled for this lead on </span><span x-text="formatDateOnly(lead.procedure.procedure_date);" class="text-base-content"></span></p>
 </template>
 <template x-if="fp.next_followup_date != null">
     <p class=" text-warning font-medium py-2">
@@ -15,14 +15,14 @@
     <p class=" text-error text-base font-medium py-4">This lead is closed!</p>
 </template>
 
-<form x-show="fp.converted != true && fp.next_followup_date == null" x-cloak x-transition
+<form x-show="!['Procedure Scheduled', 'Completed', 'Closed'].includes(lead.status)" x-cloak x-transition
                         x-data ="
                         { doSubmit() {
-                            let form = document.getElementById('appointment-form');
+                            let form = document.getElementById('procedure-form');
                             let formdata = new FormData(form);
                             formdata.append('followup_id',fp.id);
                             formdata.append('lead_id',fp.lead.id);
-                            $dispatch('formsubmit',{url:'{{route('add-appointment')}}', route: 'add-appointment',fragment: 'page-content', formData: formdata, target: 'appointment-form'});
+                            $dispatch('formsubmit',{url:'{{route('add-procedure')}}', route: 'add-procedure',fragment: 'page-content', formData: formdata, target: 'procedure-form'});
                         }}"
                         @submit.prevent.stop="doSubmit();"
 
@@ -49,9 +49,9 @@
                                     fps[fp.id] = fp;
                                 }
 
-                                if($event.detail.content.appointment != null && $event.detail.content.appointment != undefined){
-                                    lead.appointment = $event.detail.content.appointment;
-                                    fp.lead.appointment = $event.detail.content.appointment;
+                                if($event.detail.content.procedure != null && $event.detail.content.procedure != undefined){
+                                    lead.procedure = $event.detail.content.procedure;
+                                    fp.lead.procedure = $event.detail.content.procedure;
                                 }
 
                                 if($event.detail.content.followup_remark != null || $event.detail.content.followup_remark != undefined)
@@ -88,14 +88,14 @@
                             }
                         }
                         "
-                        id="appointment-form"
-                         x-show="lead.status != 'Appointment Fixed' && fp.next_followup_date == null" action="" class=" mt-1.5 flex flex-col">
+                        id="procedure-form"
+                         x-show="lead.status != 'procedure Fixed' && fp.next_followup_date == null" action="" class=" mt-1.5 flex flex-col">
 
                             <div class=" flex flex-col">
-                                <h2 x-show="fp.next_followup_date == null && fp.converted == null" class="text-sm font-medium text-secondary mb-1">Schedule appointment</h2>
+                                <h2 x-show="fp.next_followup_date == null && fp.converted == null" class="text-sm font-medium text-secondary mb-1">Schedule procedure</h2>
 
-                                <label for="fp-select-doctor" class="font-medium">Select Doctor</label>
-                                <select class="select select-bordered w-full lg:w-72 bg-base-200 text-base-content" name="doctor" id="fp-select-doctor">
+                                <label for="procedure-select-doctor" class="font-medium">Select Doctor</label>
+                                <select class="select select-bordered w-full lg:w-72 bg-base-200 text-base-content" name="doctor" id="procedure-select-doctor">
                                     <option disabled>Choose Doctor</option>
                                     @foreach ($doctors as $doctor)
                                     <template x-if="lead.center_id == '{{$doctor->center_id}}' ">
@@ -105,27 +105,27 @@
 
                                 </select>
 
-                                <label for="appointment-date" class="font-medium">Appointment Date</label>
-                                <input id="appointment-date" name="appointment_date" required type="date" class=" rounded-lg input-info bg-base-200 w-full lg:w-72 mt-1.5">
+                                <label for="procedure-date" class="font-medium">Procedure Date</label>
+                                <input id="procedure-date" name="procedure_date" required type="date" class=" rounded-lg input-info bg-base-200 w-full lg:w-72 mt-1.5">
 
                                 <label for="followup-date" class="font-medium">Follow up Date</label>
-                                <input id="followup-date" name="followup_date" required type="date" class=" rounded-lg input-info bg-base-200 w-full lg:w-72 mt-1.5">
+                                <input id="procedure-followup-date" name="followup_date" required type="date" class=" rounded-lg input-info bg-base-200 w-full lg:w-72 mt-1.5">
                             </div>
 
-                            <button :disabled=" fp.converted == true ? true : false" class=" btn btn-xs btn-primary mt-2 w-fit self-start" type="submit">Schedule appointment</button>
+                            <button class=" btn btn-xs btn-primary mt-2 w-fit self-start" type="submit">Schedule procedure</button>
 
                         </form>
 
 
                         {{-- *************************************************************************
-                        If appointment is already scheduled.., the below portion will be shown
+                        If procedure is already scheduled.., the below portion will be shown
                         ************************************************************* --}}
 
                         {{-- mark consulted form --}}
 
 
-                        <div x-show="fp.consulted" class="mt-4">
-                            <p class=" text-success font-medium">Consult completed on <span x-text="lead.appointment != null ? lead.appointment.appointment_date : '' "></span></p>
-                            <label @click.prevent.stop="showconsultform = true" class=" text-base-content font-medium mt-1" x-text="lead.appointment != null && lead.appointment.remarks != null ? lead.appointment.remarks : 'No remark made' "></label>
-                        </div>
+                        {{-- <div x-show="fp.consulted" class="mt-4">
+                            <p class=" text-success font-medium">Consult completed on <span x-text="lead.procedure != null ? lead.procedure.procedure_date : '' "></span></p>
+                            <label @click.prevent.stop="showconsultform = true" class=" text-base-content font-medium mt-1" x-text="lead.procedure != null && lead.procedure.remarks != null ? lead.procedure.remarks : 'No remark made' "></label>
+                        </div> --}}
 </div>

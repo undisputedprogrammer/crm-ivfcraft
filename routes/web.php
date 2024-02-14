@@ -31,6 +31,7 @@ use App\Http\Controllers\UpdateController;
 use App\Models\Source;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\CorrectionController;
+use App\Http\Controllers\ProcedureController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,6 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/leads/distribute/all', [LeadController::class, 'distribute'])->name('leads.distribute');
     Route::get('/leads/{id}', [LeadController::class, 'show'])->name('leads.show');
     Route::post('/lead/update',[LeadController::class, 'update'])->name('lead.update');
+    Route::post('/lead/status-update',[LeadController::class, 'statusUpdate'])->name('lead.status.update');
     Route::post('/remark/store', [Remarkcontroller::class, 'store'])->name('add-remark');
     Route::get('/lead/change/segment', [LeadController::class, 'change'])->name('change-segment');
     Route::get('/lead/change/valid', [LeadController::class, 'changevalid'])->name('change-valid');
@@ -80,7 +82,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/consulted', [AppointmentController::class, 'consulted'])->name('consulted.mark');
     Route::post('/message/sent', [MessageController::class, 'message'])->name('message.sent');
     Route::post('/treatment-status/update',[LeadController::class, 'setTreatmentStatus'])->name('treatmentStatus.update');
-
+    Route::post('/procedure/store', [ProcedureController::class, 'store'])->name('add-procedure');
+    Route::post('/procedure/update',[ProcedureController::class, 'update'])->name('procedure.update');
+    Route::post('/procedure/complete', [ProcedureController::class, 'procedureComplete'])->name('procedure.complete');
     Route::get('/sources', [PageController::class, 'sourceIndex'])->name('sources.index');
     // Route::get('/messages',[MessageController::class, 'index'])->name('messages.index');
     // Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
@@ -97,8 +101,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/campaigns', [CampaignController::class, 'index'])->name('campaign.index');
     Route::post('/campaigns/all', [CampaignController::class, 'all'])->name('campaign.all');
+    Route::post('/campaigns/form-options', [CampaignController::class, 'formOptions'])->name('campaign.form_options');
     Route::post('/campaigns', [CampaignController::class, 'store'])->name('campaign.store');
     Route::post('/campaigns/{id}/toggle', [CampaignController::class, 'toggle'])->name('campaign.toggle');
+    Route::post('/campaigns/{id}/toggle-form', [CampaignController::class, 'toggleForm'])->name('campaign.toggle_form');
 
     Route::get('/templates', [TemplateController::class, 'index'])->name('template.index');
     Route::post('/template', [TemplateController::class, 'store'])->name('template.store');
@@ -176,6 +182,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/db-campaign-correction', [CorrectionController::class, 'sanitizeCampaignNames']);
+Route::get('/db-status-correction', [CorrectionController::class, 'completedToConsulted']);
 
 Route::get('/', [PageController::class, 'home']);
 

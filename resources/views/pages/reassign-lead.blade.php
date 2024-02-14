@@ -161,7 +161,7 @@ agent = null;
 
                     <div x-show="selected.length > 0" class=" flex flex-col space-y-2">
                         <p class=" text-base-content text-sm">The selected leads will be assigned to this Agent</p>
-                        <label for="" class=" flex space-x-1 items-center">
+                        <label  class=" flex space-x-1 items-center">
                             <input @change="
                             if($el.checked){
                                 confirmed = true

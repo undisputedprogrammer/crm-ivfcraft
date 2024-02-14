@@ -60,10 +60,19 @@ class LeadsImport implements ToArray, WithHeadingRow
                 continue;
             }
             $this->totalCount++;
-
-            $existing_count = Lead::where('phone', PublicHelper::formatPhoneNumber($row[$this->mainCols->phone]))->get()->count();
-            if($existing_count > 0){
+            $lquery = Lead::where(
+                'phone',
+                PublicHelper::formatPhoneNumber($row[$this->mainCols->phone])
+            )->where('hospital_id', auth()->user()->hospital_id);
+            if (auth()->user()->hospital_id == 2) {
+                $lquery->where('campaign', $this->campaign);
+            }
+            $existing_lead = $lquery->get()->first();
+            if ($existing_lead != null){
+                $agentId = $existing_lead->id;
                 continue;
+            } else {
+                $agentId = $this->agents[$this->x]->id;
             }
 
             /*** */
@@ -96,7 +105,7 @@ class LeadsImport implements ToArray, WithHeadingRow
                 'history' => $row['history'] ?? '',
                 'status' => 'Created',
                 'followup_created' => false,
-                'assigned_to' => $this->agents[$this->x]->id,
+                'assigned_to' => $agentId,
                 'hospital_id' => $this->hospital->id,
                 'center_id' => $this->center->id,
                 'created_by' => auth()->user()->id,

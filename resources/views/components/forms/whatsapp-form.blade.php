@@ -63,7 +63,7 @@
         <input type="file" name="media" id="media-uploader" class="hidden"
         @change="setMedia();">
 
-        <label x-show="media_selected" for="" class=" input min-w-[74%] flex space-x-2 justify-between  bg-white items-center" >
+        <label x-show="media_selected"  class=" input min-w-[74%] flex space-x-2 justify-between  bg-white items-center" >
             <p  x-text="'Selected : '+filename" class="text-sm font-medium"></p>
             <button @click.prevent.stop="resetMedia();" class="btn btn-ghost btn-sm">
                 <x-icons.close-icon/>

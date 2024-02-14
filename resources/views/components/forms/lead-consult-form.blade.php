@@ -72,12 +72,12 @@
                                 </div>
 
                                 <div x-show="lead.status != 'Appointment Fixed'">
-                                    <label for="" class="font-medium">Consulted Date</label>
+                                    <label  class="font-medium">Consulted Date</label>
                                     <input id="followup-date-cons" name="consulted_date" :required="lead.status != 'Appointment Fixed' ? true : false" type="date" class=" rounded-lg input-info bg-base-200 w-full lg:w-72">
                                 </div>
 
-                                <label for="followup-date-cons" class="font-medium">Post consultation follow-up date</label>
-                                <input id="followup-date-cons" name="followup_date" required type="date" class=" rounded-lg input-info bg-base-200 w-full lg:w-72">
+                                <label for="followup-date-post-cons" class="font-medium">Post consultation follow-up date</label>
+                                <input id="followup-date-post-cons" name="followup_date" required type="date" class=" rounded-lg input-info bg-base-200 w-full lg:w-72">
 
                                 <div class=" flex space-x-2 mt-2.5 w-fit">
                                     <button type="submit" class="btn btn-primary btn-xs ">Proceed</button>

@@ -89,6 +89,9 @@ class FollowupController extends SmartController
         if($lead->call_status != "Responsive"){
             $lead->call_status = $request->call_status;
         }
+        if ($request->lead_status != null) {
+            $lead->status = $request->lead_status;
+        }
         $lead->save();
 
         return response()->json(['success' => true, 'message' => 'Next follow up scheduled', 'followup' => $followup, 'next_followup' => $next_followup, 'remarks' => $followup->remarks, 'lead' => $lead]);

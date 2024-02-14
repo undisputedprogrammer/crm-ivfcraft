@@ -2,7 +2,7 @@
 <div x-data="{
     macthes : []
 }" class=" flex-col flex relative">
-    <label for="" class="font-medium text-base-content">Campaign/Department :</label>
+    <label  class="font-medium text-base-content">Campaign/Department :</label>
     <input @input="matches = campaignInputChanged($el.value);" type="text" required name="campaign" id="{{$inputId}}" class="input input-bordered input-secondary md:w-96 focus:outline-none min-w-72 ">
 
     {{-- autocomplete area --}}

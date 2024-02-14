@@ -28,17 +28,17 @@
         }">
 
             <div class=" flex-col flex">
-                <label for="" class="font-medium text-base-content">Name :</label>
+                <label  class="font-medium text-base-content">Name :</label>
                 <input :value="lead.name" required type="text" name="name" class=" input input-bordered input-secondary md:w-96 focus:outline-none min-w-72">
             </div>
 
             <div class=" flex-col flex">
-                <label for="" class="font-medium text-base-content">City :</label>
+                <label  class="font-medium text-base-content">City :</label>
                 <input :value="lead.city" required type="text" name="city" class=" input input-bordered input-secondary md:w-96 focus:outline-none min-w-72">
             </div>
 
             <div class=" flex-col flex">
-                <label for="" class="font-medium text-base-content">Email :</label>
+                <label  class="font-medium text-base-content">Email :</label>
                 <input :value="lead.email" required :type="lead.email == 'Not specified' ?  'text' : 'email' " name="email" class=" input input-bordered input-secondary md:w-96 focus:outline-none min-w-72">
             </div>
 

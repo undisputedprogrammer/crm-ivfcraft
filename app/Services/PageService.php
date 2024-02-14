@@ -37,25 +37,7 @@ class PageService
             ->orWhere('phone', 'like', '%' . $search . '%');
         }
 
-        if ($status != null && $status != 'none' && $status != 'all') {
-            if($status == 'Consulted (Inc Completed)'){
-                $leadsQuery->where('status', 'Consulted')->orWhere('status', 'Completed');
-            }else{
-                $leadsQuery->where('status', $status );
-            }
-        }
 
-        if($status == null || $status == 'none'){
-            if($processed == null){
-                $leadsQuery->where('status', '=', 'Created');
-            }
-        }
-
-        if ($processed != null) {
-            $today = Carbon::now()->toDateString();
-
-            $leadsQuery->whereDate('followup_created_at', $today);
-        }
 
         if ($creation_date_from != null) {
             $leadsQuery->whereDate('created_at','>=', $creation_date_from);
@@ -100,21 +82,78 @@ class PageService
         if ($source != null) {
             $leadsQuery->where('source_id', $source);
         }
-
         if ($call_status != null){
             $leadsQuery->where('call_status', $call_status);
         }
 
+        if ($status != null && $status != 'none' && $status != 'all') {
+            if ($status == 'At Least Follow-up Started') {
+                $leadsQuery->whereIn(
+                    'status',
+                    [
+                        'Follow-up Started',
+                        'Appointment Fixed',
+                        'Consulted',
+                        'Continuing Medication',
+                        'Discontinued Medication',
+                        'Undecided On Medication',
+                        'Procedure Scheduled',
+                        'Completed',
+                        'Closed'
+                    ]
+                );
+            }elseif($status == 'At Least Appointment Fixed'){
+                $leadsQuery->whereIn(
+                    'status',
+                    [
+                        'Appointment Fixed',
+                        'Consulted',
+                        'Continuing Medication',
+                        'Discontinued Medication',
+                        'Undecided On Medication',
+                        'Procedure Scheduled',
+                        'Completed',
+                    ]
+                );
+            }elseif($status == 'At Least Consulted'){
+                $leadsQuery->whereIn(
+                    'status',
+                    [
+                        'Consulted',
+                        'Continuing Medication',
+                        'Discontinued Medication',
+                        'Undecided On Medication',
+                        'Procedure Scheduled',
+                        'Completed',
+                    ]
+                );
+            }else{
+                $leadsQuery->where('status', $status );
+            }
+        }
 
+        if($status == null || $status == 'none'){
+            if($processed == null){
+                $leadsQuery->where('status', 'Created');
+            }
+        }
+
+        if ($processed != null) {
+            $today = Carbon::now()->toDateString();
+
+            $leadsQuery->whereDate('followup_created_at', $today);
+        }
+
+        // dd($leadsQuery->toSql(), $user->hospital_id, $call_status, $status);
         $leads = $leadsQuery->paginate(30);
-
         $doctors = Doctor::all();
         $messageTemplates = Message::all();
         $centers = Center::where('hospital_id', $user->hospital_id)->get();
         $agents = User::where('hospital_id', auth()->user()->hospital_id)->whereHas('roles', function ($q) {
             return $q->where('name', 'agent');
         })->get();
-        $campaigns = Campaign::all();
+        $campaigns = Campaign::enabledHospital(auth()->user()->hospital_id)->orderBy('name')->get();
+
         $sources = Source::where('hospital_id', auth()->user()->hospital_id)->get();
 
         if ($selectedLeads != null) {
@@ -496,6 +535,7 @@ class PageService
             ->join('sources', 'leads.source_id', '=', 'sources.id')
             ->leftJoin('followups', 'leads.id', '=', 'followups.lead_id')
             ->select(
+                'sources.id',
                 'sources.name',
                 DB::raw('COUNT(DISTINCT leads.id) as total_leads'),
                 DB::raw('COUNT(DISTINCT CASE WHEN leads.is_valid = true THEN leads.id END) as valid_leads'),
@@ -520,6 +560,7 @@ class PageService
             $sourceReport[$r->name]['closed_leads'] = $r->closed_leads;
             $sourceReport[$r->name]['non_responsive_leads'] = $r->non_responsive_leads;
             $sourceReport[$r->name]['followup_initiated_leads'] = $r->followup_initiated_leads;
+            $sourceReport[$r->name]['source_id'] = $r->id;
         }
 
         return ['sourceReport' => $sourceReport];

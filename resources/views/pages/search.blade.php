@@ -102,7 +102,7 @@
 
                 @can('is-admin')
                 <div class=" w-full flex flex-col items-center lg:items-start sm:w-[45%] lg:w-1/4 px-1 mt-1.5">
-                    <label for="" class=" text-sm text-primary font-medium">Select Agent</label>
+                    <label  class=" text-sm text-primary font-medium">Select Agent</label>
                     <select name="agent" class="select  select-bordered w-full max-w-xs bg-base-100 text-base-content">
                         <option value="null" :disabled="searchFormState.agent == null ? true : false " :selected="searchFormState.agent == null ? true : false " >--Not selected--</option>
 
@@ -117,7 +117,7 @@
                 </div>
 
                 <div class=" w-full flex flex-col items-center lg:items-start sm:w-[45%] lg:w-1/4 px-1 mt-1.5">
-                    <label for="" class=" text-sm text-primary font-medium">Select Center</label>
+                    <label  class=" text-sm text-primary font-medium">Select Center</label>
                     <select name="center" @change="searchFormState.center = $el.value" class="select  select-bordered w-full max-w-xs bg-base-100 text-base-content">
                         <option value="null" :disabled="searchFormState.center == null ? true : false " :selected="searchFormState.center == null ? true : false " >--Not selected--</option>
 
@@ -131,7 +131,7 @@
                 @endcan
 
                 <div class=" w-full flex flex-col items-center lg:items-start sm:w-[45%] lg:w-1/4 px-1 mt-1.5">
-                    <label for="" class=" text-sm text-primary font-medium">Select Call Status</label>
+                    <label  class=" text-sm text-primary font-medium">Select Call Status</label>
                     <select name="call_status" @change="searchFormState.call_status = $el.value" class="select  select-bordered w-full max-w-xs bg-base-100 text-base-content">
                         <option value="null" :disabled="searchFormState.call_status == null ? true : false " :selected="searchFormState.call_status == null ? true : false " >--Not selected--</option>
 
@@ -268,7 +268,7 @@
 
                             @if (auth()->user()->hasRole('admin'))
                                 <div class=" flex items-center space-x-2">
-                                    <p class=" text-sm font-medium ">Assigned to : <span class="" x-text = "fp.lead.assigned.name"></span></p>
+                                    <p class=" text-sm font-medium ">Assigned to : <span class="" x-text = "fp.lead != null ? fp.lead.assigned.name : ''"></span></p>
                                 </div>
                             @endif
 

@@ -35,7 +35,10 @@
                     leads[lead.id].followup_created = lead.followup_created;
                     lead.call_status = $event.detail.content.lead.call_status;
                     leads[lead.id] = lead;
-                    document.getElementById('lead-tick-'+lead.id).classList.remove('hidden');
+                    let el = document.getElementById('lead-tick-'+lead.id);
+                    if (el != undefined && el != nulll) {
+                        el.classList.remove('hidden');
+                    }
                     $dispatch('formerrors', {errors: []});
                 } else if (typeof $event.detail.content.errors != undefined) {
                     $dispatch('showtoast', {message: $event.detail.content.message, mode: 'error'});
@@ -53,15 +56,15 @@
         <input id="scheduled-date" required name="scheduled_date" type="date" class=" rounded-lg input-info bg-base-100">
 
         <div class=" flex flex-col space-y-1 my-2.5">
-            <p for="call_status" class=" font-medium ">How was the call ?</p>
+            <p for="call_status" class=" font-medium ">Did the customer answer the call?</p>
                 <div class=" flex space-x-1 items-center">
                     <input type="radio" name="call_status" id="responsive" value="Responsive" required>
-                    <label for="responsive">Responsive</label>
+                    <label for="responsive">Yes</label>
                 </div>
 
                 <div class=" flex space-x-1 items-center">
                     <input type="radio" name="call_status" id="non-responsive" value="Not responsive" >
-                    <label for="non-resposive">Not responsive</label>
+                    <label for="non-resposive">No</label>
                 </div>
         </div>
 

@@ -8,12 +8,13 @@ use App\Models\Doctor;
 use App\Models\Remark;
 use App\Models\Followup;
 use App\Models\Appointment;
+use App\Models\Procedure;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Ynotz\EasyAdmin\Traits\IsModelViewConnector;
 use Ynotz\EasyAdmin\Contracts\ModelViewConnector;
 
-class AppointmentService implements ModelViewConnector
+class ProcedureService implements ModelViewConnector
 {
     use IsModelViewConnector;
 
@@ -22,43 +23,43 @@ class AppointmentService implements ModelViewConnector
         $this->modelClass = Doctor::class;
     }
 
-    public function getStoreValidationRules(): array
-    {
-        return [
-            'name' => ['required', 'string'],
-            'department' => ['sometimes', 'string']
-        ];
-    }
+    // public function getStoreValidationRules(): array
+    // {
+    //     return [
+    //         'name' => ['required', 'string'],
+    //         'department' => ['sometimes', 'string']
+    //     ];
+    // }
 
-    public function getUpdateValidationRules(): array
-    {
-        return [
-            'name' => ['required', 'string'],
-            'department' => ['sometimes', 'nullable', 'string']
-        ];
-    }
+    // public function getUpdateValidationRules(): array
+    // {
+    //     return [
+    //         'name' => ['required', 'string'],
+    //         'department' => ['sometimes', 'nullable', 'string']
+    //     ];
+    // }
 
     public function processAndStore($request)
     {
-        $appointment_date = Carbon::parse($request->appointment_date);
+        $procedure_date = Carbon::parse($request->procedure_date);
         $followup_date = Carbon::parse($request->followup_date);
         // if ($followup_date->lessThan($appointment_date)) {
         //     return ['success' => false, 'message' => 'Follow up date should be after Appointment date'];
         // }
-        if ($appointment_date->isPast() && !$appointment_date->isToday()) {
+        if ($procedure_date->isPast() && !$procedure_date->isToday()) {
             return ['success' => false, 'message' => 'You cannot input previous dates.'];
         }
 
         $lead = Lead::find($request->lead_id);
-        $lead->status = "Appointment Fixed";
+        $lead->status = "Procedure Scheduled";
         $lead->followup_created = true;
         $lead->call_status = "Responsive";
         $lead->save();
 
-        $appointment = Appointment::create([
+        $procedure = Procedure::create([
             'lead_id' => $request->lead_id,
             'doctor_id' => $request->doctor,
-            'appointment_date' => Carbon::createFromFormat('Y-m-d', $request->appointment_date)->format('Y-m-d H:i:s')
+            'procedure_scheduled_date' => Carbon::createFromFormat('Y-m-d', $request->procedure_date)->format('Y-m-d H:i:s')
         ]);
 
 
@@ -74,7 +75,7 @@ class AppointmentService implements ModelViewConnector
         Remark::create([
             'remarkable_type' => Followup::class,
             'remarkable_id' => $followup->id,
-            'remark' => 'Appointment fixed on ' . Carbon::createFromFormat('Y-m-d', $request->appointment_date)->format('d M Y'),
+            'remark' => 'Procedure Scheduled on ' . Carbon::createFromFormat('Y-m-d', $request->procedure_date)->format('d M Y'),
             'user_id' => Auth::user()->id,
         ]);
 
@@ -86,14 +87,14 @@ class AppointmentService implements ModelViewConnector
             'user_id' => Auth::user()->id
         ]);
 
-        return ['success' => true, 'message' => 'Appointment created', 'converted' => true, 'followup' => $followup, 'lead' => $lead, 'appointment' => $appointment, 'next_followup' => $next_followup];
+        return ['success' => true, 'message' => 'Procedure created', 'converted' => true, 'followup' => $followup, 'lead' => $lead, 'procedure' => $procedure, 'next_followup' => $next_followup];
     }
 
-    public function processConsult($lead_id, $followup_id, $followup_date)
+    public function processProcedure($lead_id, $followup_id, $followup_date)
     {
-        $lead = Lead::where('id', $lead_id)->with('appointment')->get()->first();
+        $lead = Lead::where('id', $lead_id)->with('procedure')->get()->first();
 
-        $date = Carbon::parse($lead->appointment->appointment_date);
+        $date = Carbon::parse($lead->procedure->procedure_scheduled_date);
 
 
         $followup = Followup::find($followup_id);
@@ -107,16 +108,16 @@ class AppointmentService implements ModelViewConnector
         Remark::create([
             'remarkable_type' => Followup::class,
             'remarkable_id' => $followup->id,
-            'remark' => 'Marked as Consulted on ' . Carbon::now()->format('d M Y'),
+            'remark' => 'Procedure completed on ' . Carbon::now()->format('d M Y'),
             'user_id' => Auth::user()->id,
         ]);
 
-        $lead->status = 'Consulted';
+        $lead->status = 'Completed';
         $lead->save();
 
-        $appointment = Appointment::find($lead->appointment->id);
-        $appointment->consulted_date = Carbon::now();
-        $appointment->save();
+        $procedure = Procedure::find($lead->procedure->id);
+        $procedure->procedure_done_date = Carbon::now();
+        $procedure->save();
 
         $next_followup = Followup::create([
             'lead_id' => $lead_id,
@@ -127,45 +128,45 @@ class AppointmentService implements ModelViewConnector
             'user_id' => Auth::user()->id
         ]);
 
-        return ['success' => true, 'lead' => $lead, 'followup' => $followup, 'appointment' => $appointment, 'next_followup' => $next_followup, 'message' => 'Consult is marked'];
+        return ['success' => true, 'lead' => $lead, 'followup' => $followup, 'procedure' => $procedure, 'next_followup' => $next_followup, 'message' => 'Marked as procedure completed'];
     }
 
-    public function updateAppointment($request)
+    public function updateProcedure($request)
     {
 
         $validate = $this->updateValidation($request);
         if ($validate == false) {
-            return ['success' => false, 'message' => 'Could not reschedule appointment'];
+            return ['success' => false, 'message' => 'Could not reschedule procedure'];
         }
 
-        $appointment_date = Carbon::parse($request->appointment_date);
+        $procedure_date = Carbon::parse($request->procedure_date);
         $followup_date = Carbon::parse($request->followup_date);
 
-        if ($followup_date->isPast($appointment_date)) {
-            if (!$followup_date->isSameAs('Y-m-j', $appointment_date)) {
+        if ($followup_date->isPast($procedure_date)) {
+            if (!$followup_date->isSameAs('Y-m-j', $procedure_date)) {
                 return ['success' => false, 'message' => 'Invalid Follow-up date'];
             }
         }
 
-        $appointment = Appointment::find($request->appointment_id);
+        $procedure = Appointment::find($request->procedure_id);
 
-        if ($appointment_date->isSameDay(Carbon::parse($appointment->appointment_date))) {
-            return ['success' => false, 'message' => 'Appointment already on the same date'];
+        if ($procedure_date->isSameDay(Carbon::parse($procedure->procedure_scheduled_date))) {
+            return ['success' => false, 'message' => 'Procedure already on the same date'];
         }
 
-        if ($appointment_date->isPast(Carbon::today())) {
-            return ['success' => false, 'message' => 'Appointment cannot be fixed to past date'];
+        if ($procedure_date->isPast(Carbon::today())) {
+            return ['success' => false, 'message' => 'Procedure cannot be scheduled to a past date'];
         }
 
-        $appointment->doctor_id = $request->doctor;
-        $appointment->appointment_date = $appointment_date;
-        $appointment->save();
+        $procedure->doctor_id = $request->doctor;
+        $procedure->procedure_scheduled_date = $procedure_date;
+        $procedure->save();
 
         if ($request->followup_id) {
             Remark::create([
                 'remarkable_type' => Followup::class,
                 'remarkable_id' => $request->followup_id,
-                'remark' => 'Appointment Rescheduled to ' . $appointment->appointment_date->format('Y-m-d'),
+                'remark' => 'Procedure rescheduled to ' . $procedure->procedure_scheduled_date->format('Y-m-d'),
                 'user_id' => Auth::id(),
             ]);
 
@@ -186,14 +187,14 @@ class AppointmentService implements ModelViewConnector
             ]);
         }
 
-        return ['success' => true, 'message' => 'Appointment Rescheduled', 'followup' => $followup, 'next_followup' => $next_followup, 'appointment' => $appointment];
+        return ['success' => true, 'message' => 'Procedure Rescheduled', 'followup' => $followup, 'next_followup' => $next_followup, 'procedure' => $procedure];
     }
 
     public function updateValidation($request)
     {
         $validator = Validator::make($request->all(), [
             'doctor' => 'required',
-            'appointment_date' => 'required',
+            'procedure_date' => 'required',
             'followup_date' => 'required',
             'followup_id' => 'required',
             'lead_id' => 'required',

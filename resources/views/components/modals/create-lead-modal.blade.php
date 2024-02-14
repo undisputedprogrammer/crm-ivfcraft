@@ -2,6 +2,7 @@
 <div x-data="{
     showCampaignForm: false,
 }"
+
 x-init = "setCampaignsArray('{{$campaigns}}')"
 x-show="createLead" x-cloak x-transition class=" absolute w-full h-screen z-30 bg-neutral bg-opacity-70">
 
@@ -48,7 +49,7 @@ x-show="createLead" x-cloak x-transition class=" absolute w-full h-screen z-30 b
 
             },
             loadCampaigns() {
-                $dispatch('formsubmit', {url: '{{route('campaign.all')}}', target: 'lead-campaigns'});
+                $dispatch('formsubmit', {url: '{{route('campaign.form_options')}}', target: 'lead-campaigns'});
             },
             createCampaign(campaign) {
                 let fd = new FormData();
@@ -98,28 +99,28 @@ x-show="createLead" x-cloak x-transition class=" absolute w-full h-screen z-30 b
         }" autocomplete="off">
 
             <div class=" flex-col flex">
-                <label for="" class="font-medium text-base-content">Name :</label>
+                <label  class="font-medium text-base-content">Name :</label>
                 <input required type="text" name="name" class=" input input-bordered input-secondary md:w-96 focus:outline-none min-w-72">
             </div>
 
             <div class=" flex-col flex">
-                <label for="" class="font-medium text-base-content">City :</label>
+                <label  class="font-medium text-base-content">City :</label>
                 <input required type="text" name="city" class=" input input-bordered input-secondary md:w-96 focus:outline-none min-w-72">
             </div>
 
             <div class=" flex-col flex">
-                <label for="" class="font-medium text-base-content">Phone :</label>
+                <label  class="font-medium text-base-content">Phone :</label>
                 <input required type="phone" min="10" max="10" name="phone" class=" input input-bordered input-secondary md:w-96 focus:outline-none min-w-72">
             </div>
 
             <div class=" flex-col flex">
-                <label for="" class="font-medium text-base-content">Email :</label>
+                <label  class="font-medium text-base-content">Email :</label>
                 <input  required type="email" name="email" class=" input input-bordered input-secondary md:w-96 focus:outline-none min-w-72">
             </div>
 
 
             <div class=" flex-col flex">
-                <label for="" class="font-medium text-base-content">Center :</label>
+                <label  class="font-medium text-base-content">Center :</label>
                 <select required name="center" id="center" class=" select min-w-72 md:w-96 select-bordered border-secondary">
                     @foreach ($centers as $center)
                         <option value="{{$center->id}}">{{$center->name}}</option>
@@ -128,7 +129,7 @@ x-show="createLead" x-cloak x-transition class=" absolute w-full h-screen z-30 b
             </div>
 
             <div class=" flex-col flex">
-                <label for="" class="font-medium text-base-content">Source :</label>
+                <label  class="font-medium text-base-content">Source :</label>
                 <select x-model="sourceId" required name="source" id="lead-source-new" class=" select min-w-72 md:w-96 select-bordered border-secondary">
                     <template x-for="s in sources">
                         <option :value="s.id"><span x-text="s.name"></span></option>
@@ -136,7 +137,7 @@ x-show="createLead" x-cloak x-transition class=" absolute w-full h-screen z-30 b
                 </select>
             </div>
             <div class="flex-col flex">
-                <label for="" class="font-medium text-base-content">Campaign :</label>
+                <label  class="font-medium text-base-content">Campaign :</label>
                 <select required x-model="campaignName" required name="campaign" id="lead-campaign-new" class=" select min-w-72 md:w-96 select-bordered border-secondary">
                     <option value="">Select One</option>
                     <template x-for="c in campaigns">
@@ -146,7 +147,7 @@ x-show="createLead" x-cloak x-transition class=" absolute w-full h-screen z-30 b
             </div>
                 {{-- <div class="flex flex-row w-96 items-end justify-between">
                     <div class="w-3/4">
-                        <label for="" class="font-medium text-base-content">Campaign :</label>
+                        <label  class="font-medium text-base-content">Campaign :</label>
                         <select x-model="campaignName" required name="campaign" id="lead-campaign-new" class=" select w-full select-bordered border-secondary">
                             <template x-for="c in campaigns">
                                 <option :value="c.name"><span x-text="c.name"></span></option>

@@ -46,7 +46,7 @@
 
         <template x-if = "chats.length == 0">
             <div class=" py-8 w-full flex justify-center">
-                <label for="" class=" text-center font-medium text-base">Start the chat with a template</label>
+                <label  class=" text-center font-medium text-base">Start the chat with a template</label>
             </div>
         </template>
     </div>
@@ -110,7 +110,7 @@
 
             <input @change="setMedia();" type="file" id="media-uploader" name="media" class="hidden">
 
-            <label x-show="media_selected" for="" class=" input min-w-[74%] flex space-x-2 justify-between  bg-white items-center" >
+            <label x-show="media_selected"  class=" input min-w-[74%] flex space-x-2 justify-between  bg-white items-center" >
                 <p  x-text="'Selected : '+filename" class="text-sm font-medium"></p>
                 <button @click.prevent.stop="resetMedia();" class="btn btn-ghost btn-sm">
                     <x-icons.close-icon/>

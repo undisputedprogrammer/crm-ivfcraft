@@ -133,7 +133,7 @@
                         </div>
                         <button @click.prevent.stop="removeInput()" x-show="variableCount > 0" class=" btn btn-link btn-xs text-error">Remove</button>
 
-                        <label for="" class="mt-1.5"><span x-show="showerror" x-transition class=" text-error text-sm">Fill the current input before adding another</span></label>
+                        <label  class="mt-1.5"><span x-show="showerror" x-transition class=" text-error text-sm">Fill the current input before adding another</span></label>
 
                         <div class="text-center py-2 flex space-x-2">
 

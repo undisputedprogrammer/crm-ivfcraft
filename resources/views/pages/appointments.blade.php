@@ -67,7 +67,7 @@
             </div>
 
             <div class="flex flex-row ">
-                <label for="" class="w-12 md:hidden"></label>
+                <label  class="w-12 md:hidden"></label>
                 <button type="submit" class="btn btn-md btn-secondary">Search</button>
             </div>
         </form>

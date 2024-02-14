@@ -22,7 +22,7 @@
                 });
             },
             loadCampaigns() {
-                $dispatch('formsubmit', {url: '{{route('campaign.all')}}', target: 'lead-campaigns'});
+                $dispatch('formsubmit', {url: '{{route('campaign.form_options')}}', target: 'lead-campaigns'});
             },
             createCampaign(campaign) {
                 let fd = new FormData();
@@ -66,28 +66,28 @@
         }" autocomplete="off">
 
             <div class=" flex-col flex">
-                <label for="" class="font-medium text-base-content">Name :</label>
+                <label  class="font-medium text-base-content">Name :</label>
                 <input required type="text" name="name" class=" input input-bordered input-secondary md:w-96 focus:outline-none min-w-72">
             </div>
 
             <div class=" flex-col flex">
-                <label for="" class="font-medium text-base-content">City :</label>
+                <label  class="font-medium text-base-content">City :</label>
                 <input required type="text" name="city" class=" input input-bordered input-secondary md:w-96 focus:outline-none min-w-72">
             </div>
 
             <div class=" flex-col flex">
-                <label for="" class="font-medium text-base-content">Phone :</label>
+                <label  class="font-medium text-base-content">Phone :</label>
                 <input required type="phone" min="10" max="10" name="phone" class=" input input-bordered input-secondary md:w-96 focus:outline-none min-w-72">
             </div>
 
             <div class=" flex-col flex">
-                <label for="" class="font-medium text-base-content">Email :</label>
+                <label  class="font-medium text-base-content">Email :</label>
                 <input  required type="email" name="email" class=" input input-bordered input-secondary md:w-96 focus:outline-none min-w-72">
             </div>
 
 
                 <div class=" flex-col flex">
-                    <label for="" class="font-medium text-base-content">Center :</label>
+                    <label  class="font-medium text-base-content">Center :</label>
                     <select required name="center" id="center-refer" class=" select min-w-72 md:w-96 select-bordered border-secondary" @change="if($el.value){loadAgents($el.value)}">
                         <option value="">Select center</option>
                         @foreach ($centers as $center)
@@ -97,7 +97,7 @@
                 </div>
 
                 <div class=" flex-col flex">
-                    <label for="" class="font-medium text-base-content">Agent :</label>
+                    <label  class="font-medium text-base-content">Agent :</label>
                     <select required name="agent" id="agent-refer" class=" select min-w-72 md:w-96 select-bordered border-secondary">
                         <template x-for="agent in agents">
                             <option :value="agent.id" x-text="agent.name"></option>
@@ -106,7 +106,7 @@
                 </div>
 
                 <div class=" flex-col flex">
-                    <label for="" class="font-medium text-base-content">Source :</label>
+                    <label  class="font-medium text-base-content">Source :</label>
                     <select required name="source" id="lead-refer-source" class=" select min-w-72 md:w-96 select-bordered border-secondary">
                         <template x-for="source in sources">
                             <template x-if="source.forms.includes('Internal Reference')">
@@ -117,7 +117,7 @@
                 </div>
 
                 <div class=" flex-col flex">
-                    <label for="" class="font-medium text-base-content">Campaign :</label>
+                    <label  class="font-medium text-base-content">Campaign :</label>
                     <select required name="campaign" id="lead-source" class=" select min-w-72 md:w-96 select-bordered border-secondary">
                         <option value="">Select One</option>
                         <template x-for="c in campaigns">

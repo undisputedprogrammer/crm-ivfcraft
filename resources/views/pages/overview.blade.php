@@ -39,7 +39,7 @@
 
                         <div
                             class="flex flex-col space-y-1 bg-base-200 w-full lg:w-1/4 h-16 rounded-xl justify-center items-center py-4">
-                            <label for=""
+                            <label
                                 class=" font-medium text-primary w-[90%] flex justify-between items-center">
                                 <span>Total leads this month</span>
                                 <span class="text-lg font-semibold text-secondary">{{ $lpm }}</span>
@@ -48,7 +48,7 @@
                         </div>
 
                         <div class="flex flex-col space-y-1 bg-base-200 w-full lg:w-1/4 rounded-xl items-center py-4">
-                            <label for="" class=" font-medium text-primary w-[90%] flex justify-between">
+                            <label  class=" font-medium text-primary w-[90%] flex justify-between">
                                 <span>Lead followed up this month</span>
                                 <span
                                     class=" text-base font-semibold text-secondary">{{ $ftm }}/{{ $lpm }}</span>
@@ -67,7 +67,7 @@
                         </div>
 
                         <div class="flex flex-col space-y-1 bg-base-200 w-full lg:w-1/4 rounded-xl items-center py-4">
-                            <label for="" class=" font-medium text-primary w-[90%] flex justify-between">
+                            <label  class=" font-medium text-primary w-[90%] flex justify-between">
                                 <span>Leads converted this month</span>
                                 @php
                                     if ($lpm != 0) {
@@ -86,7 +86,7 @@
 
                         <div
                             class="flex flex-col space-y-1 bg-base-200 justify-center h-16 w-full lg:w-1/4 rounded-xl items-center py-4">
-                            <label for=""
+                            <label
                                 class=" font-medium text-primary w-[90%] flex justify-between items-center">
                                 <span>Total scheduled follow ups pending</span>
                                 <span class="text-lg font-semibold text-secondary">{{ $pf }}</span>

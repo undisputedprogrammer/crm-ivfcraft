@@ -1,6 +1,10 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\Followup;
+use App\Models\Lead;
+use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\DB;
 
 class CorrectionController{
@@ -99,6 +103,36 @@ class CorrectionController{
             }
             return 'success';
         } catch (Exception $e) {
+            return $e->__toString();
+        }
+    }
+
+    public function completedToConsulted()
+    {
+        DB::beginTransaction();
+        try{
+                $leads = Lead::where('status', 'Completed')->get();
+                foreach ($leads as $l) {
+                    $l->status = 'Consulted';
+                    $l->save();
+                    info('lead saved id: '. $l->id);
+                    $last_followup = Followup::where('lead_id', $l->id)->orderBy('id', 'desc')->first();
+                    $fcount = $last_followup != null ? $last_followup->followup_count + 1 : 1;
+                    Followup::create([
+                        'lead_id' => $l->id,
+                        'followup_count' => $fcount,
+                        'scheduled_date' => Carbon::today()->addDays(7),
+                        'user_id' => $l->assigned_to
+                    ]);
+                    info('followup created');
+                }
+                $lids = $leads->pluck('id')->toArray();
+                info('Reassigned status for '.count($lids).'leads:');
+                info($lids);
+                DB::commit();
+                return 'success';
+        } catch (Exception $e) {
+            DB::rollBack();
             return $e->__toString();
         }
     }

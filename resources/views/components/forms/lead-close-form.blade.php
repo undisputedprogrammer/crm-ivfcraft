@@ -30,7 +30,10 @@
                 fps[fp.id] = fp;
             }
             document.getElementById('status-'+lead.id).innerText = lead.status;
-            document.getElementById('lead-tick-'+lead.id).classList.remove('hidden');
+            let el = document.getElementById('lead-tick-'+lead.id);
+            if (el != undefined && el != nulll) {
+                el.classList.remove('hidden');
+            }
             $dispatch('showtoast', {message: $event.detail.content.message, mode: 'success'});
             $el.reset();
         }else if (typeof $event.detail.content.errors != undefined) {

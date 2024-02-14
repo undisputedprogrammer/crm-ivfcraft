@@ -197,15 +197,15 @@ class WhatsAppApiController extends SmartController
 
 
 
-            $leads = Lead::where('center_id', $center->id)->where('phone', $sender)
-                ->orWhere('phone', '91' . $sender)->orWhere('phone', '+' . $sender)->get();
+            $lead = Lead::where('center_id', $center->id)->where('phone', $sender)
+                ->orWhere('phone', '91' . $sender)->orWhere('phone', '+' . $sender)->get()->first();
 
-            if (count($leads) == 0) {
+            if ($lead == null) {
                 $phone = $sender - 910000000000;
-                $leads = Lead::where('center_id', $center->id)->where('phone', $phone)->get();
+                $lead = Lead::where('center_id', $center->id)->where('phone', $phone)->get()->first();
             }
 
-            if (count($leads) == 0) {
+            if ($lead == null) {
                 $center = Center::where('phone', $reciever)->get()->first();
 
                 $agentIds = collect($center->agents())->pluck('id');
@@ -241,6 +241,7 @@ class WhatsAppApiController extends SmartController
                     User::where('hospital_id', $center->hospital_id)->where('designation', 'Administrator')->get()->random()->id,
                     'source_id' => $source->id
                 ]);
+
                 $center->last_assigned = $agentIds[$next_assign_index];
                 $center->save();
 
@@ -253,7 +254,6 @@ class WhatsAppApiController extends SmartController
 
                 $lead->followup_created = true;
                 $lead->save();
-                $leads = [$lead];
             }
             // return response('lead is '.$lead->name);
             $type = "text";
@@ -273,23 +273,22 @@ class WhatsAppApiController extends SmartController
             }
 
 
-            // $lead_id = null;
-            // if ($lead != null) {
-            //     $lead_id = $lead->id;
-            // }
-            foreach ($leads as $lead) {
-                $chat = Chat::create([
-                    'message' => $body,
-                    'type' => $type,
-                    'direction' => 'Inbound',
-                    'lead_id' => $lead->id,
-                    'status' => 'received',
-                    'wamid' => $wamid,
-                    'expiration_time' => $timestamp
-                ]);
+            $lead_id = null;
+            if ($lead != null) {
+                $lead_id = $lead->id;
+            }
+            $chat = Chat::create([
+                'message' => $body,
+                'type' => $type,
+                'direction' => 'Inbound',
+                'lead_id' => $lead_id,
+                'status' => 'received',
+                'wamid' => $wamid,
+                'expiration_time' => $timestamp
+            ]);
 
-                // Adding new inbound message to the unread messages table
-                // if ($lead != null) {
+            // Adding new inbound message to the unread messages table
+            if ($lead != null) {
                 $unread_message = UnreadMessages::where('lead_id', $lead->id)->latest()->get()->first();
 
                 if ($unread_message != null) {
@@ -304,8 +303,6 @@ class WhatsAppApiController extends SmartController
                         'count' => 1
                     ]);
                 }
-                // }
-                # code...
             }
 
             return response()->json('ok');

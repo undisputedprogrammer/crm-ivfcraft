@@ -20,7 +20,22 @@ return [
     //     ]
     // ],
 
-    'lead_statuses' => ['Created','Follow-up Started', 'Appointment Fixed','Consulted', 'Consulted (Inc Completed)','Completed', 'Closed'],
+    'lead_statuses' => [
+        'Created',
+        'Follow-up Started',
+        'At Least Follow-up Started',
+        'Appointment Fixed',
+        'At Least Appointment Fixed',
+        'Consulted',
+        'At Least Consulted',
+        'Continuing Medication',
+        'Discontinued Medication',
+        'Undecided On Medication',
+        'Procedure Scheduled',
+        'At Least Procedure Scheduled',
+        'Completed',
+        'Closed'
+    ],
 
     'call_statuses' => ['Responsive', 'Not Responsive'],
 

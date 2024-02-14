@@ -195,7 +195,7 @@
 
                 <div x-show="auditsLoading" class=" w-full flex flex-col space-y-2 justify-center items-center py-8">
                     <span class="loading loading-bars loading-md "></span>
-                    <label for="">Please wait while we load the audits...</label>
+                    <label >Please wait while we load the audits...</label>
                 </div>
                 <div x-show="!auditsLoading">
                     {{-- Showing audits --}}
@@ -246,7 +246,7 @@
                 {{-- journals loading animation --}}
                 <div x-show="journalsLoading" class=" w-full flex flex-col space-y-2 justify-center items-center py-8">
                     <span class="loading loading-bars loading-md "></span>
-                    <label for="">Please wait while we load the journals...</label>
+                    <label >Please wait while we load the journals...</label>
                 </div>
 
                 <div x-show="!journalsLoading" class="flex flex-col space-y-2">

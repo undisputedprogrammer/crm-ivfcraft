@@ -98,7 +98,7 @@
 
                     @can('is-admin')
                         <div class=" flex flex-col ml-3 mb-1.5">
-                            <label for="" class=" text-primary font-medium text-xs">Center :</label>
+                            <label  class=" text-primary font-medium text-xs">Center :</label>
                             <select name="center" id="select-center" class=" select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
                                 <option value="all">All Centers</option>
                                 @foreach ($centers as $center)
@@ -108,7 +108,7 @@
                         </div>
 
                         <div class=" flex flex-col ml-3 mb-1.5">
-                            <label for="" class=" text-primary font-medium text-xs">Agent :</label>
+                            <label  class=" text-primary font-medium text-xs">Agent :</label>
                             <select name="agent" id="select-agent" class=" select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
                                 <option value="all">All Agents</option>
                                 @foreach ($agents as $agent)
@@ -120,7 +120,7 @@
 
 
                     <div class=" flex flex-col ml-3 mb-1.5">
-                        <label for="" class=" text-xs text-primary font-medium">Status :</label>
+                        <label  class=" text-xs text-primary font-medium">Status :</label>
                         <select name="status" id="select-status" class=" select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
                             <option value="all" :selected="'{{$status}}'=='all' ">All leads</option>
                             @foreach (config('appSettings')['lead_statuses'] as $st)
@@ -133,7 +133,7 @@
 
                     <div class=" flex-col flex ml-3 mb-1.5">
 
-                        <label for="" class=" text-xs text-primary font-medium">Segment : </label>
+                        <label  class=" text-xs text-primary font-medium">Segment : </label>
                         <select name="segment" id="segment" class="select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
                             <option value="">Not Selected</option>
                             @foreach (config('appSettings.lead_segments') as $segment)
@@ -144,7 +144,7 @@
 
                     <div class=" flex-col flex ml-3 mb-1.5">
 
-                        <label for="" class=" text-xs text-primary font-medium">Campaign : </label>
+                        <label  class=" text-xs text-primary font-medium">Campaign : </label>
                         <select name="campaign" id="campaign" class="select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
                             <option value="">Not Selected</option>
                             @foreach ($campaigns as $campaign)
@@ -155,7 +155,7 @@
 
                     <div class=" flex-col flex ml-3 mb-1.5">
 
-                        <label for="" class=" text-xs text-primary font-medium">Sources : </label>
+                        <label  class=" text-xs text-primary font-medium">Sources : </label>
                         <select name="source" id="source" class="select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
                             <option value="">Not Selected</option>
                             @foreach ($sources as $source)
@@ -166,7 +166,7 @@
 
                     <div class=" flex-col flex ml-3 mb-1.5">
 
-                        <label for="" class=" text-xs text-primary font-medium">Validity :</label>
+                        <label  class=" text-xs text-primary font-medium">Validity :</label>
                         <select name="is_valid" id="is-valid" class="select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
                             <option value="">Not Selected</option>
                             <option :selected="is_valid == 'true'" value="true">Valid</option>
@@ -175,7 +175,7 @@
                     </div>
 
                     <div class=" flex flex-col ml-3 mb-1.5">
-                        <label for="" class=" text-xs text-primary font-medium">Genuinity :</label>
+                        <label  class=" text-xs text-primary font-medium">Genuinity :</label>
                         <select name="is_genuine" id="is-genuine" class="select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
                             <option value="">Not Selected</option>
                             <option :selected="is_genuine == 'true'" value="true">Genuine</option>
@@ -184,7 +184,7 @@
                     </div>
 
                     <div class=" flex flex-col ml-3 mb-1.5">
-                        <label for="" class=" text-xs text-primary font-medium">Call status :</label>
+                        <label  class=" text-xs text-primary font-medium">Call status :</label>
                         <select name="call_status" id="call-status-filter" class="select text-base-content select-sm text-xs focus:ring-0 focus:outline-none">
                             <option value="">Not Selected</option>
                             <option :selected="call_status == 'Responsive'" value="Responsive">Responsive</option>
@@ -193,13 +193,19 @@
                     </div>
 
                     <div class=" flex flex-col ml-3 mb-1.5">
-                        <label for="" class=" text-xs text-primary font-medium">Created from :</label>
-                        <input type="date" :value="creation_date_from != null ? creation_date_from : null" name="creation_date_from" class=" input input-sm text-base-content font-medium">
+                        <label  class=" text-xs text-primary font-medium">Created from :</label>
+                        <div x-data="{date: ''}" x-init="date = '{{$creation_date_from}}';" class="relative">
+                            <input x-model="date" type="date" :value="creation_date_from != null ? creation_date_from : null" name="creation_date_from" class=" input input-sm text-base-content font-medium">
+                            <div class="absolute top-0 left-0 z-30 w-4/5 bg-base-100 m-1" x-text="date.length > 0 ? formatDateOnly(date) : '_ _ _'"></div>
+                        </div>
                     </div>
 
                     <div class=" flex flex-col ml-3 mb-1.5">
-                        <label for="" class=" text-xs text-primary font-medium">Created to :</label>
-                        <input type="date" :value="creation_date_to != null ? creation_date_to : null" name="creation_date_to" class=" input input-sm text-base-content font-medium">
+                        <label  class=" text-xs text-primary font-medium">Created to :</label>
+                        <div x-data="{date: ''}" x-init="date = '{{$creation_date_to}}';" class="relative">
+                            <input x-model="date" type="date" :value="creation_date_to != null ? creation_date_to : null" name="creation_date_to" class=" input input-sm text-base-content font-medium">
+                            <div class="absolute top-0 left-0 z-30 w-4/5 bg-base-100 m-1" x-text="date.length > 0 ? formatDateOnly(date) : '_ _ _'"></div>
+                        </div>
                     </div>
 
 
@@ -301,6 +307,7 @@
                 "
                 class=" w-[44%] border-r border-primary  hide-scroll">
                 <h1 class=" font-medium text-base text-secondary">Lead details</h1>
+                    <p class="text-sm font-medium">Created On : <span x-text="fp.lead != null && fp.lead.created_at != undefined ? formatDateOnly(fp.lead.created_at) : ''"> </span></p>
                     <p class="font-medium">Name : <span x-text=" fp.lead != undefined ? fp.lead.name : '' "> </span></p>
                     <p class="font-medium">City : <span x-text="fp.lead != undefined ? fp.lead.city : '' "> </span></p>
                     <p class="font-medium">Phone : <span x-text=" fp.lead != undefined ? fp.lead.phone : '' "> </span></p>
@@ -351,7 +358,7 @@
 
                     @if (auth()->user()->hasRole('admin'))
                         <div class=" flex items-center space-x-2">
-                            <p class=" text-sm font-medium ">Assigned to : <span class="" x-text = "fp.lead.assigned.name"></span></p>
+                            <p class=" text-sm font-medium ">Assigned to : <span class="" x-text = "fp.lead != null ? fp.lead.assigned.name : ''"></span></p>
                         </div>
                     @endif
 
@@ -374,7 +381,7 @@
 
                     <div class=" my-1">
                         <h1 class=" font-medium text-base text-secondary">Follow-up scheduled date</h1>
-                        <p class=" text-primary font-semibold" x-text="'~ '+formatDateOnly(fp.scheduled_date)"></p>
+                        <p class=" text-primary font-semibold" x-text="fp.scheduled_date != null ? '~ '+formatDateOnly(fp.scheduled_date) : ''"></p>
                     </div>
 
                     <x-sections.followup-history/>
@@ -573,11 +580,45 @@
 
                             <div x-data="{
                                     selected_action : '-- Select Action --',
-                                    dropdown : document.getElementById('followup-action-dropdown')
+                                    dropdown : document.getElementById('followup-action-dropdown'),
+                                    updateTreatmentStatus(status) {
+                                        let formdata = new FormData();
+                                        formdata.append('lead_id', lead.id);
+                                        formdata.append('treatment_status', status);
+                                        $dispatch('formsubmit',{url: '{{route('treatmentStatus.update')}}', route: 'treatmentStatus.update', formData: formdata, target: $el.id});
+                                    }
+                                }"
+                                x-init="
+                                    $watch('selected_action', (sa) => {
+                                        switch(sa) {
+                                            case 'Continue Medication':
+                                                updateTreatmentStatus('Continuing');
+                                                break;
+                                            case 'Discontinue Medication':
+                                                updateTreatmentStatus('Discontinued');
+                                                break;
+                                            case 'Not Decided':
+                                                updateTreatmentStatus('Not decided');
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                    });
+                                "
+                                @formresponse.window="
+                                if($event.detail.target == $el.id){
+                                    if($event.detail.content.success){
+                                        $dispatch('showtoast',{mode: 'success', message: 'Treatment status updated!'});
+                                    }
+                                    else{
+                                        $dispatch('showtoast',{mode: 'error', message: 'Something went wrong!'});
+                                    }
                                 }"
                                 @resetaction.window="selected_action = '-- Select Action --';"
                                 class="pt-6 px-1"
                                 x-show="fp.remarks && fp.remarks.length > 0"
+
+                                id="follow-up-actions-div"
                                 >
                                 <h3 class="text-sm font-medium text-secondary">Actions:</h3>
                                 <div x-show="fp.next_followup_date && lead.status != 'Appointment Fixed'">
@@ -586,18 +627,19 @@
                                 <div x-show="lead.rescheduled">
                                     <p class=" font-semibold text-sm text-warning">Appointment is rescheduled.</p>
                                 </div>
-                                <div x-show="lead.status == 'Consulted' " >
+                                {{-- <div x-show="lead.status == 'Consulted' " >
                                     <p class="font-semibold text-sm text-warning">Consultation completed.</p>
-                                </div>
+                                </div> --}}
                                 <div x-show="lead.status == 'Completed'" >
                                     <p class="font-semibold text-sm text-warning">Process completed!</p>
                                 </div>
 
-                                <x-forms.select-treatment-status-form/>
+                                {{-- <x-forms.select-treatment-status-form/> --}}
 
                                 <x-dropdowns.followups-action-dropdown/>
 
                                 <x-forms.followup-add-appointment-form :doctors="$doctors"/>
+                                <x-forms.followup-add-procedure-form :doctors="$doctors"/>
 
                                 <x-forms.lead-close-form/>
                                 <x-forms.lead-complete-form/>
@@ -623,7 +665,7 @@
 
                     <div x-show="messageLoading" class=" w-full flex flex-col space-y-2 justify-center items-center py-8">
                         <span class="loading loading-bars loading-md "></span>
-                        <label for="">Please wait while we load messages...</label>
+                        <label >Please wait while we load messages...</label>
                     </div>
 
                 </div>

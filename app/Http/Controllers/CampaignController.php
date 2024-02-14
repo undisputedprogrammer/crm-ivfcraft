@@ -14,7 +14,7 @@ class CampaignController extends SmartController
     }
 
     public function index(Request $request){
-        $campaigns = Campaign::paginate(3);
+        $campaigns = Campaign::orderBy('name')->paginate(30);
         return $this->buildResponse('pages.manage-campaigns', compact('campaigns'));
     }
     public function all(Request $request){
@@ -24,12 +24,22 @@ class CampaignController extends SmartController
             'campaigns' => $campaigns
         ]);
     }
+    public function formOptions(Request $request){
+        $campaigns = Campaign::enabledHospital(auth()->user()->hospital_id)
+        ->where('enable_in_forms', 1)->orderBy('name')->get();
+        return response()->json([
+            'campaigns' => $campaigns
+        ]);
+    }
 
     public function store(Request $request)
     {
         $campaign = Campaign::create([
-            'name' => $request->input('name')
+            'name' => $request->input('name'),
+            'enable_in_forms' => true
         ]);
+        $campaign->enableHospital(auth()->user()->hospital_id);
+
         return response()->json([
             'success' => true,
             'campaign' => $campaign,
@@ -40,13 +50,36 @@ class CampaignController extends SmartController
     public function toggle($id)
     {
         $campaign = Campaign::find($id);
-        $campaign->enabled = !$campaign->enabled;
+        $hid = auth()->user()->hospital_id;
+        // $campaign->enabled = !$campaign->enabled;
+        if (in_array($hid, $campaign->enabled_hospitals ?? [])) {
+            $campaign->disableHospital($hid);
+            $message = 'Campaign was disabled';
+            $mode = 'error';
+        } else {
+            $campaign->enableHospital($hid);
+            $message = 'Campaign was enabled';
+            $mode = 'success';
+        }
         $campaign->save();
-        $message = $campaign->enabled ? 'Campaign was enabled' : 'Campaign was disabled';
         return response()->json([
             'success' => true,
             'message' => $message,
-            'mode' => $campaign->enabled ? 'success' : 'warning'
+            'mode' => $mode
+        ]);
+    }
+
+    public function toggleForm($id)
+    {
+        $campaign = Campaign::find($id);
+        $hid = auth()->user()->hospital_id;
+        $campaign->enable_in_forms = !$campaign->enable_in_forms;
+        $campaign->save();
+        $message = $campaign->enable_in_forms ? 'Campaign will be shown in form options' : 'Campaign will not be shown in form options';
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+            'mode' => $campaign->enable_in_forms ? 'success' : 'error'
         ]);
     }
 }
