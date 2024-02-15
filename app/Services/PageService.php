@@ -204,7 +204,8 @@ class PageService
         $hospital = auth()->user()->hospital;
         $hospitals = [$hospital];
         $centers = $hospitals[0]->centers;
-        $campaigns = Campaign::orderBy('name')->get();
+        $campaigns = Campaign::enabledHospital(auth()->user()->hospital_id)
+        ->where('enable_in_forms', 1)->orderBy('name')->get();
         if (isset($userId)) {
             /**
              * @var User
