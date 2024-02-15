@@ -284,7 +284,6 @@ class LeadController extends SmartController
         $existing_lead = $lquery->get()->first();
         if ($existing_lead != null){
             $agentId = $existing_lead->id;
-            continue;
         } else {
             $agentId = $agentIds[$next_assign_index];
         }
@@ -374,7 +373,6 @@ class LeadController extends SmartController
         $existing_lead = $lquery->get()->first();
         if ($existing_lead != null){
             $agentId = $existing_lead->id;
-            continue;
         } else {
             $agentId = $request->agent;
         }
