@@ -283,9 +283,16 @@ class LeadController extends SmartController
         }
         $existing_lead = $lquery->get()->first();
         if ($existing_lead != null){
-            $agentId = $existing_lead->id;
+            if ($existing_lead->campaign != $request->campaign) {
+                $agentId = $existing_lead->assigned_to;
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Could not create lead !'
+                ]);
+            }
         } else {
-            $agentId = $agentIds[$next_assign_index];
+            $agentId = $request->agent;
         }
 
         $lead = Lead::create([
@@ -372,11 +379,17 @@ class LeadController extends SmartController
         }
         $existing_lead = $lquery->get()->first();
         if ($existing_lead != null){
-            $agentId = $existing_lead->id;
+            if ($existing_lead->campaign != $request->campaign) {
+                $agentId = $existing_lead->assigned_to;
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Could not create lead !'
+                ]);
+            }
         } else {
             $agentId = $request->agent;
         }
-
         $lead = Lead::create([
             'hospital_id' => Auth::user()->hospital_id,
             'center_id' => $request->center ? $request->center : User::find(Auth::user()->id)->centers()->first()->id,
@@ -389,16 +402,6 @@ class LeadController extends SmartController
             'source_id' => $source->id,
             'campaign' => ucwords(strtolower($request->campaign))
         ]);
-
-        $campaignCheck = PublicHelper::checkAndStoreCampaign($request->campaign);
-
-        if(!$campaignCheck){
-            $lead->delete();
-            return response()->json([
-                'success' => false,
-                'message' => 'Could not create lead !'
-            ]);
-        }
 
         $followup_created = $this->createFollowup($lead);
 

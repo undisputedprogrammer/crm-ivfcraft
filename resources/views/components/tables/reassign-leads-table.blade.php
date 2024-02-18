@@ -58,7 +58,7 @@
                     <td>{{$lead->id}}</td>
                     <td>{{$lead->name}}</td>
                     <td>{{$lead->email}}</td>
-                    <td>{{$lead->assigned->name}}</td>
+                    <td>{{$lead->assigned != null ? $lead->assigned->name : '--'}}</td>
                     <td>{{$lead->created_at->format('d M Y')}}</td>
                 </tr>
 
