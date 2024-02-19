@@ -282,6 +282,8 @@ class LeadController extends SmartController
             $lquery->where('campaign', $request->campaign);
         }
         $existing_lead = $lquery->get()->first();
+        info('existing lead:');
+        info($existing_lead);
         if ($existing_lead != null){
             if ($existing_lead->campaign != $request->campaign) {
                 $agentId = $existing_lead->assigned_to;
@@ -292,9 +294,10 @@ class LeadController extends SmartController
                 ]);
             }
         } else {
-            $agentId = $request->agent;
+            $agentId = $request->agent ?? $assigned_to;
         }
-
+        info('agent id:');
+        info($agentId);
         $lead = Lead::create([
             'hospital_id' => Auth::user()->hospital_id,
             'center_id' => $request->center ? $request->center : User::find(Auth::user()->id)->centers()->first()->id,
