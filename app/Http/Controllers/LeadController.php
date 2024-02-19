@@ -12,6 +12,7 @@ use App\Models\Remark;
 use App\Models\Source;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Reader\Xls\RC4;
 use Ynotz\SmartPages\Http\Controllers\SmartController;
@@ -134,29 +135,36 @@ class LeadController extends SmartController
     }
 
     public function close(Request $request){
-        $lead = Lead::find($request->lead_id);
+        try {
+            DB::beginTransaction();
+            $lead = Lead::find($request->lead_id);
 
-        if($lead ==  null){
-            return response()->json(['success'=>false,'message'=>'Lead not found']);
-        }
+            if($lead ==  null){
+                return response()->json(['success'=>false,'message'=>'Lead not found']);
+            }
 
-        if($lead->status == 'Consulted'){
-            $lead->status = 'Completed';
-        }
-        else{
+            // if($lead->status == 'Consulted'){
+            //     $lead->status = 'Completed';
+            // }
+            // else{
             $lead->status = 'Closed';
-        }
-        $lead->save();
-        $followup = Followup::where('lead_id',$lead->id)->where('actual_date',null)->latest()->get()->first();
-        if($followup != null){
-            $followup->actual_date = Carbon::now();
-            $followup->call_status = 'Responsive';
-            $followup->save();
+            // }
+            $lead->save();
+            $followups = Followup::where('lead_id',$lead->id)->where('actual_date',null)->latest()->get();
+            foreach ($followups as $followup) {
+                if($followup != null){
+                    $followup->actual_date = Carbon::now();
+                    $followup->call_status = 'Responsive';
+                    $followup->save();
+                }
+            }
+
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
         }
         $message = 'Lead closed successfully';
-        if ($lead->status == 'Completed') {
-            $message = 'Lead follow-up process completed successfully!';
-        }
+
         return response()->json(['success'=>true, 'message'=> $message]);
     }
 
