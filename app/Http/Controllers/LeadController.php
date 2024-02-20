@@ -10,6 +10,7 @@ use App\Models\Center;
 use App\Models\Followup;
 use App\Models\Remark;
 use App\Models\Source;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -261,64 +262,73 @@ class LeadController extends SmartController
             'campaign' => 'required'
         ]);
 
-        $assigned_to = $request->assign_to ? $request->assign_to : Auth::user()->id;
-        info('going to create lead');
-        $center = Center::find($request->center);
-        $agentIds = collect($center->agents())->pluck('id');
+        try{
 
-        if(count($agentIds) < 1){
-            return response()->json([
-                'success' => false,
-                'message' => "No agents available in the selected center",
-            ], 400);
-        }
-        $last_assigned_index = array_search($center->last_assigned, $agentIds->toArray());
-
-        info("Last assigned index found".$last_assigned_index);
-
-        if($last_assigned_index != count($agentIds)-1){
-            $next_assign_index = $last_assigned_index+1;
-        }else{
-            $next_assign_index = 0;
-        }
-
-        $lquery = Lead::where(
-            'phone',
-            PublicHelper::formatPhoneNumber($request->phone)
-        )->where('hospital_id', auth()->user()->hospital_id);
-        if (auth()->user()->hospital_id == 2) {
-            $lquery->where('campaign', $request->campaign);
-        }
-        $existing_lead = $lquery->get()->first();
-        info('existing lead:');
-        info($existing_lead);
-        if ($existing_lead != null){
-            if ($existing_lead->campaign != $request->campaign) {
-                $agentId = $existing_lead->assigned_to;
-            } else {
+            info('going to create lead');
+            $center = Center::find($request->center);
+            $agentIds = collect($center->agents())->pluck('id');
+            // info('agent ids:');
+            // info($agentIds);
+            if(count($agentIds) < 1){
                 return response()->json([
                     'success' => false,
-                    'message' => 'Could not create lead !'
-                ]);
+                    'message' => "No agents available in the selected center",
+                ], 400);
             }
-        } else {
-            $agentId = $request->agent ?? $assigned_to;
-        }
-        info('agent id:');
-        info($agentId);
-        $lead = Lead::create([
-            'hospital_id' => Auth::user()->hospital_id,
-            'center_id' => $request->center ? $request->center : User::find(Auth::user()->id)->centers()->first()->id,
-            'name' => $request->name,
-            'phone' => PublicHelper::formatPhoneNumber($request->phone),
-            'email' => $request->email,
-            'city' => $request->city,
-            'assigned_to' => $agentId,
-            'created_by' => Auth::user()->id,
-            'source_id' => $request->source,
-            'campaign' => ucwords(strtolower($request->campaign))
-        ]);
+            $last_assigned_index = array_search($center->last_assigned, $agentIds->toArray());
 
+            // info("Last assigned index found: ".$last_assigned_index);
+
+            if($last_assigned_index < count($agentIds)-1){
+                $next_assign_index = $last_assigned_index + 1;
+            }else{
+                $next_assign_index = 0;
+            }
+            DB::beginTransaction();
+            $lquery = Lead::where(
+                'phone',
+                PublicHelper::formatPhoneNumber($request->phone)
+            )->where('hospital_id', auth()->user()->hospital_id);
+            if (auth()->user()->hospital_id == 2) {
+                $lquery->where('campaign', $request->campaign);
+            }
+            $existing_lead = $lquery->get()->first();
+            // info('existing lead:');
+            // info($existing_lead);
+            if ($existing_lead != null){
+                // info('lead exists');
+                if ($existing_lead->campaign != $request->campaign) {
+                    $agentId = $existing_lead->assigned_to;
+                } else {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Could not create lead !'
+                    ]);
+                }
+            } else {
+                // info('new lead');
+                $agentId = $agentIds[$next_assign_index];
+                $center->last_assigned = $agentId;
+                $center->save();
+            }
+            // info('agent id:');
+            // info($agentId);
+            $lead = Lead::create([
+                'hospital_id' => Auth::user()->hospital_id,
+                'center_id' => $request->center ? $request->center : User::find(Auth::user()->id)->centers()->first()->id,
+                'name' => $request->name,
+                'phone' => PublicHelper::formatPhoneNumber($request->phone),
+                'email' => $request->email,
+                'city' => $request->city,
+                'assigned_to' => $agentId,
+                'created_by' => Auth::user()->id,
+                'source_id' => $request->source,
+                'campaign' => ucwords(strtolower($request->campaign))
+            ]);
+            DB::commit();
+        } catch(Exception $e) {
+            DB::rollBack();
+        }
         PublicHelper::checkAndStoreCampaign($request->campaign);
 
         $center->last_assigned = $agentIds[$next_assign_index];
