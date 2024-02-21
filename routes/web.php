@@ -183,6 +183,7 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/db-campaign-correction', [CorrectionController::class, 'sanitizeCampaignNames']);
 Route::get('/db-status-correction', [CorrectionController::class, 'completedToConsulted']);
+Route::get('/db-remove-duplicates', [CorrectionController::class, 'removeDuplicates']);
 
 Route::get('/', [PageController::class, 'home']);
 
