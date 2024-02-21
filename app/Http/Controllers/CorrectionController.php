@@ -143,12 +143,12 @@ class CorrectionController{
     public function removeDuplicates()
     {
         $phones = [
-            "919995777237",
-            "919995223299",
-            "919526193082",
-            "9895314632",
-            "919746870222",
-            "918075435598",
+            // "919995777237",
+            // "919995223299",
+            // "919526193082",
+            // "9895314632",
+            // "919746870222",
+            // "918075435598",
             "919400350617",
             "918089759984",
             "919656329248",
@@ -258,30 +258,31 @@ class CorrectionController{
             "918921843272",
             "918089408820",
         ];
-        DB::beginTransaction();
         try{
+            DB::beginTransaction();
+            $count = 0;
+            $x = 0;
             foreach ($phones as $phone) {
                 $leads = Lead::where('phone', $phone)->orderBy('created_at', 'ASC')->get();
-
+                $doCount = false;
                 for($i = 1; $i < count($leads); $i++) {
                     if ($leads[$i]->status != 'Closed') {
                         $leads[$i]->status = 'Closed';
                         $leads[$i]->save();
-                        Remark::create([
-                            'remarkable_type' => Lead::class,
-                            'remarkable_id' => $leads[$i]->id,
-                            'remark' => "DUPLICATE LEAD - CLOSED BY SYSTEM: ** DON'T RE-OPEN **",
-                            'user_id' => $leads[$i]->assigned_to
-                        ]);
                     }
-                    // Followup::where('lead_id', $leads[$i]->id)->delete();
-                    // Appointment::where('lead_id', $leads[$i]->id)->delete();
-                    // Chat::where('lead_id', $leads[$i]->id)->delete();
-                    // $leads[$i]->delete();
+                    Remark::create([
+                        'remarkable_type' => Lead::class,
+                        'remarkable_id' => $leads[$i]->id,
+                        'remark' => "DUPLICATE LEAD DETECTED BY SYSTEM: ** DON'T RE-OPEN **",
+                        'user_id' => $leads[$i]->assigned_to
+                    ]);
+                    $x++;
+                    $doCount = true;
+                    $count++;
                 }
             }
             DB::commit();
-            return response(content: 'Dupicates removed safely');
+            return response('Dupicates removed safely - count -> leads_count: '. $count .' -> ' . $x, 200);
         } catch(Exception $e) {
             DB::rollBack();
             info('Failed to remove duplicates');
