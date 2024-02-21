@@ -5,6 +5,7 @@ use App\Models\Appointment;
 use App\Models\Chat;
 use App\Models\Followup;
 use App\Models\Lead;
+use App\Models\Remark;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -263,10 +264,20 @@ class CorrectionController{
                 $leads = Lead::where('phone', $phone)->orderBy('created_at', 'ASC')->get();
 
                 for($i = 1; $i < count($leads); $i++) {
-                    Followup::where('lead_id', $leads[$i]->id)->delete();
-                    Appointment::where('lead_id', $leads[$i]->id)->delete();
-                    Chat::where('lead_id', $leads[$i]->id)->delete();
-                    $leads[$i]->delete();
+                    if ($leads[$i]->status != 'Closed') {
+                        $leads[$i]->status = 'Closed';
+                        $leads[$i]->save();
+                        Remark::create([
+                            'remarkable_type' => Lead::class,
+                            'remarkable_id' => $leads[$i]->id,
+                            'remark' => "DUPLICATE LEAD - CLOSED BY SYSTEM: ** DON'T RE-OPEN **",
+                            'user_id' => $leads[$i]->assigned_to
+                        ]);
+                    }
+                    // Followup::where('lead_id', $leads[$i]->id)->delete();
+                    // Appointment::where('lead_id', $leads[$i]->id)->delete();
+                    // Chat::where('lead_id', $leads[$i]->id)->delete();
+                    // $leads[$i]->delete();
                 }
             }
             DB::commit();

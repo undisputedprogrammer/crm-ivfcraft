@@ -509,7 +509,23 @@
                         <p class=" text-sm font-medium ">Assigned to : <span class="" x-text = "lead.assigned != null ? lead.assigned.name : ''"></span></p>
                     </div>
                 @endif
+                <div class="mt-2.5">
+                    <p class=" text-base font-medium text-secondary">Lead remarks</p>
 
+                    <ul class=" list-disc text-sm list-outside flex flex-col space-y-2 font-normal">
+                        <template x-for="remark in lead.remarks">
+
+                            <li class=" space-x-2">
+                                <span x-text="remark.remark"></span>
+                                <span>-</span>
+                                <span x-text="formatDate(remark.created_at)"></span>
+
+                            </li>
+
+                        </template>
+                        <div x-show="lead.remarks.length == 0">--</div>
+                    </ul>
+                </div>
                 <div x-show="lead.followup_created == 1 && lead.status != 'Created'" class=" my-1">
                     <h1 class=" text-base text-secondary font-semibold" x-text="lead.status != 'Closed' && lead.status != 'Completed' ? 'Next follow-up scheduled to ' : 'Last follow-up at ' "></h1>
                         {{-- Show next followup date --}}
