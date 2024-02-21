@@ -412,12 +412,13 @@
                 qnas = $event.detail.qnas;
                 name = lead.name;
                 leads[lead.id] = lead;
-                leads[lead.id].remarks = remarks;
+                leads[lead.id].remarks = $event.detail.remarks;
                 leads[lead.id].followups = followups;
                 leads[lead.id].qnas = qnas;
             }
             else{
                 lead = leads[$event.detail.id];
+                lead.remarks = $event.detail.remarks;
                 followup_remarks = leads[$event.detail.id].followups[0].remarks;
                 followups = leads[$event.detail.id].followups;
                 name = lead.name;
