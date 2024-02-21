@@ -297,14 +297,14 @@ class LeadController extends SmartController
             // info($existing_lead);
             if ($existing_lead != null){
                 // info('lead exists');
-                if ($existing_lead->campaign != $request->campaign) {
-                    $agentId = $existing_lead->assigned_to;
-                } else {
+                // if (auth()->user()->hospital_id != 1 && $existing_lead->campaign != $request->campaign) {
+                //     $agentId = $existing_lead->assigned_to;
+                // } else {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Could not create lead !'
+                        'message' => 'Lead creation failed: Duplicate entry.'
                     ]);
-                }
+                // }
             } else {
                 // info('new lead');
                 $agentId = $agentIds[$next_assign_index];
@@ -380,7 +380,20 @@ class LeadController extends SmartController
         ]);
 
         $center = Center::find($request->center);
-
+        $lquery = Lead::where(
+                'phone',
+                PublicHelper::formatPhoneNumber($request->phone)
+            )->where('hospital_id', auth()->user()->hospital_id);
+        if (auth()->user()->hospital_id == 2) {
+            $lquery->where('campaign', $request->campaign);
+        }
+        $existing_lead = $lquery->get()->first();
+        if ($existing_lead != null) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lead creation failed: Duplicate entry.'
+            ]);
+        }
         if(!$request->source){
             return response()->json(['success'=>false, 'message' => 'Could not find source !']);
         }
