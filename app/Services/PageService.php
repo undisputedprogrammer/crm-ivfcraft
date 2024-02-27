@@ -357,9 +357,11 @@ class PageService
 
         $responsive_followups = Followup::whereHas('lead', function ($q) use ($hospital, $center) {
             return $q->forHospital($hospital->id)->forCenter($center);
-        })->join('leads', 'followups.lead_id', '=', 'leads.id')->whereDate('leads.created_at', '>=', $fromDate)->whereDate('leads.created_at', '<=', $toDate)->select('leads.assigned_to', DB::raw('COUNT(CASE WHEN followups.call_status = "Responsive" THEN 1 END) as responsive'), DB::raw('COUNT(CASE WHEN followups.call_status != "Responsive" THEN 1 END) as non_responsive'))->groupBy('leads.assigned_to')->get();
+        })->join('leads', 'followups.lead_id', '=', 'leads.id')->whereDate('leads.created_at', '>=', $fromDate)->whereDate('leads.created_at', '<=', $toDate)
+        ->where('leads.assigned_to', '<=', '17')->select('leads.assigned_to', DB::raw('COUNT(CASE WHEN followups.call_status = "Responsive" THEN 1 END) as responsive'), DB::raw('COUNT(CASE WHEN followups.call_status != "Responsive" THEN 1 END) as non_responsive'))->groupBy('leads.assigned_to')->get();
 
-        $followup_initiated_leads = Lead::forHospital($hospital->id)->forCenter($center)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->where('status', '!=', 'Created')->select('assigned_to', DB::raw('COUNT(leads.id) as count, COUNT(CASE WHEN leads.call_status = "Responsive" THEN leads.id END) as responsive_leads'))->groupBy('assigned_to')->get();
+        $followup_initiated_leads = Lead::forHospital($hospital->id)->forCenter($center)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->where('status', '!=', 'Created')
+        ->where('leads.assigned_to', '<=', '17')->select('assigned_to', DB::raw('COUNT(leads.id) as count, COUNT(CASE WHEN leads.call_status = "Responsive" THEN leads.id END) as responsive_leads'))->groupBy('assigned_to')->get();
 
         DB::statement("SET SQL_MODE='only_full_group_by'");
 
@@ -430,7 +432,9 @@ class PageService
             $agentReportQuery = Lead::forHospital($hospital)->forCenter($centerID)->where('assigned_to', auth()->user()->id);
         }
 
-        $results = $agentReportQuery->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->select('assigned_to', DB::raw('COUNT(DISTINCT leads.id) as total_leads, COUNT(CASE WHEN leads.status != "Created" THEN leads.id END) as followup_initiated_leads, COUNT(CASE WHEN leads.is_valid = true THEN leads.id END) as valid_leads, COUNT(CASE WHEN leads.is_genuine = true THEN leads.id END) as genuine_leads, COUNT(CASE WHEN leads.customer_segment = "hot" THEN leads.id END) as hot_leads, COUNT(CASE WHEN leads.customer_segment = "warm" THEN leads.id END) as warm_leads, COUNT(CASE WHEN leads.customer_segment = "cold" THEN leads.id END) as cold_leads, COUNT(CASE WHEN leads.status = "Consulted" OR leads.status = "Completed" THEN leads.id END) as consulted_leads, COUNT(CASE WHEN leads.status = "Closed" THEN leads.id END) as closed_leads, COUNT(CASE WHEN leads.call_status = "Not responsive" THEN leads.id END) as non_responsive_leads'))->groupBy('assigned_to')->get();
+        $results = $agentReportQuery->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)
+        ->where('leads.assigned_to', '<=', '17')
+        ->select('assigned_to', DB::raw('COUNT(DISTINCT leads.id) as total_leads, COUNT(CASE WHEN leads.status != "Created" THEN leads.id END) as followup_initiated_leads, COUNT(CASE WHEN leads.is_valid = true THEN leads.id END) as valid_leads, COUNT(CASE WHEN leads.is_genuine = true THEN leads.id END) as genuine_leads, COUNT(CASE WHEN leads.customer_segment = "hot" THEN leads.id END) as hot_leads, COUNT(CASE WHEN leads.customer_segment = "warm" THEN leads.id END) as warm_leads, COUNT(CASE WHEN leads.customer_segment = "cold" THEN leads.id END) as cold_leads, COUNT(CASE WHEN leads.status = "Consulted" OR leads.status = "Completed" THEN leads.id END) as consulted_leads, COUNT(CASE WHEN leads.status = "Closed" THEN leads.id END) as closed_leads, COUNT(CASE WHEN leads.call_status = "Not responsive" THEN leads.id END) as non_responsive_leads'))->groupBy('assigned_to')->get();
 
         $agentsReport = [];
         $agentsReport['Total']['total_leads'] = 0;
@@ -497,6 +501,7 @@ class PageService
 
         $results = $q->where('a.consulted_date', '>=', $fromDate)
             ->where('a.consulted_date', '<=', $toDate)
+            ->where('l.assigned_to', '<=', '17')
             ->select('l.assigned_to as assigned_to', DB::raw('COUNT(a.id) as acount'))
             ->groupBy('l.assigned_to')
             ->get();
