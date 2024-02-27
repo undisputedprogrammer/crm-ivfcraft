@@ -56,6 +56,8 @@ class PageController extends SmartController
 
         $agentsReport = $this->pageService->getAgentReport($request->from, $request->to, $request->center);
 
+        $consultedReport = $this->pageService->getTotalConsulted($request->from, $request->to, $request->center);
+
         $centers = Center::where('hospital_id', auth()->user()->hospital_id)->get()->toArray();
 
         $search = [];
@@ -70,7 +72,7 @@ class PageController extends SmartController
             $search['selectedCenter'] = $request->center;
         }
 
-        return $this->buildResponse('pages.performance', array_merge($overview, $performance, $campaignReport, $search, $sourceReport, $agentsReport, $centers));
+        return $this->buildResponse('pages.performance', array_merge($overview, $performance, $campaignReport, $search, $sourceReport, $agentsReport, $centers, $consultedReport));
     }
 
 

@@ -159,22 +159,68 @@
                         </div>
 
                     </div>
-
                     <div class=" flex flex-col space-y-5 ">
 
                         {{-- @can('is-admin') --}}
-
                         <div>
-                            <h1 class=" font-medium text-base-content lg:text-lg">Agent Analysis</h1>
+                            <h1 class=" font-medium text-base-content lg:text-lg">Total consulted count for the period</h1>
                             <div class="rounded-lg w-fit overflow-hidden border border-opacity-60 h-fit">
 
                                 <div class="overflow-x-auto">
 
                                     <table class="table">
                                       <!-- head -->
+                                        <thead>
+                                            <tr class=" bg-base-300 text-secondary">
+                                            <th>
+                                                @if (auth()->user()->hasRole('admin'))
+                                                    Agent
+                                                    @else
+                                                    Name
+                                                @endif
+                                            </th>
+                                            <th>Total Consulted</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class=" text-base-content font-medium text-sm h-fit">
+                                            @foreach ($totalConsulted as $k => $d)
+                                                @if($k != 'Total')
+                                                <tr class="bg-base-200">
+                                                    <td class="text-left">{{$agents[$k] ?? '0'}}</td>
+                                                    <td class=" text-center">
+                                                        {{-- <a href="{{route('fresh-leads',[
+                                                            'creation_date_from' => $from,
+                                                            'creation_date_to' => $to,
+                                                            'agent' => $k,
+                                                            'status' => 'all'
+                                                        ])}}" target="blank" class="text-warning hover:underline"> --}}
+                                                            {{$d}}
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                                @endif
+                                            @endforeach
+                                            <tr class="bg-base-300 font-bold">
+                                                <td>Total</td>
+                                                <td class="text-center">{{$totalConsulted['Total']}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div>
+                            <h1 class=" font-medium text-base-content lg:text-lg">Agent Analysis</h1>
+                            <div class="rounded-lg w-fit overflow-hidden border border-opacity-60 h-fit">
+                                <div class="overflow-x-auto">
+
+                                    <table class="table">
+                                      <!-- head -->
                                       <thead>
                                         <tr class=" bg-base-300 text-secondary">
-                                          <th>
+                                          <th class="w-36">
                                             @if (auth()->user()->hasRole('admin'))
                                                 Agent
                                                 @else
@@ -196,11 +242,10 @@
                                         </tr>
                                       </thead>
                                       <tbody class=" text-base-content font-medium text-sm h-fit">
-
                                         @foreach ($agentsReport as $k => $d)
-                                            @if (auth()->user()->id == $k || auth()->user()->hasRole('admin'))
+                                            @if ((auth()->user()->id == $k || auth()->user()->hasRole('admin')) && $k != 'Total')
                                                 <tr class="bg-base-200 hover:bg-base-100">
-                                                    <th class=" text-center">{{$agents[$k] ?? '0'}}</th>
+                                                    <th class="">{{$agents[$k] ?? '0'}}</th>
                                                     <td class=" text-center">
                                                         <a href="{{route('fresh-leads',[
                                                             'creation_date_from' => $from,
@@ -325,6 +370,42 @@
                                                 </tr>
                                             @endif
                                         @endforeach
+                                        <tr class="bg-base-300 font-bold">
+                                            <td>Total</td>
+                                            <td class="text-center">
+                                                {{$agentsReport['Total']['total_leads']}}
+                                            </td>
+                                            <td class="text-center">
+                                                {{$agentsReport['Total']['followup_initiated_leads']}}
+                                            </td>
+                                            <td class="text-center">
+                                                {{$agentsReport['Total']['valid_leads']}}
+                                            </td>
+                                            <td class="text-center">
+                                                {{$agentsReport['Total']['genuine_leads']}}
+                                            </td>
+                                            <td class="text-center">
+                                                {{$agentsReport['Total']['hot_leads']}}
+                                            </td>
+                                            <td class="text-center">
+                                                {{$agentsReport['Total']['warm_leads']}}
+                                            </td>
+                                            <td class="text-center">
+                                                {{$agentsReport['Total']['cold_leads']}}
+                                            </td>
+                                            <td class="text-center">
+                                                {{$agentsReport['Total']['consulted_leads']}}
+                                            </td>
+                                            <td class="text-center">
+                                                {{$agentsReport['Total']['closed_leads']}}
+                                            </td>
+                                            <td class="text-center">
+                                                {{$agentsReport['Total']['followup_initiated_leads'] - $agentsReport['Total']['non_responsive_leads']}}
+                                            </td>
+                                            <td class="text-center">
+                                                {{$agentsReport['Total']['non_responsive_leads']}}
+                                            </td>
+                                        </tr>
 
                                         @if (count($counts) < 1)
                                                 <tr>
@@ -342,7 +423,6 @@
                         <div>
                         <h1 class=" font-medium text-base-content lg:text-lg">Follow-up Analysis</h1>
                         <div class="rounded-lg w-fit overflow-hidden border border-opacity-60 h-fit">
-
                             <div class="overflow-x-auto">
 
                                 <table class="table">
@@ -369,7 +449,7 @@
                                   <tbody class=" text-base-content font-medium text-sm h-fit">
 
                                     @foreach ($counts as $k => $d)
-                                        @if (auth()->user()->id == $k || auth()->user()->hasRole('admin'))
+                                        @if ((auth()->user()->id == $k || auth()->user()->hasRole('admin')) && $k != 'Total')
                                             <tr class="bg-base-200 hover:bg-base-100">
                                                 <th class=" text-center">
                                                     {{$agents[$k] ?? '0'}}
@@ -428,7 +508,16 @@
                                             </tr>
                                         @endif
                                     @endforeach
-
+                                        <tr class="bg-base-300 font-bold">
+                                            <td>Total</td>
+                                            <td class="text-center">{{$counts['Total']['lpm']}}</td>
+                                            <td class="text-center">{{$counts['Total']['responsive_leads']}}</td>
+                                            <td class="text-center">{{$counts['Total']['followup_initiated_leads']}}</td>
+                                            <td class="text-center">{{$counts['Total']['ftm']}}</td>
+                                            <td class="text-center">{{$counts['Total']['responsive_followups']}}</td>
+                                            <td class="text-center">{{$counts['Total']['non_responsive_followups']}}</td>
+                                            <td class="text-center">{{$counts['Total']['pf']}}</td>
+                                        </tr>
                                     @if (count($counts) < 1)
                                             <tr>
                                                 <td>No data for the selected month</td>
@@ -468,6 +557,7 @@
 
 
                                     @foreach ($campaignReport as $campaign => $data)
+                                        @if($campaign != 'Total')
                                         <tr class="bg-base-200 hover:bg-base-100">
                                             <th class=" text-center">
                                                 {{$campaign == "" ? 'Direct leads' : $campaign}}
@@ -639,7 +729,21 @@
                                                 </a>
                                             </td>
                                         </tr>
+                                        @endif
                                     @endforeach
+                                        <tr class="bg-base-300 font-bold">
+                                            <td>Total</td>
+                                            <td class="text-center">{{$campaignReport['Total']['total_leads']}}</td>
+                                            <td class="text-center">{{$campaignReport['Total']['followup_initiated_leads']}}</td>
+                                            <td class="text-center">{{$campaignReport['Total']['valid_leads']}}</td>
+                                            <td class="text-center">{{$campaignReport['Total']['genuine_leads']}}</td>
+                                            <td class="text-center">{{$campaignReport['Total']['hot_leads']}}</td>
+                                            <td class="text-center">{{$campaignReport['Total']['warm_leads']}}</td>
+                                            <td class="text-center">{{$campaignReport['Total']['cold_leads']}}</td>
+                                            <td class="text-center">{{$campaignReport['Total']['leads_converted']}}</td>
+                                            <td class="text-center">{{$campaignReport['Total']['closed_leads']}}</td>
+                                            <td class="text-center">{{$campaignReport['Total']['non_responsive_leads']}}</td>
+                                        </tr>
                                     @if (count($campaignReport) < 1)
                                             <tr>
                                                 <td>No data for the selected month</td>
@@ -679,6 +783,7 @@
 
 
                                     @foreach ($sourceReport as $source => $data)
+                                        @if ($source != 'Total')
                                         <tr class="bg-base-200 hover:bg-base-100">
                                             <th class=" text-center">
                                                 {{$source}}
@@ -850,7 +955,21 @@
                                                 </a>
                                             </td>
                                         </tr>
+                                        @endif
                                     @endforeach
+                                    <tr class="bg-base-300 font-bold">
+                                        <td>Total</td>
+                                        <td class="text-center">{{$sourceReport['Total']['total_leads']}}</td>
+                                        <td class="text-center">{{$sourceReport['Total']['followup_initiated_leads']}}</td>
+                                        <td class="text-center">{{$sourceReport['Total']['valid_leads']}}</td>
+                                        <td class="text-center">{{$sourceReport['Total']['genuine_leads']}}</td>
+                                        <td class="text-center">{{$sourceReport['Total']['hot_leads']}}</td>
+                                        <td class="text-center">{{$sourceReport['Total']['warm_leads']}}</td>
+                                        <td class="text-center">{{$sourceReport['Total']['cold_leads']}}</td>
+                                        <td class="text-center">{{$sourceReport['Total']['converted_leads']}}</td>
+                                        <td class="text-center">{{$sourceReport['Total']['closed_leads']}}</td>
+                                        <td class="text-center">{{$sourceReport['Total']['non_responsive_leads']}}</td>
+                                    </tr>
                                     @if (count($sourceReport) < 1)
                                             <tr>
                                                 <td>No data for the selected month</td>

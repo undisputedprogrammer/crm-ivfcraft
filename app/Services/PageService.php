@@ -364,29 +364,45 @@ class PageService
         DB::statement("SET SQL_MODE='only_full_group_by'");
 
         $results = [];
+        $results['Total']['lpm'] = 0;
+        $results['Total']['ftm'] = 0;
+        $results['Total']['pf'] = 0;
+        $results['Total']['responsive_followups'] = 0;
+        $results['Total']['non_responsive_followups'] = 0;
+        $results['Total']['followup_initiated_leads'] = 0;
+        $results['Total']['responsive_leads'] = 0;
+
         foreach ($lpm as $l) {
             $results[$l->assigned_to]['lpm'] = $l->count;
+            $results['Total']['lpm'] += $l->count;
         }
         foreach ($ftm as $f) {
             $results[$f->assigned_to]['ftm'] = $f->count;
+            $results['Total']['ftm'] += $f->count;
         }
         foreach ($pf as $p) {
             if($center != null){
                 if(in_array($p->assigned_to, $agentIDs)){
                     $results[$p->assigned_to]['pf'] = $p->count;
+                    $results['Total']['pf'] += $p->count;
                 }
             }else{
                 $results[$p->assigned_to]['pf'] = $p->count;
+                $results['Total']['pf'] += $p->count;
             }
         }
 
         foreach ($responsive_followups as $rf) {
             $results[$rf->assigned_to]['responsive_followups'] = $rf->responsive;
             $results[$rf->assigned_to]['non_responsive_followups'] = $rf->non_responsive;
+            $results['Total']['responsive_followups'] += $rf->responsive;
+            $results['Total']['non_responsive_followups'] += $rf->non_responsive;
         }
         foreach ($followup_initiated_leads as $fil) {
             $results[$fil->assigned_to]['followup_initiated_leads'] = $fil->count;
             $results[$fil->assigned_to]['responsive_leads'] = $fil->responsive_leads;
+            $results['Total']['responsive_leads'] += $fil->responsive_leads;
+            $results['Total']['followup_initiated_leads'] += $fil->count;
         }
 
         if($center != null){
@@ -417,6 +433,17 @@ class PageService
         $results = $agentReportQuery->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->select('assigned_to', DB::raw('COUNT(DISTINCT leads.id) as total_leads, COUNT(CASE WHEN leads.status != "Created" THEN leads.id END) as followup_initiated_leads, COUNT(CASE WHEN leads.is_valid = true THEN leads.id END) as valid_leads, COUNT(CASE WHEN leads.is_genuine = true THEN leads.id END) as genuine_leads, COUNT(CASE WHEN leads.customer_segment = "hot" THEN leads.id END) as hot_leads, COUNT(CASE WHEN leads.customer_segment = "warm" THEN leads.id END) as warm_leads, COUNT(CASE WHEN leads.customer_segment = "cold" THEN leads.id END) as cold_leads, COUNT(CASE WHEN leads.status = "Consulted" OR leads.status = "Completed" THEN leads.id END) as consulted_leads, COUNT(CASE WHEN leads.status = "Closed" THEN leads.id END) as closed_leads, COUNT(CASE WHEN leads.call_status = "Not responsive" THEN leads.id END) as non_responsive_leads'))->groupBy('assigned_to')->get();
 
         $agentsReport = [];
+        $agentsReport['Total']['total_leads'] = 0;
+        $agentsReport['Total']['followup_initiated_leads'] = 0;
+        $agentsReport['Total']['valid_leads'] = 0;
+        $agentsReport['Total']['genuine_leads'] = 0;
+        $agentsReport['Total']['hot_leads'] = 0;
+        $agentsReport['Total']['warm_leads'] = 0;
+        $agentsReport['Total']['cold_leads'] = 0;
+        $agentsReport['Total']['consulted_leads'] = 0;
+        $agentsReport['Total']['closed_leads'] = 0;
+        $agentsReport['Total']['non_responsive_leads'] = 0;
+
         foreach($results as $result){
             $agentsReport[$result->assigned_to]['total_leads'] = $result->total_leads;
             $agentsReport[$result->assigned_to]['followup_initiated_leads'] = $result->followup_initiated_leads;
@@ -428,10 +455,59 @@ class PageService
             $agentsReport[$result->assigned_to]['consulted_leads'] = $result->consulted_leads;
             $agentsReport[$result->assigned_to]['closed_leads'] = $result->closed_leads;
             $agentsReport[$result->assigned_to]['non_responsive_leads'] = $result->non_responsive_leads;
+            $agentsReport['Total']['total_leads'] += $result->total_leads;
+            $agentsReport['Total']['followup_initiated_leads'] += $result->followup_initiated_leads;
+            $agentsReport['Total']['valid_leads'] += $result->valid_leads;
+            $agentsReport['Total']['genuine_leads'] += $result->genuine_leads;
+            $agentsReport['Total']['hot_leads'] += $result->hot_leads;
+            $agentsReport['Total']['warm_leads'] += $result->warm_leads;
+            $agentsReport['Total']['cold_leads'] += $result->cold_leads;
+            $agentsReport['Total']['consulted_leads'] += $result->consulted_leads;
+            $agentsReport['Total']['closed_leads'] += $result->closed_leads;
+            $agentsReport['Total']['non_responsive_leads'] += $result->non_responsive_leads;
         }
 
         return ['agentsReport' => $agentsReport];
 
+    }
+
+    public function getTotalConsulted($from, $to, $centerID = null)
+    {
+        if ($from != null && $to != null) {
+            $fromDate = Carbon::createFromFormat('Y-m-d', $from)->format('Y-m-d');
+            $toDate = Carbon::createFromFormat('Y-m-d', $to)->format('Y-m-d');
+        } else {
+            $fromDate = Carbon::today()->startOfMonth()->format('Y-m-d');
+            $toDate = Carbon::today()->format('Y-m-d');
+        }
+
+        $hospital = auth()->user()->hospital_id;
+
+        if (auth()->user()->hasRole('admin')) {
+            $q = DB::table('leads as l')
+                ->join('appointments as a', 'l.id', '=', 'a.lead_id')
+                ->where('l.hospital_id', $hospital);
+        } else {
+            $q = DB::table('leads as l')
+                ->join('appointments as a', 'l.id', '=', 'a.lead_id')
+                ->where('l.hospital_id', $hospital)
+                ->where('l.center_id', $centerID)
+                ->where('assigned_to', auth()->user()->id);
+        }
+
+        $results = $q->where('a.consulted_date', '>=', $fromDate)
+            ->where('a.consulted_date', '<=', $toDate)
+            ->select('l.assigned_to as assigned_to', DB::raw('COUNT(a.id) as acount'))
+            ->groupBy('l.assigned_to')
+            ->get();
+        $total_consulted = [
+            'Total' => 0
+        ];
+        foreach ($results as $r) {
+            $total_consulted[$r->assigned_to] = $r->acount;
+            $total_consulted['Total'] += $r->acount;
+        }
+        return ['totalConsulted' => $total_consulted];
     }
 
     public function getCampaignReport($from, $to, $centerID = null)
@@ -477,18 +553,37 @@ class PageService
         // })->whereDate('leads.created_at','>=',$fromDate)->whereDate('leads.created_at','<=',$toDate)->join('leads', 'followups.lead_id', '=', 'leads.id')->select('leads.campaign', DB::raw('COUNT(CASE WHEN followups.call_status = "Responsive" THEN 1 END) as responsive_followups'), DB::raw('COUNT(CASE WHEN followups.call_status = "Not responsive" THEN 1 END) as non_responsive_followups'))->groupBy('leads.campaign')->get();
 
         $campaingReport = [];
-
+        $campaingReport['Total']['total_leads'] = 0;
+        $campaingReport['Total']['followup_initiated_leads'] = 0;
+        $campaingReport['Total']['leads_converted'] = 0;
+        $campaingReport['Total']['hot_leads'] = 0;
+        $campaingReport['Total']['warm_leads'] = 0;
+        $campaingReport['Total']['cold_leads'] = 0;
+        $campaingReport['Total']['valid_leads'] = 0;
+        $campaingReport['Total']['genuine_leads'] = 0;
+        $campaingReport['Total']['closed_leads'] = 0;
+        $campaingReport['Total']['non_responsive_leads'] = 0;
         foreach ($total_leads as $t) {
             $campaingReport[$t->campaign]['total_leads'] = $t->total_leads;
+            $campaingReport['Total']['total_leads'] += $t->total_leads;
             $campaingReport[$t->campaign]['followup_initiated_leads'] = $t->followup_initiated_leads;
+            $campaingReport['Total']['followup_initiated_leads'] += $t->followup_initiated_leads;
             $campaingReport[$t->campaign]['leads_converted'] = $t->leads_converted;
+            $campaingReport['Total']['leads_converted'] += $t->leads_converted;
             $campaingReport[$t->campaign]['hot_leads'] = $t->hot_leads;
+            $campaingReport['Total']['hot_leads'] += $t->hot_leads;
             $campaingReport[$t->campaign]['warm_leads'] = $t->warm_leads;
+            $campaingReport['Total']['warm_leads'] += $t->warm_leads;
             $campaingReport[$t->campaign]['cold_leads'] = $t->cold_leads;
+            $campaingReport['Total']['cold_leads'] += $t->cold_leads;
             $campaingReport[$t->campaign]['valid_leads'] = $t->valid_leads;
+            $campaingReport['Total']['valid_leads'] += $t->valid_leads;
             $campaingReport[$t->campaign]['genuine_leads'] = $t->genuine_leads;
+            $campaingReport['Total']['genuine_leads'] += $t->genuine_leads;
             $campaingReport[$t->campaign]['closed_leads'] = $t->closed_leads;
+            $campaingReport['Total']['closed_leads'] += $t->closed_leads;
             $campaingReport[$t->campaign]['non_responsive_leads'] = $t->non_responsive_leads;
+            $campaingReport['Total']['non_responsive_leads'] += $t->non_responsive_leads;
         }
 
         // foreach($leads_converted as $lc){
@@ -563,7 +658,17 @@ class PageService
 
 
         $sourceReport = [];
-
+        $sourceReport['Total']['total_leads'] = 0;
+        $sourceReport['Total']['valid_leads'] = 0;
+        $sourceReport['Total']['genuine_leads'] = 0;
+        $sourceReport['Total']['hot_leads'] = 0;
+        $sourceReport['Total']['warm_leads'] = 0;
+        $sourceReport['Total']['cold_leads'] = 0;
+        $sourceReport['Total']['converted_leads'] = 0;
+        $sourceReport['Total']['closed_leads'] = 0;
+        $sourceReport['Total']['non_responsive_leads'] = 0;
+        $sourceReport['Total']['followup_initiated_leads'] = 0;
+        $sourceReport['Total']['source_id'] = 0;
         foreach ($reports as $r) {
             $sourceReport[$r->name]['total_leads'] = $r->total_leads;
             $sourceReport[$r->name]['valid_leads'] = $r->valid_leads;
@@ -576,6 +681,17 @@ class PageService
             $sourceReport[$r->name]['non_responsive_leads'] = $r->non_responsive_leads;
             $sourceReport[$r->name]['followup_initiated_leads'] = $r->followup_initiated_leads;
             $sourceReport[$r->name]['source_id'] = $r->id;
+            $sourceReport['Total']['total_leads'] += $r->total_leads;
+            $sourceReport['Total']['valid_leads'] += $r->valid_leads;
+            $sourceReport['Total']['genuine_leads'] += $r->genuine_leads;
+            $sourceReport['Total']['hot_leads'] += $r->hot_leads;
+            $sourceReport['Total']['warm_leads'] += $r->warm_leads;
+            $sourceReport['Total']['cold_leads'] += $r->cold_leads;
+            $sourceReport['Total']['converted_leads'] += $r->converted_leads;
+            $sourceReport['Total']['closed_leads'] += $r->closed_leads;
+            $sourceReport['Total']['non_responsive_leads'] += $r->non_responsive_leads;
+            $sourceReport['Total']['followup_initiated_leads'] += $r->followup_initiated_leads;
+            $sourceReport['Total']['source_id'] += $r->id;
         }
 
         return ['sourceReport' => $sourceReport];
