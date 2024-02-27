@@ -2,6 +2,7 @@
 namespace App\Helpers;
 
 use App\Models\Campaign;
+use App\Models\User;
 
 class PublicHelper{
     public static function formatPhoneNumber($phone){
@@ -25,6 +26,11 @@ class PublicHelper{
         }
 
         return true;
+    }
+
+    public static function maxAgentId()
+    {
+        return User::all()->last()->id;
     }
 }
 

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Helpers\PublicHelper;
 use App\Models\Campaign;
 use Carbon\Carbon;
 use App\Models\Lead;
@@ -335,18 +336,18 @@ class PageService
         $hospital = auth()->user()->hospital;
 
         $lpm = Lead::forHospital($hospital->id)->forCenter($center)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)
-        ->where('leads.assigned_to', '<=', '17')->select('assigned_to', DB::raw('count(leads.id) as count'))->groupBy('assigned_to')->get();
+        ->where('leads.assigned_to', '<=', PublicHelper::maxAgentId())->select('assigned_to', DB::raw('count(leads.id) as count'))->groupBy('assigned_to')->get();
 
         // $ftm = Lead::forHospital($hospital->id)->where('followup_created', true)->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
         $ftm = Lead::forHospital($hospital->id)->forCenter($center)->where('status', '<>', 'Created')->whereDate('leads.created_at', '>=', $fromDate)->whereDate('leads.created_at', '<=', $toDate)
-        ->where('leads.assigned_to', '<=', '17')->join('followups', 'leads.id', '=', 'followups.lead_id')->where('followups.actual_date', '!=', null)->select('leads.assigned_to', DB::raw('COUNT(followups.id) as count'))->groupBy('leads.assigned_to')->get();
+        ->where('leads.assigned_to', '<=', PublicHelper::maxAgentId())->join('followups', 'leads.id', '=', 'followups.lead_id')->where('followups.actual_date', '!=', null)->select('leads.assigned_to', DB::raw('COUNT(followups.id) as count'))->groupBy('leads.assigned_to')->get();
 
         $pfQuery = DB::table('followups')
         ->join('leads as l', 'l.id', '=', 'followups.lead_id')
         ->where('l.hospital_id', $hospital->id)
         ->whereDate('l.created_at', '>=', $fromDate)
         ->whereDate('l.created_at', '<=', $toDate)
-        ->where('l.assigned_to', '<=', '17')
+        ->where('l.assigned_to', '<=', PublicHelper::maxAgentId())
         ->where('followups.actual_date', null);
         if($center != null){
             $centerObj = Center::find($center);
@@ -361,10 +362,10 @@ class PageService
         $responsive_followups = Followup::whereHas('lead', function ($q) use ($hospital, $center) {
             return $q->forHospital($hospital->id)->forCenter($center);
         })->join('leads', 'followups.lead_id', '=', 'leads.id')->whereDate('leads.created_at', '>=', $fromDate)->whereDate('leads.created_at', '<=', $toDate)
-        ->where('leads.assigned_to', '<=', '17')->select('leads.assigned_to', DB::raw('COUNT(CASE WHEN followups.call_status = "Responsive" THEN 1 END) as responsive'), DB::raw('COUNT(CASE WHEN followups.call_status != "Responsive" THEN 1 END) as non_responsive'))->groupBy('leads.assigned_to')->get();
+        ->where('leads.assigned_to', '<=', PublicHelper::maxAgentId())->select('leads.assigned_to', DB::raw('COUNT(CASE WHEN followups.call_status = "Responsive" THEN 1 END) as responsive'), DB::raw('COUNT(CASE WHEN followups.call_status != "Responsive" THEN 1 END) as non_responsive'))->groupBy('leads.assigned_to')->get();
 
         $followup_initiated_leads = Lead::forHospital($hospital->id)->forCenter($center)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->where('status', '!=', 'Created')
-        ->where('leads.assigned_to', '<=', '17')->select('assigned_to', DB::raw('COUNT(leads.id) as count, COUNT(CASE WHEN leads.call_status = "Responsive" THEN leads.id END) as responsive_leads'))->groupBy('assigned_to')->get();
+        ->where('leads.assigned_to', '<=', PublicHelper::maxAgentId())->select('assigned_to', DB::raw('COUNT(leads.id) as count, COUNT(CASE WHEN leads.call_status = "Responsive" THEN leads.id END) as responsive_leads'))->groupBy('assigned_to')->get();
 
         DB::statement("SET SQL_MODE='only_full_group_by'");
 
@@ -436,7 +437,7 @@ class PageService
         }
 
         $results = $agentReportQuery->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)
-        ->where('leads.assigned_to', '<=', '17')
+        ->where('leads.assigned_to', '<=', PublicHelper::maxAgentId())
         ->select('assigned_to', DB::raw('COUNT(DISTINCT leads.id) as total_leads, COUNT(CASE WHEN leads.status != "Created" THEN leads.id END) as followup_initiated_leads, COUNT(CASE WHEN leads.is_valid = true THEN leads.id END) as valid_leads, COUNT(CASE WHEN leads.is_genuine = true THEN leads.id END) as genuine_leads, COUNT(CASE WHEN leads.customer_segment = "hot" THEN leads.id END) as hot_leads, COUNT(CASE WHEN leads.customer_segment = "warm" THEN leads.id END) as warm_leads, COUNT(CASE WHEN leads.customer_segment = "cold" THEN leads.id END) as cold_leads, COUNT(CASE WHEN leads.status = "Consulted" OR leads.status = "Completed" THEN leads.id END) as consulted_leads, COUNT(CASE WHEN leads.status = "Closed" THEN leads.id END) as closed_leads, COUNT(CASE WHEN leads.call_status = "Not responsive" THEN leads.id END) as non_responsive_leads'))->groupBy('assigned_to')->get();
 
         $agentsReport = [];
@@ -504,7 +505,7 @@ class PageService
 
         $results = $q->where('a.consulted_date', '>=', $fromDate)
             ->where('a.consulted_date', '<=', $toDate)
-            ->where('l.assigned_to', '<=', '17')
+            ->where('l.assigned_to', '<=', PublicHelper::maxAgentId())
             ->select('l.assigned_to as assigned_to', DB::raw('COUNT(a.id) as acount'))
             ->groupBy('l.assigned_to')
             ->get();
