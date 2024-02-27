@@ -286,7 +286,7 @@
                                                             'creation_date_from' => $from,
                                                             'creation_date_to' => $to,
                                                             'agent' => $k,
-                                                            'status' => 'Consulted (Inc Completed)',
+                                                            'status' => 'At Least Consulted',
                                                         ])}}" target="blank" class="text-warning hover:text-blue-600 hover:underline">{{$d['consulted_leads'] ?? '0'}}
                                                         </a>
                                                     </td>
@@ -600,7 +600,7 @@
                                                     [
                                                         'creation_date_from' => $from,
                                                         'creation_date_to' => $to,
-                                                        'status' => 'Consulted (Inc Completed)',
+                                                        'status' => 'At Least Consulted',
                                                         'campaign' => $campaign
                                                     ]
                                                 )
@@ -811,7 +811,7 @@
                                                     [
                                                         'creation_date_from' => $from,
                                                         'creation_date_to' => $to,
-                                                        'status' => 'Consulted (Inc Completed)',
+                                                        'status' => 'At Least Consulted',
                                                         'source' => $data['source_id']
                                                     ]
                                                 )
