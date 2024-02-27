@@ -22,10 +22,7 @@
     initChart();
     "
     >
-
         <div class="min-h-screen flex flex-col flex-auto flex-shrink-0 antialiased bg-base-100  text-black ">
-
-
             <x-sections.side-drawer />
             <!-- ./Header -->
 
@@ -52,7 +49,7 @@
                                 </div>
                                 <div class=" flex flex-col">
                                     <label  class=" text-primary font-medium">To :</label>
-                                    <div x-data="{date: ''}" x-init="date = '{{$from}}';" class="relative">
+                                    <div x-data="{date: ''}" x-init="date = '{{$to}}';" class="relative">
                                         <input x-model="date" type="date" name="to" required value="{{$to}}" prevent="$el.value=formatDateOnly($el.value);" class="relative input input-sm input-bordered border-primary">
                                         <div class="absolute top-0 left-0 z-30 w-4/5 bg-base-100 m-1" x-text="date.length > 0 ? formatDateOnly(date) : '_ _ _'"></div>
                                     </div>
