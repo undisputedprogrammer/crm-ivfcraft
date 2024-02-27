@@ -451,7 +451,7 @@
                                     @foreach ($counts as $k => $d)
                                         @if ((auth()->user()->id == $k || auth()->user()->hasRole('admin')) && $k != 'Total')
                                             <tr class="bg-base-200 hover:bg-base-100">
-                                                <th class=" text-center">
+                                                <th>
                                                     {{$agents[$k] ?? $k}}
                                                 </th>
 
@@ -785,7 +785,7 @@
                                     @foreach ($sourceReport as $source => $data)
                                         @if ($source != 'Total')
                                         <tr class="bg-base-200 hover:bg-base-100">
-                                            <th class=" text-center">
+                                            <th>
                                                 {{$source}}
                                             </th>
 
