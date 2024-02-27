@@ -186,7 +186,7 @@
                                             @foreach ($totalConsulted as $k => $d)
                                                 @if($k != 'Total')
                                                 <tr class="bg-base-200">
-                                                    <td class="text-left">{{$agents[$k] ?? '0'}}</td>
+                                                    <td class="text-left">{{$agents[$k] ?? $k}}</td>
                                                     <td class=" text-center">
                                                         {{-- <a href="{{route('fresh-leads',[
                                                             'creation_date_from' => $from,
@@ -245,7 +245,7 @@
                                         @foreach ($agentsReport as $k => $d)
                                             @if ((auth()->user()->id == $k || auth()->user()->hasRole('admin')) && $k != 'Total')
                                                 <tr class="bg-base-200 hover:bg-base-100">
-                                                    <th class="">{{$agents[$k] ?? '0'}}</th>
+                                                    <th class="">{{$agents[$k] ?? $k}}</th>
                                                     <td class=" text-center">
                                                         <a href="{{route('fresh-leads',[
                                                             'creation_date_from' => $from,
@@ -452,7 +452,7 @@
                                         @if ((auth()->user()->id == $k || auth()->user()->hasRole('admin')) && $k != 'Total')
                                             <tr class="bg-base-200 hover:bg-base-100">
                                                 <th class=" text-center">
-                                                    {{$agents[$k] ?? '0'}}
+                                                    {{$agents[$k] ?? $k}}
                                                 </th>
 
                                                 <td class=" text-center">
