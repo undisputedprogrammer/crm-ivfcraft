@@ -559,7 +559,7 @@
                                     @foreach ($campaignReport as $campaign => $data)
                                         @if($campaign != 'Total')
                                         <tr class="bg-base-200 hover:bg-base-100">
-                                            <th class=" text-center">
+                                            <th>
                                                 {{$campaign == "" ? 'Direct leads' : $campaign}}
                                             </th>
 
