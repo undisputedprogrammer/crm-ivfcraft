@@ -213,7 +213,7 @@
 
                 {{-- question visit within a week --}}
                 <div class="flex items-center space-x-2">
-                    <p class=" text-base font-medium">Will they visit within a week ? : </p>
+                    <p class=" text-base font-medium">Will they visit within a month?: </p>
                     <div class="dropdown">
                         <label tabindex="0" class="btn btn-sm"><span
                                 x-text="lead.q_visit == null || lead.q_visit == 'null' ? 'Not selected' : lead.q_visit "

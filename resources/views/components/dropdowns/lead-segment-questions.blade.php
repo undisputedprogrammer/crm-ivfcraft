@@ -2,7 +2,7 @@
 <div x-data="{
     visit_dropdown : document.getElementById('visit-question-dropdown')
 }" class="flex items-center space-x-2">
-    <p class=" text-sm font-medium">Visit within a week ? : </p>
+    <p class=" text-sm font-medium">Visit within a month?: </p>
     <div class="dropdown">
         <label tabindex="0" class="btn btn-sm"
         @click.prevent.stop="visit_dropdown.style.visibility ='visible' "><span x-text="lead.q_visit == null || lead.q_visit == 'null' ? 'Not selected' : lead.q_visit " class=" text-secondary"></span><x-icons.down-arrow /></label>
