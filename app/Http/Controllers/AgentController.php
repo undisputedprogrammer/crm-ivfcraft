@@ -34,7 +34,7 @@ class AgentController extends SmartController
         if($selectedCenter != null && $selectedCenter != 'all'){
             $agentsQuery->whereHas('centers', function($q) use($selectedCenter){
                 $c = Center::find($selectedCenter);
-                return $q->where('id', $c->id);
+                return $q->where('centers.id', $c->id);
             });
         }
 
