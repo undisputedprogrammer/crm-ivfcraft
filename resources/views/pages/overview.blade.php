@@ -38,7 +38,7 @@
                         class="flex flex-col space-y-2 md:space-y-0 md:flex-row  md:space-x-3 justify-evenly md:items-center ">
 
                         <div
-                            class="flex flex-col space-y-1 bg-base-200 w-full lg:w-1/5 h-16 rounded-xl justify-center items-center py-4">
+                            class="flex flex-col space-y-1 bg-base-200 w-full lg:w-1/5 h-24 rounded-xl justify-center items-center py-4">
                             <label
                                 class=" font-medium text-primary w-[90%] flex justify-between items-center">
                                 <span>Total leads this month</span>
@@ -47,11 +47,12 @@
                             {{-- <progress class="progress progress-success w-[90%] mx-auto" value="50" max="100"></progress> --}}
                         </div>
 
-                        <div class="flex flex-col space-y-1 bg-base-200 w-full lg:w-1/5 rounded-xl items-center py-4">
-                            <label  class=" font-medium text-primary w-[90%] flex justify-between">
-                                <span>Lead followed up this month</span>
-                                <span
-                                    class=" text-base font-semibold text-secondary">{{ $ftm }}/{{ $lpm }}</span>
+                        <div class="flex flex-col space-y-1 bg-base-200 w-full lg:w-1/5 h-24 rounded-xl items-center justify-center py-4">
+                            <div class="flex-grow">
+                            <label  class=" font-medium text-primary flex justify-between">
+                                <div class="w-4/5">Lead followed up this month</div>
+                                <div
+                                    class=" text-base font-semibold text-secondary">{{ $ftm }}/{{ $lpm }}</div>
                             </label>
                             @php
                                 if ($lpm != 0) {
@@ -61,14 +62,16 @@
                                 }
 
                             @endphp
-                            <progress class="progress progress-success w-[90%] mx-auto" value="{{ $perc_lf }}"
+                            <progress class="progress progress-success mx-auto" value="{{ $perc_lf }}"
                                 max="100"></progress>
+                            </div>
 
                         </div>
 
-                        <div class="flex flex-col space-y-1 bg-base-200 w-full lg:w-1/5 rounded-xl items-center py-4">
-                            <label  class=" font-medium text-primary w-[90%] flex justify-between">
-                                <span>Leads consulted this month</span>
+                        <div class="flex flex-col space-y-1 bg-base-200 w-full lg:w-1/5 h-24 rounded-xl items-center py-4">
+                            <div class="flex-grow">
+                            <label  class=" font-medium text-primary flex justify-between">
+                                <div class="w-4/5">Leads consulted this month</div>
                                 @php
                                     if ($lpm != 0) {
                                         $ctm = $lcm / $lpm;
@@ -76,16 +79,17 @@
                                         $ctm = 0;
                                     }
                                 @endphp
-                                <span
-                                    class="text-base font-semibold text-secondary">{{ $lcm }}/{{ $lpm }}</span>
+                                <div
+                                    class="text-base font-semibold text-secondary">{{ $lcm }}/{{ $lpm }}</div>
                             </label>
 
-                            <progress class="progress progress-success w-[90%] mx-auto" value="{{ $ctm * 100 }}"
+                            <progress class="progress progress-success mx-auto" value="{{ $ctm * 100 }}"
                                 max="100"></progress>
+                            </div>
                         </div>
 
                         <div
-                            class="flex flex-col space-y-1 bg-base-200 justify-center h-16 w-full lg:w-1/5 rounded-xl items-center py-4">
+                            class="flex flex-col space-y-1 bg-base-200 justify-center h-16 h-24 w-full lg:w-1/5 rounded-xl items-center py-4">
                             <label
                                 class=" font-medium text-primary w-[90%] flex justify-between items-center">
                                 <span>Total scheduled follow ups pending</span>
@@ -95,7 +99,7 @@
                         </div>
 
                         <div
-                            class="flex flex-col space-y-1 bg-base-200 justify-center h-16 w-full lg:w-1/5 rounded-xl items-center py-4">
+                            class="flex flex-col space-y-1 bg-base-200 justify-center h-16 h-24 w-full lg:w-1/5 rounded-xl items-center py-4">
                             <label
                                 class=" font-medium text-primary w-[90%] flex justify-between items-center">
                                 <span>Total consulted this month</span>
