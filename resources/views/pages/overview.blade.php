@@ -38,7 +38,7 @@
                         class="flex flex-col space-y-2 md:space-y-0 md:flex-row  md:space-x-3 justify-evenly md:items-center ">
 
                         <div
-                            class="flex flex-col space-y-1 bg-base-200 w-full lg:w-1/4 h-16 rounded-xl justify-center items-center py-4">
+                            class="flex flex-col space-y-1 bg-base-200 w-full lg:w-1/5 h-16 rounded-xl justify-center items-center py-4">
                             <label
                                 class=" font-medium text-primary w-[90%] flex justify-between items-center">
                                 <span>Total leads this month</span>
@@ -47,7 +47,7 @@
                             {{-- <progress class="progress progress-success w-[90%] mx-auto" value="50" max="100"></progress> --}}
                         </div>
 
-                        <div class="flex flex-col space-y-1 bg-base-200 w-full lg:w-1/4 rounded-xl items-center py-4">
+                        <div class="flex flex-col space-y-1 bg-base-200 w-full lg:w-1/5 rounded-xl items-center py-4">
                             <label  class=" font-medium text-primary w-[90%] flex justify-between">
                                 <span>Lead followed up this month</span>
                                 <span
@@ -66,7 +66,7 @@
 
                         </div>
 
-                        <div class="flex flex-col space-y-1 bg-base-200 w-full lg:w-1/4 rounded-xl items-center py-4">
+                        <div class="flex flex-col space-y-1 bg-base-200 w-full lg:w-1/5 rounded-xl items-center py-4">
                             <label  class=" font-medium text-primary w-[90%] flex justify-between">
                                 <span>Leads consulted this month</span>
                                 @php
@@ -85,11 +85,21 @@
                         </div>
 
                         <div
-                            class="flex flex-col space-y-1 bg-base-200 justify-center h-16 w-full lg:w-1/4 rounded-xl items-center py-4">
+                            class="flex flex-col space-y-1 bg-base-200 justify-center h-16 w-full lg:w-1/5 rounded-xl items-center py-4">
                             <label
                                 class=" font-medium text-primary w-[90%] flex justify-between items-center">
                                 <span>Total scheduled follow ups pending</span>
                                 <span class="text-lg font-semibold text-secondary">{{ $pf }}</span>
+                            </label>
+
+                        </div>
+
+                        <div
+                            class="flex flex-col space-y-1 bg-base-200 justify-center h-16 w-full lg:w-1/5 rounded-xl items-center py-4">
+                            <label
+                                class=" font-medium text-primary w-[90%] flex justify-between items-center">
+                                <span>Total consulted this month</span>
+                                <span class="text-lg font-semibold text-secondary">{{ $totCons }}</span>
                             </label>
 
                         </div>

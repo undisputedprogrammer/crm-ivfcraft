@@ -229,6 +229,18 @@ class PageService
             $pf = Followup::whereHas('lead', function ($query) use ($hospital) {
                 $query->where('hospital_id', $hospital->id);
             })->where('actual_date', null)->count();
+
+            // dd($hospital);
+            $fromDate = (Carbon::now())->startOfMonth()->format('Y-m-d');
+            $toDate = (Carbon::now())->format('Y-m-d');
+            $totCons = DB::table('leads as l')
+            ->join('appointments as a', 'l.id', '=', 'a.lead_id')
+            ->where('l.hospital_id', $hospital->id)
+            ->where('a.consulted_date', '>=', $fromDate)
+            ->where('a.consulted_date', '<=', $toDate)
+            ->count();
+            // ->select(DB::raw('COUNT(l.id)'))->get()->first();
+            // dd($totCons);
         } else {
             $lpm = Lead::forAgent($authUser->id)->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
 
@@ -247,13 +259,23 @@ class PageService
             $pf = Followup::whereHas('lead', function ($query) use ($authUser) {
                 $query->where('assigned_to', $authUser->id);
             })->where('actual_date', null)->count();
+
+            $fromDate = (Carbon::now())->startOfMonth();
+            $toDate = (Carbon::now())->endOfMonth();
+            $totCons = DB::table('leads as l')
+            ->join('appointments as a', 'l.id', '=', 'a.lead_id')
+            ->where('l.hospital_id', $hospital->id)
+            ->where('assigned_to', auth()->user()->id)
+            ->where('a.consulted_date', '>=', $fromDate)
+            ->where('a.consulted_date', '<=', $toDate)
+            ->count();
         }
         $journal = Journal::where('user_id', auth()->user()->id)->where('date', $date)->get()->first();
         // $process_chart_data = $this->getProcessChartData($currentMonth);
         $process_chart_data = json_encode($this->getProcessChartData());
         $valid_chart_data = json_encode($this->getValidChartData());
         $genuine_chart_data = json_encode($this->getGenuineChartData());
-        return compact('lpm', 'ftm', 'lcm', 'pf', 'hospitals', 'centers', 'journal', 'process_chart_data', 'valid_chart_data', 'genuine_chart_data', 'campaigns');
+        return compact('lpm', 'ftm', 'lcm', 'pf', 'totCons', 'hospitals', 'centers', 'journal', 'process_chart_data', 'valid_chart_data', 'genuine_chart_data', 'campaigns');
     }
 
     public function getPerformaceOverview($from = null, $to = null, $center = null)
