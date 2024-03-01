@@ -520,8 +520,8 @@ class PageService
             $q = DB::table('leads as l')
                 ->join('appointments as a', 'l.id', '=', 'a.lead_id')
                 ->where('l.hospital_id', $hospital);
-            if ($centerID != null) {
-                $q->where('l.center_id', $centerID);
+            if (isset($centerID)) {
+              $q = $q->where('l.center_id', $centerID);
             }
         } else {
             $q = DB::table('leads as l')
