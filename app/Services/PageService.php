@@ -514,7 +514,7 @@ class PageService
         $hospital = auth()->user()->hospital_id;
 
         $agentsList = auth()->user()->hospital->agents();
-        dd($agentsList);
+        // dd($agentsList);
 
         if (auth()->user()->hasRole('admin')) {
             $q = DB::table('leads as l')
