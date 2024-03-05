@@ -359,12 +359,21 @@ class LeadController extends SmartController
 
     public function createFollowup($lead, $followup_date = null)
     {
-        $followup = Followup::create([
-            'lead_id' => $lead->id,
-            'followup_count' => 1,
-            'scheduled_date' => $followup_date != null ? Carbon::createFromFormat('Y-m-d', $followup_date) : Carbon::today(),
-            'user_id' => $lead->assigned_to
-        ]);
+        $pendingFolloup = DB::table('leads as l')
+            ->join('followups as f', 'l.id', '=', 'f.lead_id')
+            ->where('l.id', $lead->id)
+            ->where('f.actual_date', null)
+            ->get()->first();
+        if (!isset($pendingFolloup)) {
+            $followup = Followup::create([
+                'lead_id' => $lead->id,
+                'followup_count' => 1,
+                'scheduled_date' => $followup_date != null ? Carbon::createFromFormat('Y-m-d', $followup_date) : Carbon::today(),
+                'user_id' => $lead->assigned_to
+            ]);
+        } else {
+            $followup = $pendingFolloup;
+        }
 
         return $followup;
     }

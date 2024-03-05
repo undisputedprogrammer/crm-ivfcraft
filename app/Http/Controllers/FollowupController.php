@@ -9,6 +9,7 @@ use App\Models\Remark;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Ynotz\SmartPages\Http\Controllers\SmartController;
 
 class FollowupController extends SmartController
@@ -29,17 +30,24 @@ class FollowupController extends SmartController
         $current_followup->user_id = Auth::user()->id;
         $current_followup->call_status = $request->call_status;
         $current_followup->save();
-
-        $followup = Followup::create([
-            'lead_id' => $request->lead_id,
-            'followup_count' => $current_followup->followup_count + 1,
-            'scheduled_date' => $current_followup->next_followup_date,
-            'user_id' => $request->user()->id
-        ]);
-
+        $pendingFolloup = DB::table('leads as l')
+            ->join('followups as f', 'l.id', '=', 'f.lead_id')
+            ->where('l.id', $lead->id)
+            ->where('f.actual_date', null)
+            ->get()->first();
+        if (!isset($pendingFolloup)) {
+            $followup = Followup::create([
+                'lead_id' => $request->lead_id,
+                'followup_count' => $current_followup->followup_count + 1,
+                'scheduled_date' => $current_followup->next_followup_date,
+                'user_id' => $request->user()->id
+            ]);
+        } else {
+            $followup = $pendingFolloup;
+        }
+        $lead->followup_created_at = Carbon::now();
         $lead->followup_created = true;
         $lead->status = "Follow-up Started";
-        $lead->followup_created_at = Carbon::now();
 
         if($lead->call_status != "Responsive"){
             $lead->call_status = $request->call_status;
@@ -76,14 +84,23 @@ class FollowupController extends SmartController
 
         $followup->refresh();
 
-        $next_followup = Followup::create([
-            'lead_id' => $request->lead_id,
-            'followup_count' => $followup->followup_count + 1,
-            'scheduled_date' => $followup->next_followup_date,
-            'converted' => $followup->converted,
-            'consulted' => $followup->consulted,
-            'user_id' => $request->user()->id
-        ]);
+        $pendingFolloup = DB::table('leads as l')
+            ->join('followups as f', 'l.id', '=', 'f.lead_id')
+            ->where('l.id', $request->lead_id)
+            ->where('f.actual_date', null)
+            ->get()->first();
+        if (!isset($pendingFolloup)) {
+            $next_followup = Followup::create([
+                'lead_id' => $request->lead_id,
+                'followup_count' => $followup->followup_count + 1,
+                'scheduled_date' => $followup->next_followup_date,
+                'converted' => $followup->converted,
+                'consulted' => $followup->consulted,
+                'user_id' => $request->user()->id
+            ]);
+        } else {
+            $next_followup = $pendingFolloup;
+        }
 
         $lead = Lead::find($request->lead_id);
         if($lead->call_status != "Responsive"){

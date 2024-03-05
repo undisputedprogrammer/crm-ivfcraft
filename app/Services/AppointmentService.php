@@ -9,6 +9,7 @@ use App\Models\Remark;
 use App\Models\Followup;
 use App\Models\Appointment;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Ynotz\EasyAdmin\Traits\IsModelViewConnector;
 use Ynotz\EasyAdmin\Contracts\ModelViewConnector;
@@ -77,14 +78,22 @@ class AppointmentService implements ModelViewConnector
             'remark' => 'Appointment fixed on ' . Carbon::createFromFormat('Y-m-d', $request->appointment_date)->format('d M Y'),
             'user_id' => Auth::user()->id,
         ]);
-
-        $next_followup = Followup::create([
-            'lead_id' => $request->lead_id,
-            'followup_count' => $followup->followup_count + 1,
-            'scheduled_date' => $followup->next_followup_date,
-            'converted' => true,
-            'user_id' => Auth::user()->id
-        ]);
+        $pendingFolloup = DB::table('leads as l')
+            ->join('followups as f', 'l.id', '=', 'f.lead_id')
+            ->where('l.id', $request->lead_id)
+            ->where('f.actual_date', null)
+            ->get()->first();
+        if (!isset($pendingFolloup)) {
+            $next_followup = Followup::create([
+                'lead_id' => $request->lead_id,
+                'followup_count' => $followup->followup_count + 1,
+                'scheduled_date' => $followup->next_followup_date,
+                'converted' => true,
+                'user_id' => Auth::user()->id
+            ]);
+        } else {
+            $next_followup = $pendingFolloup;
+        }
 
         return ['success' => true, 'message' => 'Appointment created', 'converted' => true, 'followup' => $followup, 'lead' => $lead, 'appointment' => $appointment, 'next_followup' => $next_followup];
     }
@@ -117,15 +126,23 @@ class AppointmentService implements ModelViewConnector
         $appointment = Appointment::find($lead->appointment->id);
         $appointment->consulted_date = Carbon::now();
         $appointment->save();
-
-        $next_followup = Followup::create([
-            'lead_id' => $lead_id,
-            'followup_count' => $followup->followup_count + 1,
-            'scheduled_date' => $followup->next_followup_date,
-            'converted' => true,
-            'consulted' => true,
-            'user_id' => Auth::user()->id
-        ]);
+        $pendingFolloup = DB::table('leads as l')
+            ->join('followups as f', 'l.id', '=', 'f.lead_id')
+            ->where('l.id', $lead->id)
+            ->where('f.actual_date', null)
+            ->get()->first();
+        if (!isset($pendingFolloup)){
+            $next_followup = Followup::create([
+                'lead_id' => $lead_id,
+                'followup_count' => $followup->followup_count + 1,
+                'scheduled_date' => $followup->next_followup_date,
+                'converted' => true,
+                'consulted' => true,
+                'user_id' => Auth::user()->id
+            ]);
+        } else {
+            $next_followup = $pendingFolloup;
+        }
 
         return ['success' => true, 'lead' => $lead, 'followup' => $followup, 'appointment' => $appointment, 'next_followup' => $next_followup, 'message' => 'Consult is marked'];
     }
@@ -177,13 +194,22 @@ class AppointmentService implements ModelViewConnector
             $followup->save();
             $followup->refresh();
 
-            $next_followup = Followup::create([
-                'lead_id' => $request->lead_id,
-                'followup_count' => $followup->followup_count + 1,
-                'scheduled_date' => $followup_date,
-                'converted' => true,
-                'user_id' => Auth::user()->id
-            ]);
+            $pendingFolloup = DB::table('leads as l')
+            ->join('followups as f', 'l.id', '=', 'f.lead_id')
+            ->where('l.id', $request->lead_id)
+            ->where('f.actual_date', null)
+            ->get()->first();
+            if(!isset($pendingFolloup)) {
+                $next_followup = Followup::create([
+                    'lead_id' => $request->lead_id,
+                    'followup_count' => $followup->followup_count + 1,
+                    'scheduled_date' => $followup_date,
+                    'converted' => true,
+                    'user_id' => Auth::user()->id
+                ]);
+            } else {
+                $next_followup = $pendingFolloup;
+            }
         }
 
         return ['success' => true, 'message' => 'Appointment Rescheduled', 'followup' => $followup, 'next_followup' => $next_followup, 'appointment' => $appointment];

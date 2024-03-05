@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Services\InternalChatService;
 use App\Services\PageService;
 use Illuminate\Http\Client\ResponseSequence;
+use Illuminate\Support\Facades\DB;
 use Ynotz\SmartPages\Http\Controllers\SmartController;
 
 class WhatsAppApiController extends SmartController
@@ -243,14 +244,19 @@ class WhatsAppApiController extends SmartController
                 ]);
                 $center->last_assigned = $agentIds[$next_assign_index];
                 $center->save();
-
-                Followup::create([
-                    'lead_id' => $lead->id,
-                    'followup_count' => 1,
-                    'scheduled_date' => Carbon::today(),
-                    'user_id' => $lead->assigned_to
-                ]);
-
+                $pendingFolloup = DB::table('leads as l')
+                    ->join('followups as f', 'l.id', '=', 'f.lead_id')
+                    ->where('l.id', $lead->id)
+                    ->where('f.actual_date', null)
+                    ->get()->first();
+                if (!isset($pendingFolloup)) {
+                    Followup::create([
+                        'lead_id' => $lead->id,
+                        'followup_count' => 1,
+                        'scheduled_date' => Carbon::today(),
+                        'user_id' => $lead->assigned_to
+                    ]);
+                }
                 $lead->followup_created = true;
                 $lead->save();
                 $leads = [$lead];

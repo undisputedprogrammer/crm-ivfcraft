@@ -13,6 +13,7 @@ use App\Models\Source;
 use App\Services\PageService;
 use Carbon\Carbon;
 use Hamcrest\Type\IsNumeric;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\ToArray;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -136,12 +137,19 @@ class LeadsImport implements ToArray, WithHeadingRow
     }
 
     public function createFollowup($lead){
-        Followup::create([
-            'lead_id' => $lead->id,
-            'followup_count' => 1,
-            'scheduled_date' => Carbon::today(),
-            'user_id' => $lead->assigned_to
-        ]);
+        $pendingFolloup = DB::table('leads as l')
+            ->join('followups as f', 'l.id', '=', 'f.lead_id')
+            ->where('l.id', $lead->id)
+            ->where('f.actual_date', null)
+            ->get()->first();
+        if (!isset($pendingFolloup)) {
+            Followup::create([
+                'lead_id' => $lead->id,
+                'followup_count' => 1,
+                'scheduled_date' => Carbon::today(),
+                'user_id' => $lead->assigned_to
+            ]);
+        }
 
         $lead->followup_created = true;
         $lead->save();
