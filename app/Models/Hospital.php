@@ -41,6 +41,14 @@ class Hospital extends Model
         return $this->hasMany(User::class, 'hospital_id','id');
     }
 
+    public function doctors()
+    {
+        return $this->hasManyThrough(
+            Doctor::class,
+            Center::class,
+        );
+    }
+
     public function agents()
     {
         $arr = [];

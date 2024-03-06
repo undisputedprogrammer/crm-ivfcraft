@@ -147,7 +147,8 @@ class PageService
 
         // dd($leadsQuery->toSql(), $user->hospital_id, $call_status, $status);
         $leads = $leadsQuery->paginate(30);
-        $doctors = Doctor::all();
+        $hospital = Hospital::find(auth()->user()->hospital_id);
+        $doctors = $hospital->doctors;
         $messageTemplates = Message::all();
         $centers = Center::where('hospital_id', $user->hospital_id)->get();
         $agents = User::where('hospital_id', auth()->user()->hospital_id)->whereHas('roles', function ($q) {
@@ -167,7 +168,8 @@ class PageService
     public function returnLeads($user, $selectedLeads, $selectedCenter, $leadsQuery, $status, $creation_date, $processed)
     {
         $leads = $leadsQuery->paginate(30);
-        $doctors = Doctor::all();
+        $hospital = Hospital::find(auth()->user()->hospital_id);
+        $doctors = $hospital->doctors;
         $messageTemplates = Message::all();
         $centers = Center::where('hospital_id', $user->hospital_id)->get();
         $agents = User::where('hospital_id', auth()->user()->hospital_id)->whereHas('roles', function ($q) {
@@ -929,7 +931,8 @@ class PageService
         }
 
         $followups = $followupsQuery->paginate(30);
-        $doctors = Doctor::all();
+        $hospital = Hospital::find(auth()->user()->hospital_id);
+        $doctors = $hospital->doctors;
         $messageTemplates = Message::all();
         $centers = Center::where('hospital_id', $user->hospital_id)->get();
         $agents = User::where('hospital_id', auth()->user()->hospital_id)->whereHas('roles', function ($q) {
@@ -953,7 +956,8 @@ class PageService
             }, 'remarks', 'source', 'assigned']);
         }, 'remarks'])->latest()->get()->first();
 
-        $doctors = Doctor::all();
+        $hospital = Hospital::find(auth()->user()->hospital_id);
+        $doctors = $hospital->doctors;
         $messageTemplates = Message::all();
         $centers = Center::where('hospital_id', $user->hospital_id)->get();
 

@@ -98,9 +98,9 @@
                                 <select class="select select-bordered w-full lg:w-72 bg-base-200 text-base-content" name="doctor" id="fp-select-doctor">
                                     <option disabled>Choose Doctor</option>
                                     @foreach ($doctors as $doctor)
-                                    <template x-if="lead.center_id == '{{$doctor->center_id}}' ">
+                                    {{-- <template x-if="lead.center_id == '{{$doctor->center_id}}' "> --}}
                                             <option value="{{$doctor->id}}">{{$doctor->name}}</option>
-                                    </template>
+                                    {{-- </template> --}}
                                     @endforeach
 
                                 </select>
