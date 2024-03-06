@@ -33,7 +33,7 @@ class Campaign extends Model
     {
         return Attribute::make(
             get: function ($val) {
-                return json_decode($val);
+                return $val != null ? json_decode($val) : [];
             }
         );
     }

@@ -24,7 +24,8 @@ class LeadsImport implements ToArray, WithHeadingRow
 {
     private $campaign;
     private $agents = [];
-    private $x = 0;
+    // private $x = null;
+    private $nextAgentIndex = 0;
     private $hospital = null;
     private $center = null;
     private $headings = [];
@@ -40,9 +41,15 @@ class LeadsImport implements ToArray, WithHeadingRow
         $this->mainCols = $hospital->main_cols;
         $this->agents = $agents ?? $center->agents();
         if (count($this->agents) > 1) {
-            $this->x = random_int(0, count($this->agents) - 1);
+            $last_lead = Lead::where('hospital_id', $hospital->id)->get()->last();
+
+            if ($last_lead != null) {
+                $this->nextAgentIndex = $this->getNextAgent($last_lead->assigned_to);
+            } else {
+                $this->nextAgentIndex = 0;
+            }
         } else {
-            $this->x = 0;
+            $this->nextAgentIndex = 0;
         }
     }
     /**
@@ -53,8 +60,8 @@ class LeadsImport implements ToArray, WithHeadingRow
 
     public function array(array $rows)
     {
-        info('showing headings');
-        info($this->headings);
+        //info('showing headings');
+        //info($this->headings);
         // $row = $row[0];
         foreach ($rows as $row) {
             if($row[$this->mainCols->name] == null || $row[$this->mainCols->phone] == null){
@@ -73,7 +80,7 @@ class LeadsImport implements ToArray, WithHeadingRow
                 $agentId = $existing_lead->id;
                 continue;
             } else {
-                $agentId = $this->agents[$this->x]->id;
+                $agentId = $this->agents[$this->nextAgentIndex]->id;
             }
 
             /*** */
@@ -92,7 +99,7 @@ class LeadsImport implements ToArray, WithHeadingRow
             /*** */
             $source = PageService::getSource('FB', 'Facebook');
 
-            info("going to create lead");
+            //info("going to create lead");
             $lead = Lead::create([
                 'name' => $row[$this->mainCols->name],
                 'phone' => PublicHelper::formatPhoneNumber($row[$this->mainCols->phone]),
@@ -112,14 +119,14 @@ class LeadsImport implements ToArray, WithHeadingRow
                 'created_by' => auth()->user()->id,
                 'source_id' => $source->id
             ]);
-            info("lead created");
+            //info("lead created, assigned_to: ".$agentId);
             $this->createFollowup($lead);
 
             // $this->checkAndStoreCampaign($lead->campaign);
 
-            $this->x++;
-            if ($this->x == count($this->agents)) {
-                $this->x = 0;
+            $this->nextAgentIndex++;
+            if ($this->nextAgentIndex == count($this->agents)) {
+                $this->nextAgentIndex = 0;
             }
 
             // foreach ($this->getQuestionHeaders() as $qh) {
@@ -188,5 +195,20 @@ class LeadsImport implements ToArray, WithHeadingRow
     public function getTotalCount(): int
     {
         return $this->totalCount;
+    }
+
+    private function getNextAgent($lastAssigned)
+    {
+        //info("Beginning Last assigned id: $lastAssigned");
+        $x = 0;
+        for($i = 0; $i < count($this->agents); $i++) {
+            if (($this->agents[$i])->id == $lastAssigned) {
+                $x = $i + 1;
+                break;
+            }
+        }
+        $x = $x < count($this->agents) ? $x : 0;
+        //info("Beginning start agent id: $x");
+        return $x;
     }
 }
