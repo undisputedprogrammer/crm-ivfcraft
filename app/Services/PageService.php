@@ -513,7 +513,7 @@ class PageService
             $toDate = Carbon::createFromFormat('Y-m-d', $to)->format('Y-m-d');
         } else {
             $fromDate = Carbon::today()->startOfMonth()->format('Y-m-d');
-            $toDate = Carbon::today()->format('Y-m-d');
+            $toDate = Carbon::today()->endOfDay()->format('Y-m-d');
         }
 
         $hospital = auth()->user()->hospital_id;
