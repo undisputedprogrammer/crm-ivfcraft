@@ -25,7 +25,7 @@ class LeadsImport implements ToArray, WithHeadingRow
     private $campaign;
     private $agents = [];
     // private $x = null;
-    private $nextAgentIndex = 0;
+    private $currentAgentId = 0;
     private $hospital = null;
     private $center = null;
     private $headings = [];
@@ -40,16 +40,13 @@ class LeadsImport implements ToArray, WithHeadingRow
         $this->center = $center;
         $this->mainCols = $hospital->main_cols;
         $this->agents = $agents ?? $center->agents();
-        if (count($this->agents) > 1) {
-            $last_lead = Lead::where('hospital_id', $hospital->id)->get()->last();
 
-            if ($last_lead != null) {
-                $this->nextAgentIndex = $this->getNextAgent($last_lead->assigned_to);
-            } else {
-                $this->nextAgentIndex = 0;
-            }
+        $last_lead = Lead::where('hospital_id', $hospital->id)->get()->last();
+
+        if ($last_lead != null) {
+            $this->currentAgentId = $this->getNextAgentId($last_lead->assigned_to);
         } else {
-            $this->nextAgentIndex = 0;
+            $this->currentAgentId = 0;
         }
     }
     /**
@@ -80,7 +77,7 @@ class LeadsImport implements ToArray, WithHeadingRow
                 $agentId = $existing_lead->id;
                 continue;
             } else {
-                $agentId = $this->agents[$this->nextAgentIndex]->id;
+                $agentId = $this->currentAgentId;
             }
 
             /*** */
@@ -124,10 +121,7 @@ class LeadsImport implements ToArray, WithHeadingRow
 
             // $this->checkAndStoreCampaign($lead->campaign);
 
-            $this->nextAgentIndex++;
-            if ($this->nextAgentIndex == count($this->agents)) {
-                $this->nextAgentIndex = 0;
-            }
+            $this->currentAgentId = $this->getNextAgentId($this->currentAgentId);
 
             // foreach ($this->getQuestionHeaders() as $qh) {
             //     $q = Question::where('question_code', $qh)->get()->first();
@@ -197,9 +191,9 @@ class LeadsImport implements ToArray, WithHeadingRow
         return $this->totalCount;
     }
 
-    private function getNextAgent($lastAssigned)
+    private function getNextAgentId($lastAssigned)
     {
-        //info("Beginning Last assigned id: $lastAssigned");
+        /*
         $x = 0;
         for($i = 0; $i < count($this->agents); $i++) {
             if (($this->agents[$i])->id == $lastAssigned) {
@@ -208,7 +202,19 @@ class LeadsImport implements ToArray, WithHeadingRow
             }
         }
         $x = $x < count($this->agents) ? $x : 0;
-        //info("Beginning start agent id: $x");
+
+        return $x;
+        */
+        $x = 0;
+        $agentIds = $this->agents->pluck('id')->toArray();
+        sort($agentIds, SORT_NUMERIC);
+        for($i = 0; $i < count($agentIds); $i++) {
+            if ($agentIds[$i] == $lastAssigned) {
+                $index = $i + 1 < count($agentIds) ? $i + 1 : 0;
+                $x = $agentIds[$index];
+                break;
+            }
+        }
         return $x;
     }
 }
