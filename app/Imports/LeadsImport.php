@@ -211,10 +211,11 @@ class LeadsImport implements ToArray, WithHeadingRow
         for($i = 0; $i < count($agentIds); $i++) {
             if ($agentIds[$i] == $lastAssigned) {
                 $index = $i + 1 < count($agentIds) ? $i + 1 : 0;
-                $x = $agentIds[$index];
+                $x = $index;
                 break;
             }
         }
-        return $x;
+
+        return $agentIds[$x];
     }
 }
