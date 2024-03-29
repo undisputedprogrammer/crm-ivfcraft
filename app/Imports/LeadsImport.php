@@ -46,7 +46,9 @@ class LeadsImport implements ToArray, WithHeadingRow
         if ($last_lead != null) {
             $this->currentAgentId = $this->getNextAgentId($last_lead->assigned_to);
         } else {
-            $this->currentAgentId = 0;
+            $agentIds = $this->agents->pluck('id')->toArray();
+            sort($agentIds, SORT_NUMERIC);
+            $this->currentAgentId = $agentIds[0];
         }
     }
     /**
@@ -210,7 +212,7 @@ class LeadsImport implements ToArray, WithHeadingRow
         sort($agentIds, SORT_NUMERIC);
         for($i = 0; $i < count($agentIds); $i++) {
             if ($agentIds[$i] == $lastAssigned) {
-                $index = $i + 1 < count($agentIds) ? $i + 1 : 0;
+                $index = ($i + 1) < count($agentIds) ? $i + 1 : 0;
                 $x = $index;
                 break;
             }
