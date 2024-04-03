@@ -284,10 +284,10 @@ class PageService
     {
         if ($from != null && $to != null) {
             $fromDate = Carbon::createFromFormat('Y-m-d', $from)->format('Y-m-d');
-            $toDate = Carbon::createFromFormat('Y-m-d', $to)->format('Y-m-d');
+            $toDate = Carbon::createFromFormat('Y-m-d', $to)->addDay()->startOfDay()->format('Y-m-d');
         } else {
             $fromDate = Carbon::today()->startOfMonth()->format('Y-m-d');
-            $toDate = Carbon::today()->format('Y-m-d');
+            $toDate = Carbon::today()->addDay()->startOfDay()->format('Y-m-d');
         }
 
         $hospital = auth()->user()->hospital;
@@ -299,8 +299,8 @@ class PageService
 
         if ($authUser->hasRole('admin')) {
 
-            $lpmQuery = Lead::forHospital($hospital->id)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate);
-            $ftmQuery = Lead::forHospital($hospital->id)->where('status', '<>', 'Created')->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate);
+            $lpmQuery = Lead::forHospital($hospital->id)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<', $toDate);
+            $ftmQuery = Lead::forHospital($hospital->id)->where('status', '<>', 'Created')->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<', $toDate);
             $lcmQuery = Lead::forHospital($hospital->id)->whereIn('status', [
                 'Consulted',
                 'Continuing Medication',
@@ -308,7 +308,7 @@ class PageService
                 'Undecided On Medication',
                 'Procedure Scheduled',
                 'Completed',
-                ])->whereDate('created_at', '>=', $fromDate)->whereYear('created_at', '<=', $toDate);
+                ])->whereDate('created_at', '>=', $fromDate)->whereYear('created_at', '<', $toDate);
 
             if($center != null){
                 $lpmQuery->where('center_id', $center);
@@ -325,11 +325,11 @@ class PageService
                 $query->where('hospital_id', $hospital->id)->forCenter($center);
             })->where('actual_date', null)->count();
         } else {
-            $lpm = Lead::forAgent($authUser->id)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->count();
+            $lpm = Lead::forAgent($authUser->id)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<', $toDate)->count();
 
-            $ftm = Lead::forAgent($authUser->id)->where('status', '<>', 'Created')->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->count();
+            $ftm = Lead::forAgent($authUser->id)->where('status', '<>', 'Created')->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<', $toDate)->count();
 
-            $lcm = Lead::forAgent($authUser->id)->where('status', 'Consulted')->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate)->count();
+            $lcm = Lead::forAgent($authUser->id)->where('status', 'Consulted')->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<', $toDate)->count();
 
 
             $pf = Followup::whereHas('lead', function ($query) use ($authUser) {
@@ -348,10 +348,10 @@ class PageService
     {
         if ($from != null && $to != null) {
             $fromDate = Carbon::createFromFormat('Y-m-d', $from)->format('Y-m-d');
-            $toDate = Carbon::createFromFormat('Y-m-d', $to)->format('Y-m-d');
+            $toDate = Carbon::createFromFormat('Y-m-d', $to)->endOfDay()->format('Y-m-d');
         } else {
             $fromDate = Carbon::today()->startOfMonth()->format('Y-m-d');
-            $toDate = Carbon::today()->format('Y-m-d');
+            $toDate = Carbon::today()->endOfDay()->format('Y-m-d');
         }
 
 
@@ -449,10 +449,10 @@ class PageService
     public function getAgentReport($from, $to, $centerID = null){
         if ($from != null && $to != null) {
             $fromDate = Carbon::createFromFormat('Y-m-d', $from)->format('Y-m-d');
-            $toDate = Carbon::createFromFormat('Y-m-d', $to)->format('Y-m-d');
+            $toDate = Carbon::createFromFormat('Y-m-d', $to)->endOfDay()->format('Y-m-d');
         } else {
             $fromDate = Carbon::today()->startOfMonth()->format('Y-m-d');
-            $toDate = Carbon::today()->format('Y-m-d');
+            $toDate = Carbon::today()->endOfDay()->format('Y-m-d');
         }
 
         $hospital = auth()->user()->hospital_id;
@@ -510,7 +510,7 @@ class PageService
     {
         if ($from != null && $to != null) {
             $fromDate = Carbon::createFromFormat('Y-m-d', $from)->format('Y-m-d');
-            $toDate = Carbon::createFromFormat('Y-m-d', $to)->format('Y-m-d');
+            $toDate = Carbon::createFromFormat('Y-m-d', $to)->endOfDay()->format('Y-m-d');
         } else {
             $fromDate = Carbon::today()->startOfMonth()->format('Y-m-d');
             $toDate = Carbon::today()->endOfDay()->format('Y-m-d');
@@ -556,10 +556,10 @@ class PageService
     {
         if ($from != null && $to != null) {
             $fromDate = Carbon::createFromFormat('Y-m-d', $from)->format('Y-m-d');
-            $toDate = Carbon::createFromFormat('Y-m-d', $to)->format('Y-m-d');
+            $toDate = Carbon::createFromFormat('Y-m-d', $to)->endOfDay()->format('Y-m-d');
         } else {
             $fromDate = Carbon::today()->startOfMonth()->format('Y-m-d');
-            $toDate = Carbon::today()->format('Y-m-d');
+            $toDate = Carbon::today()->endOfDay()->format('Y-m-d');
         }
 
         $hospital = auth()->user()->hospital_id;
@@ -668,10 +668,10 @@ class PageService
 
         if ($from != null && $to != null) {
             $fromDate = Carbon::createFromFormat('Y-m-d', $from)->format('Y-m-d');
-            $toDate = Carbon::createFromFormat('Y-m-d', $to)->format('Y-m-d');
+            $toDate = Carbon::createFromFormat('Y-m-d', $to)->endOfDay()->format('Y-m-d');
         } else {
             $fromDate = Carbon::today()->startOfMonth()->format('Y-m-d');
-            $toDate = Carbon::today()->format('Y-m-d');
+            $toDate = Carbon::today()->endOfDay()->format('Y-m-d');
         }
 
         $hospital_id = auth()->user()->hospital_id;
@@ -747,7 +747,7 @@ class PageService
 
         if ($fromDate == null || $toDate == null) {
             $fromDate = Carbon::today()->startOfMonth()->format('Y-m-d');
-            $toDate = Carbon::today()->format('Y-m-d');
+            $toDate = Carbon::today()->endOfDay()->format('Y-m-d');
         }
 
         $baseQuery = Lead::forHospital($hospitalID)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate);
@@ -777,7 +777,7 @@ class PageService
     {
         if ($fromDate == null || $toDate == null) {
             $fromDate = Carbon::today()->startOfMonth()->format('Y-m-d');
-            $toDate = Carbon::today()->format('Y-m-d');
+            $toDate = Carbon::today()->endOfDay()->format('Y-m-d');
         }
         $valid_chart_data = [];
         $hospitalID = auth()->user()->hospital_id;
@@ -801,7 +801,7 @@ class PageService
     {
         if ($fromDate == null || $toDate == null) {
             $fromDate = Carbon::today()->startOfMonth()->format('Y-m-d');
-            $toDate = Carbon::today()->format('Y-m-d');
+            $toDate = Carbon::today()->endOfDay()->format('Y-m-d');
         }
         $genuine_chart_data = [];
         $hospitalID = auth()->user()->hospital_id;
@@ -825,23 +825,28 @@ class PageService
     {
 
         $followupsQuery = Followup::whereHas('lead', function ($qr) use ($user) {
-            return $qr->where('hospital_id', $user->hospital_id)->where('status', '!=', 'Created');
-        })->with(['lead' => function ($q) use ($user) {
-            return $q->with(['appointment' => function ($qr) {
-                return $qr->with('doctor');
-            }, 'source', 'assigned']);
-        }, 'remarks'])
+            $qr->where('hospital_id', $user->hospital_id)->where('status', '!=', 'Created');
+            if ($user->hasRole('agent')) {
+                $qr->where('assigned_to', $user->id);
+            }
+        })->with([
+            'lead' => function ($q) use ($user) {
+                return $q->with(['appointment' => function ($qr) {
+                    return $qr->with('doctor');
+                }, 'source', 'assigned']);
+            },
+            'remarks'])
             ->where('actual_date', null);
 
         if($search == null){
             $followupsQuery->whereDate('scheduled_date', '<=', date('Y-m-d'));
         }
 
-        if ($user->hasRole('agent')) {
-            $followupsQuery->whereHas('lead', function ($query) use ($user) {
-                $query->where('assigned_to', $user->id);
-            });
-        }
+        // if ($user->hasRole('agent')) {
+        //     $followupsQuery->whereHas('lead', function ($query) use ($user) {
+        //         $query->where('assigned_to', $user->id);
+        //     });
+        // }
 
         if ($selectedCenter != null && $selectedCenter != 'all' && $user->hasRole('admin')) {
             $followupsQuery->whereHas('lead', function ($qry) use ($selectedCenter) {
