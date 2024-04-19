@@ -790,15 +790,21 @@
                                             </th>
 
                                             <td class=" text-center">
-                                                <a href="{{
-                                                route(
-                                                    'fresh-leads',
-                                                    [
+                                                @php
+                                                    $params = [
                                                         'creation_date_from' => $from,
                                                         'creation_date_to' => $to,
                                                         'status' => 'all',
                                                         'source' => $data['source_id']
-                                                    ]
+                                                    ];
+                                                    if (request()->input('center')) {
+                                                        $params['center'] = request()->input('center');
+                                                    }
+                                                @endphp
+                                                <a href="{{
+                                                route(
+                                                    'fresh-leads',
+                                                    $params
                                                 )
                                                 }}" target="blank" class="text-warning hover:text-blue-600 hover:underline">
                                                 {{$data['total_leads'] ?? '0'}}
@@ -806,15 +812,13 @@
                                             </td>
 
                                             <td class=" text-center">
+                                                @php
+                                                    $params['status'] = 'At Least Follow-up Started';
+                                                @endphp
                                                 <a href="{{
                                                 route(
                                                     'fresh-leads',
-                                                    [
-                                                        'creation_date_from' => $from,
-                                                        'creation_date_to' => $to,
-                                                        'status' => 'At Least Follow-up Started',
-                                                        'source' => $data['source_id']
-                                                    ]
+                                                    $params
                                                 )
                                                 }}" target="blank" class="text-warning hover:text-blue-600 hover:underline">
                                                 {{$data['followup_initiated_leads'] ?? '0'}}
@@ -822,16 +826,14 @@
                                             </td>
 
                                             <td class=" text-center">
+                                                @php
+                                                    $params['status'] = 'all';
+                                                    $params['is_valid'] = 'true';
+                                                @endphp
                                                 <a href="{{
                                                 route(
                                                     'fresh-leads',
-                                                    [
-                                                        'creation_date_from' => $from,
-                                                        'creation_date_to' => $to,
-                                                        'status' => 'all',
-                                                        'is_valid' => 'true',
-                                                        'source' => $data['source_id']
-                                                    ]
+                                                    $params
                                                 )
                                                 }}" target="blank" class="text-warning hover:text-blue-600 hover:underline">
                                                 {{$data['valid_leads'] ?? '0'}}
@@ -839,16 +841,14 @@
                                             </td>
 
                                             <td class=" text-center">
+                                                @php
+                                                    unset($params['is_valid']);
+                                                    $params['is_genuine'] = 'true';
+                                                @endphp
                                                 <a href="{{
                                                 route(
                                                     'fresh-leads',
-                                                    [
-                                                        'creation_date_from' => $from,
-                                                        'creation_date_to' => $to,
-                                                        'status' => 'all',
-                                                        'is_genuine' => 'true',
-                                                        'source' => $data['source_id']
-                                                    ]
+                                                    $params
                                                 )
                                                 }}" target="blank" class="text-warning hover:text-blue-600 hover:underline">
                                                     {{$data['genuine_leads'] ?? '0'}}
@@ -856,16 +856,14 @@
                                             </td>
 
                                             <td class=" text-center">
+                                                @php
+                                                    unset($params['is_genuine']);
+                                                    $params['segment'] = 'hot';
+                                                @endphp
                                                 <a href="{{
                                                 route(
                                                     'fresh-leads',
-                                                    [
-                                                        'creation_date_from' => $from,
-                                                        'creation_date_to' => $to,
-                                                        'status' => 'all',
-                                                        'segment' => 'hot',
-                                                        'source' => $data['source_id']
-                                                    ]
+                                                    $params
                                                 )
                                                 }}" target="blank" class="text-warning hover:text-blue-600 hover:underline">
                                                 {{$data['hot_leads'] ?? '0'}}
@@ -873,16 +871,13 @@
                                             </td>
 
                                             <td class=" text-center">
+                                                @php
+                                                    $params['segment'] = 'warm';
+                                                @endphp
                                                 <a href="{{
                                                 route(
                                                     'fresh-leads',
-                                                    [
-                                                        'creation_date_from' => $from,
-                                                        'creation_date_to' => $to,
-                                                        'status' => 'all',
-                                                        'segment' => 'warm',
-                                                        'source' => $data['source_id']
-                                                    ]
+                                                    $params
                                                 )
                                                 }}" target="blank" class="text-warning hover:text-blue-600 hover:underline">
                                                 {{$data['warm_leads'] ?? '0'}}
@@ -890,6 +885,9 @@
                                             </td>
 
                                             <td class=" text-center">
+                                                @php
+                                                    $params['segment'] = 'cold';
+                                                @endphp
                                                 <a href="{{
                                                 route(
                                                     'fresh-leads',
@@ -907,15 +905,14 @@
                                             </td>
 
                                             <td class=" text-center">
+                                                @php
+                                                    unset($params['segment']);
+                                                    $params['status'] = 'At Least Consulted';
+                                                @endphp
                                                 <a href="{{
                                                 route(
                                                     'fresh-leads',
-                                                    [
-                                                        'creation_date_from' => $from,
-                                                        'creation_date_to' => $to,
-                                                        'status' => 'At Least Consulted',
-                                                        'source' => $data['source_id']
-                                                    ]
+                                                    $params
                                                 )
                                                 }}" target="blank" class="text-warning hover:text-blue-600 hover:underline">
                                                 {{$data['converted_leads'] ?? '0'}}
@@ -923,15 +920,13 @@
                                             </td>
 
                                             <td class=" text-center">
+                                                @php
+                                                    $params['status'] = 'Closed';
+                                                @endphp
                                                 <a href="{{
                                                 route(
                                                     'fresh-leads',
-                                                    [
-                                                        'creation_date_from' => $from,
-                                                        'creation_date_to' => $to,
-                                                        'status' => 'Closed',
-                                                        'source' => $data['source_id']
-                                                    ]
+                                                    $params
                                                 )
                                                 }}" target="blank" class="text-warning hover:text-blue-600 hover:underline">
                                                 {{$data['closed_leads'] ?? '0'}}
@@ -939,16 +934,14 @@
                                             </td>
 
                                             <td class=" text-center">
+                                                @php
+                                                    $params['status'] = 'all';
+                                                    $params['call_status'] = 'Not responsive';
+                                                @endphp
                                                 <a href="{{
                                                 route(
                                                     'fresh-leads',
-                                                    [
-                                                        'creation_date_from' => $from,
-                                                        'creation_date_to' => $to,
-                                                        'status' => 'all',
-                                                        'call_status' => 'Not responsive',
-                                                        'source' => $data['source_id']
-                                                    ]
+                                                    $params
                                                 )
                                                 }}" target="blank" class="text-warning hover:text-blue-600 hover:underline">
                                                     {{$data['non_responsive_leads'] ?? '0'}}
