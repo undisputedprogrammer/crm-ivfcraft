@@ -41,7 +41,7 @@ class LeadsImport implements ToArray, WithHeadingRow
         $this->mainCols = $hospital->main_cols;
         $this->agents = $agents ?? $center->agents();
 
-        $last_lead = Lead::where('hospital_id', $hospital->id)->get()->last();
+        $last_lead = Lead::where('hospital_id', $hospital->id)->orderBy('id', 'desc')->get()->first();
 
         if ($last_lead != null) {
             $this->currentAgentId = $this->getNextAgentId($last_lead->assigned_to);
