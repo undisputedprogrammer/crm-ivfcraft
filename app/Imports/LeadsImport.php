@@ -32,6 +32,7 @@ class LeadsImport implements ToArray, WithHeadingRow
     private $mainCols = [];
     private $totalCount = 0;
     private $importedCount = 0;
+    private $agentIds = [];
     public function __construct(array $headings, $hospital, $center, $agents = null, $campaign)
     {
         $this->headings = $headings;
@@ -40,8 +41,15 @@ class LeadsImport implements ToArray, WithHeadingRow
         $this->center = $center;
         $this->mainCols = $hospital->main_cols;
         $this->agents = $agents ?? $center->agents();
+        $this->agentIds = $this->agents->pluck('id')->toArray();
+        sort($this->agentIds, SORT_NUMERIC);
+
+        info('agent ids:');
+        info($this->agentIds);
 
         $last_lead = Lead::where('hospital_id', $hospital->id)->orderBy('id', 'desc')->get()->first();
+
+        info("last lead assigned to: $last_lead->assigned_to");
 
         if ($last_lead != null) {
             $this->currentAgentId = $this->getNextAgentId($last_lead->assigned_to);
@@ -120,7 +128,7 @@ class LeadsImport implements ToArray, WithHeadingRow
             ]);
             //info("lead created, assigned_to: ".$agentId);
             $this->createFollowup($lead);
-
+            info("lead created assigned to: $lead->assigned_to");
             // $this->checkAndStoreCampaign($lead->campaign);
 
             $this->currentAgentId = $this->getNextAgentId($this->currentAgentId);
@@ -195,29 +203,17 @@ class LeadsImport implements ToArray, WithHeadingRow
 
     private function getNextAgentId($lastAssigned)
     {
-        /*
         $x = 0;
-        for($i = 0; $i < count($this->agents); $i++) {
-            if (($this->agents[$i])->id == $lastAssigned) {
-                $x = $i + 1;
+        for($i = 0; $i < count($this->agentIds); $i++) {
+            if ($this->agentIds[$i] == $lastAssigned) {
+                $x = ($i + 1) < count($this->agentIds) ? $i + 1 : 0;
+                // $x = $index;
                 break;
             }
         }
-        $x = $x < count($this->agents) ? $x : 0;
+        $y = $this->agentIds[$x];
 
-        return $x;
-        */
-        $x = 0;
-        $agentIds = $this->agents->pluck('id')->toArray();
-        sort($agentIds, SORT_NUMERIC);
-        for($i = 0; $i < count($agentIds); $i++) {
-            if ($agentIds[$i] == $lastAssigned) {
-                $index = ($i + 1) < count($agentIds) ? $i + 1 : 0;
-                $x = $index;
-                break;
-            }
-        }
-
-        return $agentIds[$x];
+        info("Next agent after $lastAssigned: $y");
+        return $this->agentIds[$x];
     }
 }
