@@ -28,7 +28,7 @@
             <label class="label">Select Status</label>
             <select name="status" id="select-status" class=" select text-base-content select-sm text-xs focus:ring-0 focus:outline-none select-bordered" required>
                 <option value="" >--Select One--</option>
-                @foreach (config('appSettings')['lead_statuses'] as $st)
+                @foreach (config('appSettings')['reopen_lead_statuses'] as $st)
                     @if (!str_starts_with($st, 'At Least'))
                     <option value="{{$st}}">{{$st}}</option>
                     @endif

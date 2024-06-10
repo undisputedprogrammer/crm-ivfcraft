@@ -19,7 +19,6 @@ return [
     //         'bearer_token' => 'EAAJMkAJJSNoBOzVcLRAeseZC2rB5e1ERDarJVkohVeqMzUUBiZA20vbEwTkhZCXJ4R3gnbOXmgJbpeX9EZCsgotXjzaJJdJi3JIYpARO4lCwDgvkgAtyAqIUf5wtm9Cok8PI5bFQ3lSrdNe1xeKppRAcpDMpxisC6Tu6gxqCVNjTfvrcpLiEvbkOUteXb2Fc4vonZBIGBKV1ZAVQvh'
     //     ]
     // ],
-
     'lead_statuses' => [
         'Created',
         'Follow-up Started',
@@ -36,7 +35,14 @@ return [
         'Completed',
         'Closed'
     ],
-
+    'reopen_lead_statuses' => [
+        'Follow-up Started',
+        'Continuing Medication',
+        'Discontinued Medication',
+        'Undecided On Medication',
+        'Completed',
+    ],
+    
     'call_statuses' => ['Responsive', 'Not Responsive'],
 
     'lead_segments' => ['hot','cold','warm'],
