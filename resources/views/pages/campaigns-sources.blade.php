@@ -168,7 +168,8 @@
                             formdata.set('is_enabled', false);
                         }
                         formdata.append('source_id', selectedSource.id);
-                        returnRefresh();
+                        {{-- returnRefresh(); --}}
+                        $dispatch('formsubmit',{url:'{{route('source.update')}}', route: 'source.update',fragment: 'page-content', formData: formdata, target: 'source-create-form'});
                     }
                     else{
                         $dispatch('showtoast', {message: 'Could not find source details, please refresh and try again !', mode: 'error'});
