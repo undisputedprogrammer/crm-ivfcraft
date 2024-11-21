@@ -25,12 +25,12 @@
                 <tbody>
                 @foreach ($reassignments as $l)
                     <tr>
-                        <td>{{$l['name']}}</td>
-                        <td>{{$l['phone']}}</td>
-                        <td>{{$l['email']}}</td>
-                        <td>{{$l['customer_segment']}}</td>
-                        <td>{{$original_assigned['name']}}</td>
-                        <td>{{$current_assigned['name']}}</td>
+                        <td>{{$l['lead']->name}}</td>
+                        <td>{{$l['lead']->phone}}</td>
+                        <td>{{$l['lead']->email}}</td>
+                        <td>{{$l['lead']->customer_segment}}</td>
+                        <td>{{$l['lead']['original_assigned']->name}}</td>
+                        <td>{{$l['lead']['current_assigned']->name}}</td>
                     </tr>
                 @endforeach
                 </tbody>
