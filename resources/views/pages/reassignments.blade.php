@@ -8,11 +8,32 @@
         </div>
 
         @if ($success)
-        {{dd($reassignments)}}
+        {{-- {{dd($reassignments)}} --}}
             <div>
-                {{-- @foreach ($reassignments as $)
-
-                @endforeach --}}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Lead Segment</th>
+                            <th>Original Assigned</th>
+                            <th>Currently Assigned</th>
+                        </tr>
+                    </thead>
+                </table>
+                <tbody>
+                @foreach ($reassignments as $l)
+                    <tr>
+                        <td>{{$l->name}}</td>
+                        <td>{{$l->phone}}</td>
+                        <td>{{$l->email}}</td>
+                        <td>{{$l->customer_segment}}</td>
+                        <td>{{$original_assigned->name}}</td>
+                        <td>{{$current_assigned->name}}</td>
+                    </tr>
+                @endforeach
+                </tbody>
             </div>
         @endif
         <div>
