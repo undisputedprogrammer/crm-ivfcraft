@@ -17,6 +17,7 @@
                             <th>Email</th>
                             <th>Phone</th>
                             <th>Creation Date</th>
+                            <th>Centre</th>
                             <th>Lead Segment</th>
                             <th>Original Assigned</th>
                             <th>Currently Assigned</th>
@@ -29,6 +30,7 @@
                             <td>{{$l['lead']->email}}</td>
                             <td>{{$l['lead']->phone}}</td>
                             <td>{{$l['created_at']}}</td>
+                            <td>{{$l['centre']}}</td>
                             <td>{{$l['lead']->customer_segment}}</td>
                             <td>{{$l['original_assigned']->name}}</td>
                             <td>{{$l['current_assigned']->name}}</td>

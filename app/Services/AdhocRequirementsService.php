@@ -30,6 +30,7 @@ class AdhocRequirementsService
                     'lead' => $l,
                     'created_at' => Carbon::createFromFormat('Y-m-d H:i:s', $l->created_at)->format('d-m-Y'),
                     'first_followup_created_at' => $firstFollowupCreatedat,
+                    'centre' => $l->center->name,
                     'original_assigned_id' => $originalAssignedUser->id,
                     'original_assigned' => $originalAssignedUser,
                     'current_assigned_id' => $l->assigned->id,
