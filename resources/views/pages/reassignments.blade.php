@@ -16,6 +16,7 @@
                             <th>Name</th>
                             <th>Email</th>
                             <th>Phone</th>
+                            <th>Creation Date</th>
                             <th>Lead Segment</th>
                             <th>Original Assigned</th>
                             <th>Currently Assigned</th>
@@ -25,8 +26,9 @@
                     @foreach ($reassignments as $l)
                         <tr>
                             <td>{{$l['lead']->name}}</td>
-                            <td>{{$l['lead']->phone}}</td>
                             <td>{{$l['lead']->email}}</td>
+                            <td>{{$l['lead']->phone}}</td>
+                            <td>{{$l['created-at']}}</td>
                             <td>{{$l['lead']->customer_segment}}</td>
                             <td>{{$l['original_assigned']->name}}</td>
                             <td>{{$l['current_assigned']->name}}</td>
