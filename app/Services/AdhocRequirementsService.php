@@ -21,7 +21,7 @@ class AdhocRequirementsService
 
         $reassignedList = [];
         foreach ($leads as $l) {
-            $originalAssignedUser = $l->followUps()->first();
+            $originalAssignedUser = $l->followUps()->first()->user;
             if($originalAssignedUser->id != $l->assigned_to) {
                 $reassignedList[] = [
                     'lead' => $l,
