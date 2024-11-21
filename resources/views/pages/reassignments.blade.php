@@ -10,7 +10,7 @@
         @if ($success)
         {{-- {{dd($reassignments)}} --}}
             <div>
-                <table>
+                <table class="table table-sm  rounded-lg">
                     <thead>
                         <tr>
                             <th>Name</th>
