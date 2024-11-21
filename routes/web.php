@@ -172,7 +172,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/get-chat-room', [InternalChatController::class, 'getChatRoom'])->name('internal_chat.get_chat_room');
     Route::get('/get-older-chats', [InternalChatController::class, 'olderMessages'])->name('internal_chat.older_messages');
     Route::post('/post-internal-message', [InternalChatController::class, 'postMessage'])->name('internal_chat.post_message');
-    Route::get('/reassignments-list', [AdhocRequirementsController::class, 'reassignedLeads'])->name('leads.reassignments');
+    // Route::get('/reassignments-list', [AdhocRequirementsController::class, 'reassignedLeads'])->name('leads.reassignments');
 
     // update routes
     // Route::get('/update/set-call-status', [UpdateController::class, 'setCallStatusForAllLeads']);
@@ -182,7 +182,7 @@ Route::middleware('auth')->group(function () {
 
 
 });
-
+Route::get('/reassignments-list', [AdhocRequirementsController::class, 'reassignedLeads'])->name('leads.reassignments');
 Route::get('/db-campaign-correction', [CorrectionController::class, 'sanitizeCampaignNames']);
 Route::get('/db-status-correction', [CorrectionController::class, 'completedToConsulted']);
 Route::get('/db-remove-duplicates', [CorrectionController::class, 'removeDuplicates']);
