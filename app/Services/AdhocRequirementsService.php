@@ -25,8 +25,10 @@ class AdhocRequirementsService
             if($originalAssignedUser->id != $l->assigned_to) {
                 $reassignedList[] = [
                     'lead' => $l,
+                    'original_assigned_id' => $originalAssignedUser->id,
                     'original_assigned' => $originalAssignedUser,
-                    'current_assigned' => $l->assigned
+                    'current_assigned_id' => $l->assigned,
+                    'current_assigned' => $l->assigned->id
                 ];
             }
         }
