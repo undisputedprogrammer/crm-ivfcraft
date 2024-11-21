@@ -16,7 +16,7 @@ class AdhocRequirementsService
             ->where('created_at', '>=', $from)
             ->where('created_at', '<=', $to);
         if(isset($data['cid'])) {
-            $leadsQuery->where('ceter_id', $data['cid']);
+            $leadsQuery->where('center_id', $data['cid']);
         }
 
         $leads = $leadsQuery->get();
