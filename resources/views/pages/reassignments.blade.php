@@ -21,19 +21,19 @@
                             <th>Currently Assigned</th>
                         </tr>
                     </thead>
+                    <tbody>
+                    @foreach ($reassignments as $l)
+                        <tr>
+                            <td>{{$l['lead']->name}}</td>
+                            <td>{{$l['lead']->phone}}</td>
+                            <td>{{$l['lead']->email}}</td>
+                            <td>{{$l['lead']->customer_segment}}</td>
+                            <td>{{$l['original_assigned']->name}}</td>
+                            <td>{{$l['current_assigned']->name}}</td>
+                        </tr>
+                    @endforeach
+                    </tbody>
                 </table>
-                <tbody>
-                @foreach ($reassignments as $l)
-                    <tr>
-                        <td>{{$l['lead']->name}}</td>
-                        <td>{{$l['lead']->phone}}</td>
-                        <td>{{$l['lead']->email}}</td>
-                        <td>{{$l['lead']->customer_segment}}</td>
-                        <td>{{$l['original_assigned']->name}}</td>
-                        <td>{{$l['current_assigned']->name}}</td>
-                    </tr>
-                @endforeach
-                </tbody>
             </div>
         @endif
         <div>
