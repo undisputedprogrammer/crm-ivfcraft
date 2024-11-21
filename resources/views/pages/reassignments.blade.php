@@ -29,8 +29,8 @@
                         <td>{{$l['lead']->phone}}</td>
                         <td>{{$l['lead']->email}}</td>
                         <td>{{$l['lead']->customer_segment}}</td>
-                        <td>{{$l['lead']['original_assigned']->name}}</td>
-                        <td>{{$l['lead']['current_assigned']->name}}</td>
+                        <td>{{$l['original_assigned']->name}}</td>
+                        <td>{{$l['current_assigned']->name}}</td>
                     </tr>
                 @endforeach
                 </tbody>
