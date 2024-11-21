@@ -10,8 +10,10 @@ class AdhocRequirementsService
     {
         $from = $data['from'] ?? Carbon::now()->startOfMonth()->format('Y-m-d');
         $to = $data['to'] ?? Carbon::now()->format('Y-m-d');
+        $hid = $data['hid'] ?? 1;
 
-        $leadsQuery = Lead::where('created_at', '>=', $from)
+        $leadsQuery = Lead::where('hospital_id', $hid)
+            ->where('created_at', '>=', $from)
             ->where('created_at', '<=', $to);
         if(isset($data['cid'])) {
             $leadsQuery->where('ceter_id', $data['cid']);
